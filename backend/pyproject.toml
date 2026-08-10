@@ -82,6 +82,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D", "ANN"]
 "scripts/**/*.py" = ["T201"]
+"src/vaaniq/persistence/alembic/**/*.py" = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -107,6 +108,10 @@ packages = ["vaaniq"]
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["vaaniq.persistence.alembic.*"]
+ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -136,6 +141,8 @@ source = ["vaaniq"]
 omit = [
   # Stub routers return 501 until ROADMAP-007 implementations land.
   "*/api/v1/routers/*",
+  # Alembic env/scripts are exercised via command API, not unit import coverage.
+  "*/persistence/alembic/*",
 ]
 
 [tool.coverage.report]

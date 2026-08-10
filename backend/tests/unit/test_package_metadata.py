@@ -29,4 +29,7 @@ def test_import_all_scaffold_packages() -> None:
     names = list(_walk_modules("vaaniq"))
     assert names, "expected scaffold packages under vaaniq"
     for name in names:
+        # Alembic env.py requires an alembic runtime context; skip scripts.
+        if ".alembic." in name or name.endswith(".alembic"):
+            continue
         importlib.import_module(name)
