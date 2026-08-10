@@ -16,4 +16,4 @@ mypy --strict src
 pytest
 ```
 
-See repo-root `Makefile` (ROADMAP-009) once added.
+See repo-root [`Makefile`](../Makefile) and [`README.md`](../README.md) quickstart.

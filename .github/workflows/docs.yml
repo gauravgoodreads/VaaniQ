@@ -32,8 +32,19 @@ jobs:
             docs/OPEN_QUESTIONS.md \
             docs/SYSTEM_ARCHITECTURE.md \
             docs/PROJECT_ROADMAP.md \
+            docs/DEVELOPER_GUIDE.md \
+            docs/API.md \
+            docs/DATASETS.md \
+            docs/TRAINING.md \
+            docs/DEPLOYMENT.md \
+            docs/RESEARCH.md \
+            docs/EXPERIMENTS.md \
+            docs/CONTRIBUTING.md \
+            docs/README.md \
             docs/source/Capstone_Project_Proposal.md \
-            docs/source/VaaniQ_Topic_Approval.md
+            docs/source/VaaniQ_Topic_Approval.md \
+            README.md \
+            CONTRIBUTING.md
           do
             test -f "$f" || { echo "missing $f"; exit 1; }
           done
