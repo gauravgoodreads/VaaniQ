@@ -71,6 +71,9 @@ Open [http://127.0.0.1:5173](http://127.0.0.1:5173). The shell shows an **API ok
 # GNU make (Linux/macOS/Git Bash)
 make check
 
+# Windows PowerShell
+powershell -File scripts/check_all.ps1
+
 # Or manually:
 cd backend && uv run ruff check src tests && uv run mypy --strict src && uv run pytest
 cd frontend && npm run typecheck && npm run lint && npm run test

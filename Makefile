@@ -56,6 +56,9 @@ check: lint typecheck test
 	bash "$(ROOT)/scripts/check_api_types_drift.sh"
 	@echo "make check passed"
 
+# Windows without GNU make:
+#   powershell -File scripts/check_all.ps1
+
 docker-up:
 	docker compose -f "$(ROOT)/deployment/docker-compose.yml" up --build -d
 

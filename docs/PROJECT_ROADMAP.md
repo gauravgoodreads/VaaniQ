@@ -40,6 +40,11 @@
 
 **Exit:** `make check` green; no Telugu language codes; no ML algorithms.
 
+**Phase 1 scaffold status (step 15):** Foundation complete on `main` (ROADMAP-001–010).
+Verified locally: backend ruff/mypy/pytest, frontend tsc/eslint/vitest, Alembic
+upgrade/downgrade, OpenAPI drift guard, Telugu guard. Docker compose healthchecks
+remain pending until Docker Desktop is installed on the developer machine.
+
 ---
 
 ## P2 — Dataset pipeline & metadata store
