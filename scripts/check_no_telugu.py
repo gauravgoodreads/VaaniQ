@@ -48,9 +48,14 @@ def main() -> int:
             continue
         for i, line in enumerate(text.splitlines(), start=1):
             # Allow comments/docs that forbid Telugu
-            if re.search(r"not|never|forbid|defect|NOT in this project", line, re.I):
-                if re.search(r"telugu|\bte\b", line, re.I):
-                    continue
+            # Allow lines that forbid / assert absence of Telugu (REQ-139 tests, rules).
+            if re.search(
+                r"\b(no|not|never|forbid|forbids|defect|banned|must not)\b"
+                r"|REQ-139|NOT in this project",
+                line,
+                re.I,
+            ) and re.search(r"telugu|\bte\b", line, re.I):
+                continue
             for pat in FORBIDDEN:
                 if pat.search(line):
                     rel = path.relative_to(ROOT).as_posix()
