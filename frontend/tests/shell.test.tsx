@@ -1,0 +1,64 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+
+import { AppRouter } from "@/app/router";
+import { LANGUAGES } from "@/types/language";
+
+function renderApp(initialPath = "/") {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <AppRouter />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe("frontend shell", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({ status: "ok" }),
+        }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("renders VaaniQ brand and languages without Telugu", async () => {
+    renderApp("/");
+    expect(screen.getAllByText("VaaniQ").length).toBeGreaterThan(0);
+    expect(LANGUAGES).toEqual(["hi", "mr", "ta"]);
+    expect(LANGUAGES).not.toContain("te");
+    await waitFor(() => {
+      expect(screen.getByTestId("landing-health")).toHaveTextContent(/Connected/);
+    });
+  });
+
+  it("calls /health via the API client", async () => {
+    renderApp("/");
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+    const calls = vi.mocked(fetch).mock.calls;
+    const healthCall = calls.find((call) => String(call[0]).includes("/health"));
+    expect(healthCall).toBeDefined();
+  });
+
+  it("routes to upload stub page", async () => {
+    renderApp("/upload");
+    expect(await screen.findByRole("heading", { name: "Upload" })).toBeInTheDocument();
+    expect(screen.getByText(/ROADMAP-054/)).toBeInTheDocument();
+  });
+});
