@@ -1,0 +1,15 @@
+# ASSUMPTION: OQ-xxx — base config populated further in ROADMAP-004 / step 9.
+# Scaffold placeholder so configs/ exists in the monorepo layout (Phase 1 target tree).
+
+project:
+  name: VaaniQ
+  version: "0.1.0"
+
+languages:
+  # Values must match vaaniq.core.types.Language once ROADMAP-003 lands.
+  codes:
+    - hi
+    - mr
+    - ta
+
+seed: 42
