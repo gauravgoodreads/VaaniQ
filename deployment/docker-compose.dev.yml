@@ -1,0 +1,17 @@
+# Dev overlay — hot paths bind-mount source; SQLite optional via env.
+# Usage:
+#   docker compose -f deployment/docker-compose.yml -f deployment/docker-compose.dev.yml up --build
+
+services:
+  api:
+    environment:
+      VAANIQ_ENV: local
+      VAANIQ_LOG_LEVEL: DEBUG
+      VAANIQ_CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080
+    volumes:
+      - ../backend/src:/app/src:ro
+      - ../configs:/app/configs:ro
+
+  web:
+    ports:
+      - "8080:80"

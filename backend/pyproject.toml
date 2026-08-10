@@ -45,6 +45,10 @@ ml = [
   "torchaudio>=2.2,<3",
   "transformers>=4.40,<5",
 ]
+postgres = [
+  # Compose / prod profile (ASSUMPTION: OQ-021).
+  "psycopg[binary]>=3.1,<4",
+]
 
 [project.urls]
 Documentation = "https://github.com/local/vaaniq/tree/main/docs"

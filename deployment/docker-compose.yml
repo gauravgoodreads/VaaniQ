@@ -1,0 +1,75 @@
+# VaaniQ compose stack — API + Postgres + nginx frontend (ROADMAP-009 / OQ-021)
+# Usage (from repo root):
+#   docker compose -f deployment/docker-compose.yml up --build
+#
+# ASSUMPTION: OQ-021 — Postgres in compose; SQLite remains local-dev default.
+
+name: vaaniq
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: vaaniq
+      POSTGRES_PASSWORD: vaaniq
+      POSTGRES_DB: vaaniq
+    volumes:
+      - vaaniq_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vaaniq -d vaaniq"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      VAANIQ_ENV: prod
+      VAANIQ_LOG_LEVEL: INFO
+      # ASSUMPTION: OQ-021
+      VAANIQ_DATABASE_URL: postgresql+psycopg://vaaniq:vaaniq@db:5432/vaaniq
+      VAANIQ_CORS_ORIGINS: http://localhost,http://127.0.0.1,http://localhost:80,http://127.0.0.1:80
+      VAANIQ_OBJECT_STORE_ROOT: /app/data/object_store
+      VAANIQ_EMBEDDING_CACHE_ROOT: /app/data/embedding_cache
+    volumes:
+      - vaaniq_object_store:/app/data/object_store
+      - vaaniq_embedding_cache:/app/data/embedding_cache
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "8080:80"
+
+volumes:
+  vaaniq_pgdata:
+  vaaniq_object_store:
+  vaaniq_embedding_cache:

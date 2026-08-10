@@ -1,0 +1,26 @@
+# Repo-root build context helpers for Docker (ROADMAP-009)
+
+.git
+.cursor
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/dist
+**/coverage
+**/.coverage
+**/*.pyc
+data/
+models/
+notebooks/
+research/experiments/
+research/figures/
+frontend/dist
+backend/.ruff_cache
+*.md
+!backend/README.md
+!frontend/README.md
+!deployment/README.md
+.env
+**/.env

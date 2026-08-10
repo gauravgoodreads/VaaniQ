@@ -2,6 +2,10 @@ import type { HealthResponse, VersionResponse } from "@/api/types";
 
 function apiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL;
+  // Explicit empty / same-origin → relative URLs (nginx reverse-proxy in Docker).
+  if (raw === "" || raw === "/" || raw === "same-origin") {
+    return "";
+  }
   if (typeof raw === "string" && raw.trim().length > 0) {
     return raw.replace(/\/$/, "");
   }
