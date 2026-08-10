@@ -1,0 +1,40 @@
+name: Docs
+
+# Lightweight docs presence check (ROADMAP-010 content lands in step 14).
+
+on:
+  push:
+    paths:
+      - "docs/**"
+      - "README.md"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "README.md"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+jobs:
+  docs-present:
+    name: Required docs exist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Phase 0 / scaffold docs
+        run: |
+          set -euo pipefail
+          for f in \
+            docs/REQUIREMENTS.md \
+            docs/PROJECT_ANALYSIS.md \
+            docs/OPEN_QUESTIONS.md \
+            docs/SYSTEM_ARCHITECTURE.md \
+            docs/PROJECT_ROADMAP.md \
+            docs/source/Capstone_Project_Proposal.md \
+            docs/source/VaaniQ_Topic_Approval.md
+          do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
+          echo "docs inventory ok"

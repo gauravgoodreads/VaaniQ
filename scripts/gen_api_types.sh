@@ -21,7 +21,9 @@ if [[ -n "${VAANIQ_OPENAPI_URL:-}" ]]; then
   curl -fsSL "${VAANIQ_OPENAPI_URL}" -o "${OPENAPI_JSON}"
 else
   echo "exporting OpenAPI from create_app().openapi()"
-  if command -v uv >/dev/null 2>&1; then
+  if [[ -x "${ROOT}/backend/.venv/bin/python" ]]; then
+    "${ROOT}/backend/.venv/bin/python" "${ROOT}/scripts/export_openapi.py" --out "${OPENAPI_JSON}"
+  elif command -v uv >/dev/null 2>&1; then
     (cd "${ROOT}/backend" && uv run python "${ROOT}/scripts/export_openapi.py" --out "${OPENAPI_JSON}")
   else
     PYTHONPATH="${ROOT}/backend/src${PYTHONPATH:+:${PYTHONPATH}}" \
