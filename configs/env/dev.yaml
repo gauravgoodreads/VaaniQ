@@ -1,0 +1,4 @@
+# Dev environment overlay — ROADMAP-004
+
+env: dev
+log_level: INFO

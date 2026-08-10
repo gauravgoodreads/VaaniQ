@@ -1,0 +1,5 @@
+# Local environment overlay — ROADMAP-004
+# Merged after configs/base.yaml when using default_config_paths().
+
+env: local
+log_level: INFO

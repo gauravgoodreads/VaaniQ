@@ -1,15 +1,32 @@
-# ASSUMPTION: OQ-xxx — base config populated further in ROADMAP-004 / step 9.
-# Scaffold placeholder so configs/ exists in the monorepo layout (Phase 1 target tree).
+# VaaniQ base configuration — ROADMAP-004 / REQ-001, REQ-132, REQ-139
+# Numbers for upload limits come from .env.example (ASSUMPTION: ROADMAP-001).
 
 project:
   name: VaaniQ
   version: "0.1.0"
 
 languages:
-  # Values must match vaaniq.core.types.Language once ROADMAP-003 lands.
+  # Must match vaaniq.core.types.Language exactly (iterate enum in code).
   codes:
     - hi
     - mr
     - ta
 
 seed: 42
+
+env: local
+log_level: INFO
+database_url: sqlite:///./vaaniq.db
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - http://localhost:5173
+    - http://127.0.0.1:5173
+  max_upload_bytes: 26214400
+  max_audio_duration_sec: 120
+
+paths:
+  object_store_root: ./data/object_store
+  embedding_cache_root: ./data/embedding_cache

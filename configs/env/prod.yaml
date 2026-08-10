@@ -1,0 +1,8 @@
+# Production environment overlay — ROADMAP-004 / REQ-136
+# Never set cors_origins to ["*"] here.
+
+env: prod
+log_level: WARNING
+api:
+  cors_origins:
+    - https://example.invalid
