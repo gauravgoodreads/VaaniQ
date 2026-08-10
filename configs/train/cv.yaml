@@ -1,0 +1,22 @@
+# Cross-validation training profile — ROADMAP-030
+# ASSUMPTION: OQ-008 — fold count not in proposal.
+
+name: cv
+seed: 42
+model_config: model/xlsr_aasist.yaml
+audio_preprocessing: audio/preprocessing.yaml
+audio_compression: audio/compression.yaml
+# ASSUMPTION: OQ-008
+n_folds: 5
+speaker_disjoint: true
+languages:
+  - hi
+  - mr
+  - ta
+# ASSUMPTION: OQ-014
+learning_rate: 0.0001
+batch_size: 24
+max_epochs: 100
+num_workers: 0
+deterministic: true
+experiment_root: ./research/experiments

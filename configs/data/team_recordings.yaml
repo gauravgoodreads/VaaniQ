@@ -1,0 +1,16 @@
+# Team phone-mic recordings — ROADMAP-015 / REQ-029, REQ-074
+# ASSUMPTION: OQ-005 — >=30 min/lang from consenting speakers.
+
+source_id: team_recording
+local_root: ./data/raw/team_recordings
+gated: false
+languages:
+  - hi
+  - mr
+  - ta
+label: real
+# ASSUMPTION: OQ-005 — minutes, not hours
+target_minutes_per_language: 30.0
+require_consent_ref: true
+split_policy: speaker_disjoint
+notes: "Consent refs mandatory before inclusion in curated manifests."

@@ -1,0 +1,21 @@
+# XLS-R + AASIST primary model — ROADMAP-025, ROADMAP-029 / REQ-036–041
+# ASSUMPTION: OQ-013 — layer/pooling/window until P4 lock.
+# ASSUMPTION: OQ-014 — training hyperparams start from clovaai/aasist defaults.
+# ASSUMPTION: OQ-027 — 300m only (REQ-041).
+
+name: xlsr_aasist
+# REQ-041
+xlsr_model_id: facebook/wav2vec2-xls-r-300m
+freeze_frontend: true
+# ASSUMPTION: OQ-013
+pooling: mean
+transformer_layer: last
+window_sec: 4.0
+hop_sec: 2.0
+# ASSUMPTION: OQ-014 — placeholders; replace from clovaai/aasist README at ROADMAP-029
+learning_rate: 0.0001
+batch_size: 24
+max_epochs: 100
+weight_decay: 0.0001
+loss: cross_entropy
+checkpoint_dir: ./models/checkpoints/xlsr_aasist

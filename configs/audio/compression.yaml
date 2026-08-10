@@ -1,0 +1,23 @@
+# WhatsApp-style Opus compression — ROADMAP-021 / REQ-113, REQ-018
+# ASSUMPTION: OQ-007 — provisional ffmpeg args until supervisor lock.
+# ASSUMPTION: OQ-012 — single primary setting; ladder optional.
+# ASSUMPTION: OQ-023 — additive noise off by default (codec-only primary).
+
+codec: libopus
+# ASSUMPTION: OQ-007
+bitrate_kbps: 16
+application: voip
+sample_rate_hz: 16000
+channels: 1
+container: ogg
+# Pair every curated clip clean <-> compressed (OQ-028 / REQ-035)
+pair_clean_and_compressed: true
+# ASSUMPTION: OQ-023
+additive_noise_enabled: false
+additive_noise_snr_db: null
+# ASSUMPTION: OQ-012 — optional ladder (disabled unless enable_bitrate_ladder)
+enable_bitrate_ladder: false
+bitrate_ladder_kbps:
+  - 8
+  - 16
+  - 24

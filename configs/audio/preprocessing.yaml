@@ -1,0 +1,14 @@
+# Audio preprocessing — ROADMAP-020 / REQ-098
+# ASSUMPTION: OQ-007 — 16 kHz mono matches Opus WhatsApp-style simulation.
+
+sample_rate_hz: 16000
+mono: true
+# ASSUMPTION: OQ-007 / pipeline convention
+trim_silence: true
+normalize_peak: true
+# ASSUMPTION: peak target not in proposal
+target_peak: 0.95
+# ASSUMPTION: OQ-013 related windowing lives in model config; preprocess stays clip-level
+min_duration_sec: 0.5
+# ASSUMPTION: align with api.max_audio_duration_sec unless overridden
+max_duration_sec: 120

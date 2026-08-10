@@ -1,0 +1,19 @@
+# Mozilla Common Voice — ROADMAP-011 / REQ-103
+# ASSUMPTION: OQ-003 — TA may be thin/absent; fall back to Kathbath/IV-R.
+# ASSUMPTION: OQ-024 — prefer official configs; mirror allowed with checksum note.
+
+source_id: common_voice
+hf_dataset_id: mozilla-foundation/common_voice_17_0
+gated: true
+languages:
+  - hi
+  - mr
+  - ta
+label: real
+# ASSUMPTION: OQ-002
+target_hours_per_language: 75.0
+split_policy: speaker_disjoint
+# ASSUMPTION: OQ-024
+allow_mirror: false
+mirror_dataset_id: null
+notes: "Confirm hi/mr/ta configs on first load; document TA gap if empty (OQ-003)."

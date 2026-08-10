@@ -1,0 +1,26 @@
+# Default training profile — ROADMAP-030 / REQ-137–138
+# ASSUMPTION: OQ-008 — 70/15/15 speaker-disjoint splits.
+# ASSUMPTION: OQ-014 — optimiser knobs provisional.
+
+name: default
+seed: 42
+model_config: model/xlsr_aasist.yaml
+audio_preprocessing: audio/preprocessing.yaml
+audio_compression: audio/compression.yaml
+# ASSUMPTION: OQ-008
+split_ratios:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+speaker_disjoint: true
+languages:
+  - hi
+  - mr
+  - ta
+# ASSUMPTION: OQ-014
+learning_rate: 0.0001
+batch_size: 24
+max_epochs: 100
+num_workers: 0
+deterministic: true
+experiment_root: ./research/experiments

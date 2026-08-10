@@ -1,0 +1,17 @@
+# IndicSynth synthetic fakes — ROADMAP-011 / ROADMAP-014 / REQ-104
+# ASSUMPTION: OQ-004 — TA fake coverage may need Parler-TTS supplement.
+# ASSUMPTION: OQ-035 — NC licence constrains open redistribution.
+
+source_id: indicsynth
+hf_dataset_id: ai4bharat/IndicSynth
+gated: true
+languages:
+  - hi
+  - mr
+  - ta
+label: fake
+# ASSUMPTION: OQ-002
+target_hours_per_language: 75.0
+split_policy: speaker_disjoint
+licence_note: "CC BY-NC subset — dual release strategy (OQ-035)."
+notes: "Sample fakes; QC TTS quality per language (ROADMAP-014)."

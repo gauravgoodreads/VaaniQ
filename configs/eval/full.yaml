@@ -1,0 +1,24 @@
+# Full evaluation suite — ROADMAP-036–041 / REQ-046–053
+
+name: full
+metrics:
+  - eer
+  - min_dcf
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - roc_auc
+matrices:
+  - cross_lingual
+  - cross_condition
+  - confusion
+slices:
+  - language
+  - attack_type
+  - compression
+# ASSUMPTION: OQ-009
+bootstrap_ci: true
+bootstrap_samples: 1000
+ci_level: 0.95
+report_dir: ./research/experiments/reports

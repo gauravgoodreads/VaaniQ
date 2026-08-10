@@ -1,0 +1,21 @@
+# English-only ASVspoof control — ROADMAP-033 / REQ-044
+# ASSUMPTION: OQ-015 — ASVspoof 2019 LA train.
+
+name: english_only
+seed: 42
+model_config: model/xlsr_aasist.yaml
+audio_preprocessing: audio/preprocessing.yaml
+audio_compression: audio/compression.yaml
+# ASSUMPTION: OQ-015
+asvspoof_subset: ASVspoof2019_LA
+asvspoof_split: train
+languages: []
+# Empty languages intentional: English control is outside Language enum.
+# ASSUMPTION: OQ-014
+learning_rate: 0.0001
+batch_size: 24
+max_epochs: 100
+num_workers: 0
+deterministic: true
+experiment_root: ./research/experiments
+notes: "Evaluate English-trained model on Indic clean+compressed tests (REQ-044)."

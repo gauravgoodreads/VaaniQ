@@ -1,0 +1,21 @@
+# Temperature scaling + ECE — ROADMAP-043–044 / REQ-054–058
+# ASSUMPTION: OQ-017 — 15 equal-width bins.
+# ASSUMPTION: OQ-031 — one T per (language x condition).
+# ASSUMPTION: OQ-032 — fit on val only; speakers disjoint from test.
+# ASSUMPTION: OQ-010 — reliability badge thresholds provisional.
+
+method: temperature_scaling
+# ASSUMPTION: OQ-031
+fit_per_language: true
+fit_per_condition: true
+# ASSUMPTION: OQ-032
+fit_split: val
+# ASSUMPTION: OQ-017
+ece_n_bins: 15
+ece_binning: equal_width
+# ASSUMPTION: OQ-010
+reliability:
+  moderate_confidence_low: 0.55
+  moderate_confidence_high: 0.70
+  flag_opus_as_moderate: true
+artefact_dir: ./models/calibration

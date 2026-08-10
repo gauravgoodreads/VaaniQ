@@ -1,0 +1,17 @@
+# Cross-condition (clean vs Opus) eval — ROADMAP-039 / REQ-049, REQ-122
+
+name: cross_condition
+metrics:
+  - eer
+  - min_dcf
+matrices:
+  - cross_condition
+slices:
+  - language
+  - compression
+# ASSUMPTION: OQ-009
+bootstrap_ci: true
+bootstrap_samples: 1000
+ci_level: 0.95
+report_dir: ./research/experiments/reports
+notes: "RQ1 primary table: clean vs Opus degradation."

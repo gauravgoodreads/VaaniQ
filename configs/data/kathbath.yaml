@@ -1,0 +1,17 @@
+# Kathbath real-speech source — ROADMAP-011 / REQ-101
+# ASSUMPTION: OQ-002 — target hours midpoint until curated inventory lands.
+# ASSUMPTION: OQ-003 — Tamil subset availability confirmed at first download.
+
+source_id: kathbath
+# Placeholder HF id — replace after gated-access confirm (REQ-130).
+hf_dataset_id: ai4bharat/Kathbath
+gated: true
+languages:
+  - hi
+  - mr
+  - ta
+label: real
+# ASSUMPTION: OQ-002
+target_hours_per_language: 75.0
+split_policy: speaker_disjoint
+notes: "Prefer official gated release; fail fast on licence/config mismatch (REQ-130)."

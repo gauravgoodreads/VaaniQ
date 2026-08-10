@@ -1,0 +1,16 @@
+# Zero-shot / cross-lingual eval focus — ROADMAP-038 / REQ-048, REQ-121
+
+name: zero_shot
+metrics:
+  - eer
+  - min_dcf
+matrices:
+  - cross_lingual
+slices:
+  - language
+# ASSUMPTION: OQ-009
+bootstrap_ci: true
+bootstrap_samples: 1000
+ci_level: 0.95
+report_dir: ./research/experiments/reports
+notes: "Train on one language, test on held-out languages."

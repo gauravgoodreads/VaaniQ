@@ -1,0 +1,11 @@
+# RawNet2 baseline — ROADMAP-032 / REQ-043
+# ASSUMPTION: OQ-014-style — start from public RawNet2 defaults at implementation.
+
+name: rawnet2
+sample_rate_hz: 16000
+# ASSUMPTION: placeholder training knobs until ROADMAP-032 locks clovaai/source defaults
+learning_rate: 0.0001
+batch_size: 32
+max_epochs: 100
+weight_decay: 0.0001
+checkpoint_dir: ./models/checkpoints/rawnet2

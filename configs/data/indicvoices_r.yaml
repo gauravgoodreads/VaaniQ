@@ -1,0 +1,15 @@
+# IndicVoices-R real-speech source — ROADMAP-011 / REQ-102
+# ASSUMPTION: OQ-002, OQ-003
+
+source_id: indicvoices_r
+hf_dataset_id: ai4bharat/IndicVoices-R
+gated: true
+languages:
+  - hi
+  - mr
+  - ta
+label: real
+# ASSUMPTION: OQ-002
+target_hours_per_language: 75.0
+split_policy: speaker_disjoint
+notes: "Gated HF access required before P2 download."

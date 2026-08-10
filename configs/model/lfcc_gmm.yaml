@@ -1,0 +1,14 @@
+# LFCC + GMM baseline — ROADMAP-031 / REQ-042
+# ASSUMPTION: OQ-014-style — classical defaults provisional until reproduction.
+
+name: lfcc_gmm
+n_lfcc: 60
+# ASSUMPTION: conventional LFCC front-end; not stated in proposal
+n_fft: 512
+hop_length: 160
+win_length: 400
+sample_rate_hz: 16000
+# ASSUMPTION: GMM component count provisional
+n_components: 512
+covariance_type: diag
+checkpoint_dir: ./models/checkpoints/lfcc_gmm
