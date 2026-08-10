@@ -10,7 +10,8 @@
     "lint": "eslint src tests",
     "typecheck": "tsc -b --pretty false",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "gen:api-types": "powershell -NoProfile -ExecutionPolicy Bypass -File ../scripts/gen_api_types.ps1"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
@@ -38,6 +39,7 @@
     "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^17.9.0",
     "jsdom": "^30.0.1",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.66.0",

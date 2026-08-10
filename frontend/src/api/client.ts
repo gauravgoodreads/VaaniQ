@@ -1,4 +1,4 @@
-import type { HealthResponse, VersionResponse } from "@/types/api";
+import type { HealthResponse, VersionResponse } from "@/api/types";
 
 function apiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL;

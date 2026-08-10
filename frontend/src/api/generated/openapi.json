@@ -1,0 +1,323 @@
+{
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Liveness payload for ``/health``.",
+        "properties": {
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "ReadyResponse": {
+        "additionalProperties": false,
+        "description": "Readiness payload for ``/health/ready``.",
+        "properties": {
+          "database": {
+            "title": "Database",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "database"
+        ],
+        "title": "ReadyResponse",
+        "type": "object"
+      },
+      "VersionResponse": {
+        "additionalProperties": false,
+        "description": "Build/version payload for ``/api/v1/version``.",
+        "properties": {
+          "api_version": {
+            "default": "v1",
+            "title": "Api Version",
+            "type": "string"
+          },
+          "env": {
+            "title": "Env",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "env"
+        ],
+        "title": "VersionResponse",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Cross-lingual, compression-robust AI-voice detection for Hindi, Marathi, and Tamil with calibrated reliability.",
+    "title": "VaaniQ",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin": {
+      "get": {
+        "description": "Admin stub \u2014 implemented in ROADMAP-007 follow-ons / ROADMAP-062.",
+        "operationId": "admin_stub_api_v1_admin_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Admin Stub",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/calibration": {
+      "get": {
+        "description": "Calibration stub \u2014 implemented in ROADMAP-043+.",
+        "operationId": "calibration_stub_api_v1_calibration_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Calibration Stub",
+        "tags": [
+          "calibration"
+        ]
+      }
+    },
+    "/api/v1/experiments": {
+      "get": {
+        "description": "Experiments stub \u2014 implemented in ROADMAP-030+.",
+        "operationId": "experiments_stub_api_v1_experiments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Experiments Stub",
+        "tags": [
+          "experiments"
+        ]
+      }
+    },
+    "/api/v1/explain": {
+      "get": {
+        "description": "Explainability stub \u2014 implemented in ROADMAP-049+.",
+        "operationId": "explain_stub_api_v1_explain_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Explain Stub",
+        "tags": [
+          "explain"
+        ]
+      }
+    },
+    "/api/v1/history": {
+      "get": {
+        "description": "History stub \u2014 implemented in ROADMAP-054+.",
+        "operationId": "history_stub_api_v1_history_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "History Stub",
+        "tags": [
+          "history"
+        ]
+      }
+    },
+    "/api/v1/human-study": {
+      "get": {
+        "description": "Human-study stub \u2014 implemented in ROADMAP-059+.",
+        "operationId": "human_study_stub_api_v1_human_study_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Human Study Stub",
+        "tags": [
+          "human_study"
+        ]
+      }
+    },
+    "/api/v1/inference": {
+      "post": {
+        "description": "Inference stub \u2014 implemented in ROADMAP-054+.",
+        "operationId": "infer_stub_api_v1_inference_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Infer Stub",
+        "tags": [
+          "inference"
+        ]
+      }
+    },
+    "/api/v1/metrics": {
+      "get": {
+        "description": "Research metrics stub \u2014 implemented in ROADMAP-036+.",
+        "operationId": "metrics_stub_api_v1_metrics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Metrics Stub",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/api/v1/uploads": {
+      "post": {
+        "description": "Upload stub \u2014 implemented in ROADMAP-054 / ROADMAP-057.",
+        "operationId": "upload_stub_api_v1_uploads_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Upload Stub",
+        "tags": [
+          "uploads"
+        ]
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "description": "Return package and API version metadata.",
+        "operationId": "version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Version",
+        "tags": [
+          "version"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Liveness probe \u2014 process is up.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "description": "Readiness probe \u2014 config loaded and database reachable.",
+        "operationId": "ready_health_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  }
+}
