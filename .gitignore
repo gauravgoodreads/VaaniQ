@@ -1,0 +1,84 @@
+# VaaniQ — .gitignore
+# ROADMAP-001 / REQ-001, REQ-111, REQ-139
+
+# --- Secrets & env ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/coverage/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+
+# --- Audio & model weights (never commit) ---
+*.wav
+*.mp3
+*.opus
+*.flac
+*.ogg
+*.m4a
+*.aac
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.bin
+*.safetensors
+*.h5
+*.pkl
+*.pickle
+
+# --- Data & local artefacts ---
+/data/**
+!/data/.gitkeep
+!/data/README.md
+/models/**
+!/models/.gitkeep
+!/models/registry.json
+!/models/README.md
+research/experiments/**
+!research/experiments/.gitkeep
+!research/experiments/README.md
+notebooks/**/.ipynb_checkpoints/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# --- Docker / local DB ---
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+
+# --- Logs ---
+*.log
+logs/

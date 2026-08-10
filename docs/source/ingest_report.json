@@ -1,0 +1,309 @@
+{
+  "ingested_at_utc": "2026-08-06T09:36:33.673041+00:00",
+  "sources": {
+    "proposal": {
+      "path": "c:\\Users\\Aarav Phutane\\Downloads\\Capstone_Project_Proposal_260806_145819.pdf",
+      "output": "docs/source/Capstone_Project_Proposal.md",
+      "page_count": 17,
+      "total_chars": 45662,
+      "pages": [
+        {
+          "page_number": 1,
+          "char_count": 839,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 2,
+          "char_count": 3668,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 3,
+          "char_count": 3194,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 4,
+          "char_count": 3818,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 5,
+          "char_count": 3328,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 6,
+          "char_count": 3132,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 7,
+          "char_count": 3357,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 8,
+          "char_count": 2608,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 9,
+          "char_count": 584,
+          "image_count": 2,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 10,
+          "char_count": 3223,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 11,
+          "char_count": 2801,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 12,
+          "char_count": 1241,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 13,
+          "char_count": 2905,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 14,
+          "char_count": 1804,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 15,
+          "char_count": 3137,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 16,
+          "char_count": 3489,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "page_number": 17,
+          "char_count": 2534,
+          "image_count": 0,
+          "low_char": false,
+          "rendered_figure": null
+        }
+      ],
+      "low_char_pages": []
+    },
+    "topic_approval": {
+      "path": "c:\\Users\\Aarav Phutane\\Downloads\\VaaniQ_Topic_Approval_Presentation_Final_B091_B093_B094_B106 (1).pdf",
+      "output": "docs/source/VaaniQ_Topic_Approval.md",
+      "slide_count": 19,
+      "total_chars": 14808,
+      "slides": [
+        {
+          "slide_number": 1,
+          "char_count": 514,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 2,
+          "char_count": 230,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 3,
+          "char_count": 755,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 4,
+          "char_count": 761,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 5,
+          "char_count": 758,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 6,
+          "char_count": 729,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 7,
+          "char_count": 958,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 8,
+          "char_count": 1298,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 9,
+          "char_count": 684,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 10,
+          "char_count": 597,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 11,
+          "char_count": 800,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 12,
+          "char_count": 1135,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 13,
+          "char_count": 752,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 14,
+          "char_count": 887,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 15,
+          "char_count": 1178,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 16,
+          "char_count": 577,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 17,
+          "char_count": 609,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 18,
+          "char_count": 700,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        },
+        {
+          "slide_number": 19,
+          "char_count": 886,
+          "image_count": 1,
+          "low_char": false,
+          "rendered_figure": null
+        }
+      ],
+      "low_char_slides": [],
+      "note": "Source provided as PDF export of the topic-approval presentation; not a native PPTX. Slide markers used for citation parity with Phase 0."
+    }
+  },
+  "summary": {
+    "proposal_pages": 17,
+    "approval_slides": 19,
+    "proposal_low_char_count": 0,
+    "approval_low_char_count": 0,
+    "figures_rendered": 0
+  },
+  "manual_figure_review": {
+    "proposal_pages_rendered": [
+      9,
+      12,
+      14
+    ],
+    "figures": [
+      {
+        "page": 9,
+        "file": "docs/source/figures/proposal_page_009.png",
+        "content": "Figure 1 end-to-end pipeline + tech table"
+      },
+      {
+        "page": 12,
+        "file": "docs/source/figures/proposal_page_012.png",
+        "content": "Figure 3 novelty comparison + capability table"
+      },
+      {
+        "page": 14,
+        "file": "docs/source/figures/proposal_page_014.png",
+        "content": "Figure 2 VaaniQ dashboard mockup; language pill shows Hindi/Marathi/Tamil"
+      }
+    ],
+    "note": "These pages had extractable text (>=50 chars) so were not auto-flagged as image-only; rendered anyway because they contain the only named diagrams/mockups."
+  },
+  "updated_at_utc": "2026-08-06T09:38:22.859690+00:00"
+}

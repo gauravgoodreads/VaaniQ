@@ -1,0 +1,133 @@
+---
+description: VaaniQ core engineering constraints. Applies to all files.
+alwaysApply: true
+---
+
+# VaaniQ — Core Engineering Rules
+
+## Project identity
+- **Name:** VaaniQ
+- **Full title:** Cross-Lingual, Compression-Robust Detection and Calibrated Reliability
+  Estimation for AI-Generated Voice in Indian Languages, with a Human-Perception Baseline
+- **Type:** Research-grade system (dataset → training → evaluation → calibration →
+  explainability → web app). Not an inference demo.
+- **Languages:** Hindi (`hi`), Marathi (`mr`), Tamil (`ta`).
+  **Tamil is the third language. Telugu is NOT in this project.** If you ever emit
+  `te`, `telugu`, or `Telugu` in code, config, docs, or comments, that is a defect —
+  stop and correct it.
+
+## Source of truth
+1. `docs/source/Capstone_Project_Proposal.md` (extracted from the proposal PDF) — **authoritative**
+2. `docs/source/VaaniQ_Topic_Approval.md` (extracted from the PPT) — **supplementary**
+3. `docs/PROJECT_ANALYSIS.md` — derived; must cite (1) and (2) by page/slide
+
+On conflict: **Proposal wins.** Log the conflict in `docs/OPEN_QUESTIONS.md` with both
+citations rather than silently resolving it.
+
+## Ambiguity protocol — the single most important rule
+You are forbidden from inventing project facts. This includes dataset sizes, sample
+counts, model hyperparameters, target metric values, hardware specs, timelines,
+citations, author names, and evaluation thresholds.
+
+When the source documents do not specify something you need:
+1. Write the gap to `docs/OPEN_QUESTIONS.md` using the template in that file.
+2. Choose a defensible default, mark it `# ASSUMPTION: OQ-###` at the point of use.
+3. Continue. Do **not** halt the whole task for one gap; do **not** hide the gap either.
+
+If a number appears in code or docs and cannot be traced to a proposal page or an
+`OQ-###`, it is a defect.
+
+## Architectural constraints
+- Clean/hexagonal architecture. Domain logic must not import framework code
+  (no FastAPI/SQLAlchemy imports inside `core/domain/`).
+- Every swappable concern is defined as an ABC (Python) or interface (TS) **first**,
+  concrete implementation second: feature extractors, classifiers, compressors,
+  storage backends, dataset sources, calibrators, explainers, experiment trackers.
+- Dependency injection via constructor args + a composition root. No global singletons,
+  no import-time side effects, no service locators.
+- Config-driven. `grep` for a literal number in `src/` should return almost nothing.
+  Constants live in `configs/*.yaml` or typed config dataclasses.
+
+## Scope discipline
+- **Never** drop a research component because it is hard. If it cannot be implemented
+  now, ship: the ABC, the config schema, the `NotImplementedError` stub, the unit test
+  marked `@pytest.mark.xfail(reason="ROADMAP-###")`, the docstring, and the roadmap entry.
+- **Never** expand beyond the current phase. If you notice needed work outside scope,
+  append it to `docs/PROJECT_ROADMAP.md` and move on.
+- A `TODO` without a `ROADMAP-###` reference is a defect. Format:
+  `# TODO(ROADMAP-042): swap in ONNX runtime for CPU inference`
+
+## Code standards — Python
+- Python 3.11. `from __future__ import annotations` in every module.
+- Full type annotations on every public function, method, and dataclass field.
+  `mypy --strict` must pass. No bare `Any` without an inline justification comment.
+- `ruff` (lint + format) and `mypy` are gates, not suggestions.
+- Pydantic v2 for all I/O boundaries (API schemas, config files, metadata records).
+- `structlog` JSON logging. No `print()` outside `scripts/`. No f-strings inside log calls —
+  use structured kwargs: `log.info("clip_loaded", path=p, sr=sr)`.
+- Errors: define a project exception hierarchy rooted at `VaaniQError`. Never `except:`
+  or bare `except Exception:` without re-raise or explicit structured logging.
+- Docstrings: Google style, on every public symbol. Include the RQ or REQ ID it serves.
+
+## Code standards — TypeScript / React
+- TS `strict: true`, `noUncheckedIndexedAccess: true`. **Zero `any`.**
+- Function components + hooks only. No class components.
+- Server state → TanStack Query. Local UI state → `useState`/`useReducer`. No Redux.
+- API types are **generated** from the FastAPI OpenAPI schema into
+  `frontend/src/api/generated/` — never hand-written, never edited.
+- Every component ≤ 200 lines. Extract hooks and subcomponents past that.
+- Tailwind + shadcn/ui. No inline `style={{}}` except for computed dynamic values
+  (e.g. waveform canvas dimensions).
+- Accessibility: keyboard-navigable, ARIA labels on all icon-only buttons, visible focus rings.
+
+## Testing
+- Every new module ships with tests in the same commit. No exceptions.
+- `pytest` + `pytest-cov`, coverage gate ≥ 80% on `backend/src/` (excluding stubs).
+- Property-based tests (`hypothesis`) for audio transforms: resampling, normalization,
+  trimming, length padding.
+- Frontend: Vitest + React Testing Library. Test behaviour, not implementation.
+- No network, no GPU, no dataset downloads in unit tests. Mark anything heavier
+  `@pytest.mark.integration` and exclude it from the default run.
+
+## Determinism & reproducibility
+- Every experiment entrypoint takes `--seed` and seeds `random`, `numpy`, `torch`,
+  and `torch.cuda`; sets `torch.use_deterministic_algorithms(True)` where feasible.
+- Every run writes a manifest: git SHA, dirty-flag, resolved config, seed, package
+  versions, hardware, dataset checksums.
+- Data splits are speaker-disjoint and written to versioned manifest files, never
+  computed on the fly.
+
+## Security & hygiene
+- No secrets in the repo. `.env.example` only, with every key documented.
+- No committed audio, model weights, or `.pt` files. `.gitignore` and Git LFS config
+  must cover `*.wav *.mp3 *.opus *.flac *.pt *.pth *.onnx *.ckpt`.
+- All upload endpoints validate MIME type, magic bytes, duration, and file size before
+  touching the file. Reject, log, return a typed error.
+- CORS origins from config. Never `allow_origins=["*"]` in anything but a local dev profile.
+
+## Working protocol
+- Work in **small, verifiable increments**. After each increment: run the gates
+  (`ruff`, `mypy`, `pytest`, `tsc`, `vitest`), report pass/fail, then continue.
+- **Stop and ask** if: the proposal is genuinely contradictory, a task requires
+  downloading a gated dataset, or you would need to delete/rewrite >100 lines of
+  existing work.
+- Never create a file without adding it to the relevant index/`__init__`/docs.
+- Conventional Commits. One logical change per commit.
+
+## Response format for every turn
+1. **Plan** — numbered steps you are about to take (≤10 lines)
+2. **Changes** — table: `file | action (new/edit/delete) | why`
+3. **Verification** — the exact commands run and their real output
+4. **Open questions** — new `OQ-###` entries created this turn, or "none"
+5. **Next** — the single next increment
+
+Never claim a command passed without having actually run it.
+
+## Environment
+- OS: Windows 11
+- Python: 3.11 via uv
+- Node: TBD (confirm during Phase 1)
+- GPU: none local assumed; Colab T4 / Kaggle free tier per proposal §11
+- Package manager: uv
+- Existing repo state: empty (Phase 0 docs only)
+- Assume no internet during test runs.
