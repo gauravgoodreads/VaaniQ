@@ -139,8 +139,6 @@ filterwarnings = [
 branch = true
 source = ["vaaniq"]
 omit = [
-  # Stub routers return 501 until ROADMAP-007 implementations land.
-  "*/api/v1/routers/*",
   # Alembic env/scripts are exercised via command API, not unit import coverage.
   "*/persistence/alembic/*",
 ]
