@@ -1,34 +1,35 @@
-# Experiments guide
+# Experiments (Phase 4)
 
-> Layout under `research/experiments/` (REQ-137–138 / ROADMAP-030).
+> Layout, catalogue, and automated RQ runners. Serves REQ-137–138 / ROADMAP-030.
 
-## Directory convention
+## Catalogue
 
-```
-research/experiments/
-  <experiment_id>/
-    config.resolved.yaml
-    manifest.json          # git SHA, seed, versions, checksums
-    metrics.jsonl
-    artefacts/
-```
+Each run is a `ResearchRunRecord` written under `research/experiments/<id>/record.json` and appended to `index.jsonl`.
 
-Never commit audio, weights, or large binaries (see `.gitignore`).
+Recorded fields: experiment ID, timestamp, git SHA, model version, dataset version, languages, compression settings, hyperparameters, metrics, calibration results, hardware, seed, training duration, RQ IDs.
 
-## Creating a run (when Trainer lands)
+Search: `GET /api/v1/experiments/search?language=ta&rq_id=RQ3`  
+Compare: `GET /api/v1/experiments/compare?metric=eer`
+
+## Automated suites (software path)
 
 ```bash
-# Pseudocode — TODO(ROADMAP-030)
-uv run python -m vaaniq.training.cli --config configs/train/default.yaml --seed 42
+# from repo root, with backend env
+uv run python -m vaaniq.research.cli --root ./research --seed 42
 ```
 
-## Tracking
+| Suite | Folds / cells | Tables | Figures |
+|-------|---------------|--------|---------|
+| Cross-lingual | train HI+MR→TA; HI+TA→MR; MR+TA→HI | `cross_lingual.csv` | heatmap SVG |
+| Compression | clean, Opus 8/16/24 kbps, resample, packet loss | `compression_robustness.csv` | degradation SVG |
+| Calibration | raw, temperature, per-language, per-condition | `calibration_cells.csv` | reliability, coverage, histogram SVG |
 
-`FileExperimentTracker` stub logs metrics + manifests (ROADMAP-030). Swap for
-external trackers only via the `ExperimentTracker` port.
+CI runs the same functions on **synthetic embeddings** (no network, no GPU). Those numbers are **not** RQ answers.
 
-## TODO
+## Real RQ tables (remaining)
 
-- TODO(ROADMAP-030): CLI entrypoint + manifest writer
-- TODO(ROADMAP-035): model registry linkage to experiment IDs
-- TODO(ROADMAP-041): copy final tables into `research/figures/`
+Curated hours (OQ-002), gated HF downloads, and GPU AASIST (OQ-014) are required before citing EER deltas in the dissertation. Re-run the same CLI/entrypoints on cached embeddings after ingest.
+
+## Primary WhatsApp cell
+
+Opus 16 kbps, 16 kHz mono (OQ-007). Bitrate ladder and packet-loss are SHOULD ablations (OQ-012, OQ-037, OQ-038).

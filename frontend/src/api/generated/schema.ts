@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/api/v1/admin": {
+    "/api/v1/admin/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -12,10 +12,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Admin Stub
-         * @description Admin stub — implemented in ROADMAP-007 follow-ons / ROADMAP-062.
+         * Admin Status
+         * @description Health/monitoring hook for compose and Spaces.
          */
-        get: operations["admin_stub_api_v1_admin_get"];
+        get: operations["admin_status_api_v1_admin_status_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -32,10 +32,30 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Calibration Stub
-         * @description Calibration stub — implemented in ROADMAP-043+.
+         * Calibration
+         * @description Calibration ECE / reliability snapshot (RQ4).
          */
-        get: operations["calibration_stub_api_v1_calibration_get"];
+        get: operations["calibration_api_v1_calibration_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/explorer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dataset Explorer
+         * @description Language x label hours for the active clip pool (O1).
+         */
+        get: operations["dataset_explorer_api_v1_datasets_explorer_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -52,10 +72,90 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Experiments Stub
-         * @description Experiments stub — implemented in ROADMAP-030+.
+         * Experiments
+         * @description List experiment runs.
          */
-        get: operations["experiments_stub_api_v1_experiments_get"];
+        get: operations["experiments_api_v1_experiments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/experiments/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare Experiments
+         * @description Compare stored experiments on a named metric.
+         */
+        get: operations["compare_experiments_api_v1_experiments_compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/experiments/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Experiment Report
+         * @description Downloadable evaluation report markdown.
+         */
+        get: operations["experiment_report_api_v1_experiments_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/experiments/report.md": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Experiment Report Md
+         * @description Raw markdown report download.
+         */
+        get: operations["experiment_report_md_api_v1_experiments_report_md_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/experiments/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Experiments
+         * @description Search the research catalogue.
+         */
+        get: operations["search_experiments_api_v1_experiments_search_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -72,10 +172,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Explain Stub
-         * @description Explainability stub — implemented in ROADMAP-049+.
+         * Explain
+         * @description Explainability artefacts for a prediction.
          */
-        get: operations["explain_stub_api_v1_explain_get"];
+        get: operations["explain_api_v1_explain_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -92,10 +192,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * History Stub
-         * @description History stub — implemented in ROADMAP-054+.
+         * History
+         * @description List recent predictions.
          */
-        get: operations["history_stub_api_v1_history_get"];
+        get: operations["history_api_v1_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -104,7 +204,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/human-study": {
+    "/api/v1/human-study/export": {
         parameters: {
             query?: never;
             header?: never;
@@ -112,12 +212,72 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Human Study Stub
-         * @description Human-study stub — implemented in ROADMAP-059+.
+         * Export Responses
+         * @description Write anonymised CSV under the object-store root.
          */
-        get: operations["human_study_stub_api_v1_human_study_get"];
+        get: operations["export_responses_api_v1_human_study_export_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/human-study/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register
+         * @description Register an anonymous volunteer and assign balanced clips (RQ5).
+         */
+        post: operations["register_api_v1_human_study_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/human-study/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Human Report
+         * @description Human vs model accuracy/calibration comparison (RQ5).
+         */
+        get: operations["human_report_api_v1_human_study_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/human-study/response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Response
+         * @description Record a timed real/fake judgement with 1-5 confidence.
+         */
+        post: operations["submit_response_api_v1_human_study_response_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -134,10 +294,50 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Infer Stub
-         * @description Inference stub — implemented in ROADMAP-054+.
+         * Infer
+         * @description Run inference from upload_id or multipart file (REQ-085-091).
          */
-        post: operations["infer_stub_api_v1_inference_post"];
+        post: operations["infer_api_v1_inference_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/live/ingest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Live Ingest
+         * @description Ingest a PCM chunk for sliding-window inference.
+         */
+        post: operations["live_ingest_api_v1_live_ingest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/live/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Live Session
+         * @description Create a live MediaRecorder session (REQ-096).
+         */
+        post: operations["live_session_api_v1_live_session_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -152,10 +352,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Metrics Stub
-         * @description Research metrics stub — implemented in ROADMAP-036+.
+         * Metrics
+         * @description Research metrics snapshot (RQ1-RQ3 tables).
          */
-        get: operations["metrics_stub_api_v1_metrics_get"];
+        get: operations["metrics_api_v1_metrics_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -174,10 +374,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Upload Stub
-         * @description Upload stub — implemented in ROADMAP-054 / ROADMAP-057.
+         * Upload Audio
+         * @description Upload and validate an audio file (REQ-084, REQ-135).
          */
-        post: operations["upload_stub_api_v1_uploads_post"];
+        post: operations["upload_audio_api_v1_uploads_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -249,6 +449,148 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * AdminStatusResponse
+         * @description Monitoring hook for deployment (ROADMAP-062).
+         */
+        AdminStatusResponse: {
+            /** Env */
+            env: string;
+            /** Git Sha */
+            git_sha: string;
+            /** Hardware */
+            hardware: {
+                [key: string]: string;
+            };
+            /** Status */
+            status: string;
+        };
+        /** Body_infer_api_v1_inference_post */
+        Body_infer_api_v1_inference_post: {
+            /** File */
+            file?: string | null;
+            /**
+             * Language
+             * @default hi
+             */
+            language: string;
+            /**
+             * Model Id
+             * @default aasist-v1
+             */
+            model_id: string;
+            /** Upload Id */
+            upload_id?: string | null;
+        };
+        /** Body_live_ingest_api_v1_live_ingest_post */
+        Body_live_ingest_api_v1_live_ingest_post: {
+            /** Chunk */
+            chunk: string;
+            /** Session Id */
+            session_id: string;
+        };
+        /** Body_upload_audio_api_v1_uploads_post */
+        Body_upload_audio_api_v1_uploads_post: {
+            /** File */
+            file: string;
+        };
+        /**
+         * CalibrationResponse
+         * @description Calibration artefacts summary.
+         */
+        CalibrationResponse: {
+            /** Brier */
+            brier: number;
+            /** Coverage Curve */
+            coverage_curve: {
+                [key: string]: number;
+            }[];
+            /** Ece */
+            ece: number;
+            /** Reliability Diagram */
+            reliability_diagram: {
+                [key: string]: number;
+            }[];
+            /** Temperatures */
+            temperatures: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * DatasetExplorerResponse
+         * @description Dataset explorer payload (O1 / REQ-034).
+         */
+        DatasetExplorerResponse: {
+            /** Counts By Label */
+            counts_by_label: {
+                [key: string]: number;
+            };
+            /** Counts By Language */
+            counts_by_language: {
+                [key: string]: number;
+            };
+            /** Hours By Label */
+            hours_by_label: {
+                [key: string]: number;
+            };
+            /** Hours By Language */
+            hours_by_language: {
+                [key: string]: number;
+            };
+            /** Languages */
+            languages: string[];
+            /** Note */
+            note: string;
+            /** Total Clips */
+            total_clips: number;
+            /** Total Hours */
+            total_hours: number;
+        };
+        /**
+         * ExperimentCompareResponse
+         * @description Experiment comparison table.
+         */
+        ExperimentCompareResponse: {
+            /** Metric */
+            metric: string;
+            /** Rows */
+            rows: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
+         * ExperimentItem
+         * @description Experiment summary.
+         */
+        ExperimentItem: {
+            /** Experiment Id */
+            experiment_id: string;
+            /** Path */
+            path: string;
+        };
+        /**
+         * ExperimentsResponse
+         * @description Experiment list.
+         */
+        ExperimentsResponse: {
+            /** Items */
+            items: components["schemas"]["ExperimentItem"][];
+        };
+        /**
+         * ExplainResponse
+         * @description Explainability artefacts.
+         */
+        ExplainResponse: {
+            /** Artefacts */
+            artefacts: {
+                [key: string]: string;
+            }[];
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
          * HealthResponse
          * @description Liveness payload for ``/health``.
          */
@@ -260,6 +602,144 @@ export interface components {
             status: string;
         };
         /**
+         * HistoryItem
+         * @description History row.
+         */
+        HistoryItem: {
+            /** Confidence */
+            confidence: number;
+            /** Created At */
+            created_at: string;
+            /** Label */
+            label: string;
+            /** Language */
+            language: string;
+            /** Prediction Id */
+            prediction_id: string;
+            /** Reliability */
+            reliability: string;
+        };
+        /**
+         * HistoryResponse
+         * @description History list.
+         */
+        HistoryResponse: {
+            /** Items */
+            items: components["schemas"]["HistoryItem"][];
+        };
+        /**
+         * HumanResponseIn
+         * @description Single forced-choice trial.
+         */
+        HumanResponseIn: {
+            /** Choice */
+            choice: string;
+            /** Clip Id */
+            clip_id: string;
+            /**
+             * Compression Status
+             * @default clean
+             */
+            compression_status: string;
+            /** Confidence 1 5 */
+            confidence_1_5: number;
+            /**
+             * Language
+             * @default hi
+             */
+            language: string;
+            /** Participant Id */
+            participant_id: string;
+            /** Response Ms */
+            response_ms: number;
+        };
+        /**
+         * HumanStudyReportResponse
+         * @description Human vs model comparison.
+         */
+        HumanStudyReportResponse: {
+            /** N Responses */
+            n_responses: number;
+            /** Stats */
+            stats: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * LiveIngestResponse
+         * @description Live streaming window predictions.
+         */
+        LiveIngestResponse: {
+            /** Predictions */
+            predictions: components["schemas"]["PredictionResponse"][];
+            /** Session Id */
+            session_id: string;
+        };
+        /**
+         * MetricsResponse
+         * @description Research metrics snapshot.
+         */
+        MetricsResponse: {
+            /** Matrices */
+            matrices: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+            /** Slices */
+            slices: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * ParticipantCreate
+         * @description Volunteer registration (anonymous).
+         */
+        ParticipantCreate: {
+            /** Fluency Self Report */
+            fluency_self_report: string;
+        };
+        /**
+         * ParticipantResponse
+         * @description Anonymous participant payload.
+         */
+        ParticipantResponse: {
+            /** Clip Ids */
+            clip_ids: string[];
+            /** Fluency Self Report */
+            fluency_self_report: string;
+            /** Participant Id */
+            participant_id: string;
+        };
+        /**
+         * PredictionResponse
+         * @description Inference verdict payload (REQ-087-091).
+         */
+        PredictionResponse: {
+            /** Compression Status */
+            compression_status: string;
+            /** Confidence */
+            confidence: number;
+            /** Label */
+            label: string;
+            /** Language */
+            language: string;
+            /** Prediction Id */
+            prediction_id: string;
+            /** Probabilities */
+            probabilities: {
+                [key: string]: number;
+            };
+            /** Reliability */
+            reliability: string;
+            /** Spectrogram */
+            spectrogram?: number[][];
+            /** Waveform */
+            waveform?: number[];
+        };
+        /**
          * ReadyResponse
          * @description Readiness payload for ``/health/ready``.
          */
@@ -268,6 +748,43 @@ export interface components {
             database: string;
             /** Status */
             status: string;
+        };
+        /**
+         * ReportResponse
+         * @description Downloadable report pointer.
+         */
+        ReportResponse: {
+            /** Experiment Id */
+            experiment_id: string;
+            /** Report Markdown */
+            report_markdown: string;
+        };
+        /**
+         * UploadResponse
+         * @description Upload acknowledgement.
+         */
+        UploadResponse: {
+            /** Content Type */
+            content_type: string;
+            /** Filename */
+            filename: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Upload Id */
+            upload_id: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
         };
         /**
          * VersionResponse
@@ -295,9 +812,153 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    admin_stub_api_v1_admin_get: {
+    admin_status_api_v1_admin_status_get: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStatusResponse"];
+                };
+            };
+        };
+    };
+    calibration_api_v1_calibration_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalibrationResponse"];
+                };
+            };
+        };
+    };
+    dataset_explorer_api_v1_datasets_explorer_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetExplorerResponse"];
+                };
+            };
+        };
+    };
+    experiments_api_v1_experiments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentsResponse"];
+                };
+            };
+        };
+    };
+    compare_experiments_api_v1_experiments_compare_get: {
+        parameters: {
+            query?: {
+                metric?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentCompareResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    experiment_report_api_v1_experiments_report_get: {
+        parameters: {
+            query?: {
+                experiment_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    experiment_report_md_api_v1_experiments_report_md_get: {
+        parameters: {
+            query?: {
+                experiment_id?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -313,31 +974,24 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
-        };
-    };
-    calibration_stub_api_v1_calibration_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
+            /** @description Validation Error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    experiments_stub_api_v1_experiments_get: {
+    search_experiments_api_v1_experiments_search_get: {
         parameters: {
-            query?: never;
+            query?: {
+                language?: string | null;
+                model_version?: string | null;
+                rq_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -350,14 +1004,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    explain_stub_api_v1_explain_get: {
+    explain_api_v1_explain_get: {
         parameters: {
-            query?: never;
+            query?: {
+                prediction_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -370,12 +1037,21 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["ExplainResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    history_stub_api_v1_history_get: {
+    history_api_v1_history_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -390,12 +1066,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["HistoryResponse"];
                 };
             };
         };
     };
-    human_study_stub_api_v1_human_study_get: {
+    export_responses_api_v1_human_study_export_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -410,19 +1086,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
     };
-    infer_stub_api_v1_inference_post: {
+    register_api_v1_human_study_register_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParticipantCreate"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -430,12 +1112,21 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["ParticipantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    metrics_stub_api_v1_metrics_get: {
+    human_report_api_v1_human_study_report_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -450,12 +1141,113 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["HumanStudyReportResponse"];
                 };
             };
         };
     };
-    upload_stub_api_v1_uploads_post: {
+    submit_response_api_v1_human_study_response_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HumanResponseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    infer_api_v1_inference_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_infer_api_v1_inference_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PredictionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    live_ingest_api_v1_live_ingest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_live_ingest_api_v1_live_ingest_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveIngestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    live_session_api_v1_live_session_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -470,7 +1262,62 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    metrics_api_v1_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsResponse"];
+                };
+            };
+        };
+    };
+    upload_audio_api_v1_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_audio_api_v1_uploads_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

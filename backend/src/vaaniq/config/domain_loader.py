@@ -14,8 +14,10 @@ from vaaniq.config.domains import (
     CalibrationConfig,
     DatasetSourceConfig,
     EvalProfileConfig,
+    HumanStudyProtocolConfig,
     LfccGmmConfig,
     RawNet2Config,
+    ResearchConditionsConfig,
     TrainCvConfig,
     TrainDefaultConfig,
     TrainEnglishOnlyConfig,
@@ -32,6 +34,7 @@ DOMAIN_CONFIG_FILES: dict[str, type[BaseModel]] = {
     "data/common_voice.yaml": DatasetSourceConfig,
     "data/indicsynth.yaml": DatasetSourceConfig,
     "data/team_recordings.yaml": DatasetSourceConfig,
+    "data/generated_audio.yaml": DatasetSourceConfig,
     "audio/preprocessing.yaml": AudioPreprocessingConfig,
     "audio/compression.yaml": AudioCompressionConfig,
     "model/xlsr_aasist.yaml": XlsrAasistConfig,
@@ -43,7 +46,9 @@ DOMAIN_CONFIG_FILES: dict[str, type[BaseModel]] = {
     "eval/full.yaml": EvalProfileConfig,
     "eval/zero_shot.yaml": EvalProfileConfig,
     "eval/cross_condition.yaml": EvalProfileConfig,
+    "eval/research_conditions.yaml": ResearchConditionsConfig,
     "calibration/temperature.yaml": CalibrationConfig,
+    "human_study/protocol.yaml": HumanStudyProtocolConfig,
 }
 
 

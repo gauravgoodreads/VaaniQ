@@ -68,3 +68,24 @@ body {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+
+@keyframes vaaniq-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.vaaniq-enter {
+  animation: vaaniq-fade 280ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vaaniq-enter {
+    animation: none;
+  }
+}

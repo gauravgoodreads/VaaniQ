@@ -1,17 +1,12 @@
 # API guide
 
-> HTTP surface for VaaniQ (ROADMAP-007 / REQ-134). Types are generated — never hand-edit
-> `frontend/src/api/generated/`.
+> HTTP surface for VaaniQ. Types are generated — never hand-edit
+> `frontend/src/api/generated/`. Full table: [`API_REFERENCE.md`](API_REFERENCE.md).
 
-## Live surface (Phase 1)
+## Live surface
 
-| Method | Path | Status |
-|--------|------|--------|
-| GET | `/health` | 200 liveness |
-| GET | `/health/ready` | 200 readiness (DB probe) |
-| GET | `/api/v1/version` | 200 package/env metadata |
-| GET | `/docs` | OpenAPI UI |
-| * | `/api/v1/{inference,uploads,history,…}` | **501** + `roadmap_id` |
+Health, inference, live, calibration, explain, experiments (list/compare/search/report),
+datasets explorer, human-study register/response/export/report, admin status.
 
 Errors use RFC 7807 `application/problem+json` (ROADMAP-005).
 
@@ -25,17 +20,15 @@ Errors use RFC 7807 `application/problem+json` (ROADMAP-005).
 
 CI fails if regenerating produces a diff (`scripts/check_api_types_drift.sh`).
 
-Aliases for schemas live in `frontend/src/api/types.ts` (re-exports from generated
-`schema.ts`).
-
 ## Auth
 
-- TODO(ROADMAP-062): document admin auth model for demo deploy
+Demo has no login. Human-study IDs are anonymous UUIDs (REQ-069).
+Admin is a monitoring hook, not an authz system.
 
 ## Upload validation
 
-- TODO(ROADMAP-057): MIME / magic / duration / size limits from config (REQ-135)
+MIME / magic / duration / size from config (REQ-135) on the ML upload path.
 
 ## Streaming
 
-- TODO(ROADMAP-055): sliding-window live session API (REQ-096, OQ-019)
+Sliding-window live session API (REQ-096, OQ-019): `POST /api/v1/live/session`, `POST /api/v1/live/ingest`.

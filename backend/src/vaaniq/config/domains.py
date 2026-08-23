@@ -275,3 +275,36 @@ class CalibrationConfig(BaseModel):
     ece_binning: EceBinning = "equal_width"
     reliability: ReliabilityBadgeConfig = Field(default_factory=ReliabilityBadgeConfig)
     artefact_dir: Path
+
+
+class ResearchConditionsConfig(BaseModel):
+    """``configs/eval/research_conditions.yaml`` (RQ1 degradation ladder)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: Literal["research_conditions"] = "research_conditions"
+    # ASSUMPTION: OQ-012 - optional bitrate ladder (SHOULD)
+    bitrate_ladder_kbps: list[int] = Field(default_factory=lambda: [8, 16, 24])
+    # ASSUMPTION: OQ-038 - resample ladder for WhatsApp-style delivery (proposal p.6)
+    resample_hz: list[int] = Field(default_factory=lambda: [8000, 16000, 22050])
+    # ASSUMPTION: OQ-037 - packet-loss fractions not in proposal; research SHOULD
+    packet_loss_fractions: list[float] = Field(default_factory=lambda: [0.0, 0.05, 0.10])
+    primary_bitrate_kbps: int = 16
+    primary_sample_rate_hz: int = 16000
+    notes: str | None = None
+
+
+class HumanStudyProtocolConfig(BaseModel):
+    """``configs/human_study/protocol.yaml`` (ROADMAP-059 / OQ-011)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: Literal["protocol"] = "protocol"
+    # ASSUMPTION: OQ-011 - midpoint of ~30-40 clips
+    clips_per_participant: int = 36
+    session_cap_minutes: int = 25
+    confidence_min: int = 1
+    confidence_max: int = 5
+    languages: list[Language] = Field(default_factory=lambda: list(Language))
+    seed: int = 42
+    notes: str | None = None

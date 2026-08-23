@@ -1,6 +1,6 @@
 import type { HealthResponse, VersionResponse } from "@/api/types";
 
-function apiBaseUrl(): string {
+export function apiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL;
   // Explicit empty / same-origin → relative URLs (nginx reverse-proxy in Docker).
   if (raw === "" || raw === "/" || raw === "same-origin") {
@@ -22,7 +22,7 @@ export class ApiError extends Error {
   }
 }
 
-async function getJson<T>(path: string): Promise<T> {
+export async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl()}${path}`, {
     headers: { Accept: "application/json" },
   });
@@ -40,5 +40,3 @@ export function fetchHealth(): Promise<HealthResponse> {
 export function fetchVersion(): Promise<VersionResponse> {
   return getJson<VersionResponse>("/api/v1/version");
 }
-
-export { apiBaseUrl };

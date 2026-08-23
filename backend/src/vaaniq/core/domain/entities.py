@@ -75,6 +75,10 @@ class ClipMetadata:
     """Per-clip metadata record (REQ-131-133).
 
     ``speaker_id`` and attack/generation fields are nullable for some sources.
+
+    Optional enrichment fields (gender, file size, age, emotion, medium, quality,
+    checksum, uri) are not fixed in the proposal schema sketch; see
+    ``# ASSUMPTION: OQ-036``.
     """
 
     clip_id: str
@@ -91,6 +95,15 @@ class ClipMetadata:
     generation_model: str | None = None
     pair_id: str | None = None
     consent_ref: str | None = None
+    # ASSUMPTION: OQ-036 - optional enrichment not listed in proposal section 7.1 sketch
+    gender: str | None = None
+    file_size_bytes: int | None = None
+    speaker_age: int | None = None
+    emotion: str | None = None
+    recording_medium: str | None = None
+    quality: str | None = None
+    checksum_sha256: str | None = None
+    uri: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

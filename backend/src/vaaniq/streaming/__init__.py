@@ -1,4 +1,4 @@
-"""Streaming package public exports (Phase 1 stubs)."""
+"""Streaming package public exports."""
 
 from __future__ import annotations
 

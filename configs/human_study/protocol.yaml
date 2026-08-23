@@ -1,0 +1,14 @@
+# Human perceptual baseline protocol — ROADMAP-059 / REQ-064-073 / RQ5
+# ASSUMPTION: OQ-011 — ~30-40 clips; shuffled; <=25 min session.
+
+name: protocol
+clips_per_participant: 36
+session_cap_minutes: 25
+confidence_min: 1
+confidence_max: 5
+languages:
+  - hi
+  - mr
+  - ta
+seed: 42
+notes: "Anonymous IDs only; PII stripped on export (REQ-069). ASSUMPTION: OQ-025 Tamil fluency."

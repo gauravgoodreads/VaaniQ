@@ -22,7 +22,8 @@ services:
       retries: 10
       start_period: 10s
     ports:
-      - "5432:5432"
+      # Bind loopback only — default vaaniq/vaaniq must not be LAN-reachable.
+      - "127.0.0.1:5432:5432"
 
   api:
     build:

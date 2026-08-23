@@ -11,7 +11,7 @@ export function LandingPage() {
     <section className="flex min-h-[70vh] flex-col justify-center gap-8">
       <div className="max-w-2xl space-y-4">
         <p className="text-sm uppercase tracking-[0.2em] text-[var(--fg-muted)]">
-          Capstone research system
+          Indic audio authenticity research
         </p>
         <h1 className="font-[family-name:var(--font-display)] text-5xl leading-tight md:text-6xl">
           VaaniQ

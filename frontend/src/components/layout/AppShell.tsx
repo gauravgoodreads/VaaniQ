@@ -15,6 +15,8 @@ const NAV_ITEMS: readonly NavItem[] = [
   { to: "/experiments", label: "Experiments" },
   { to: "/calibration", label: "Calibration" },
   { to: "/explainability", label: "Explain" },
+  { to: "/human-study", label: "Human study" },
+  { to: "/datasets", label: "Datasets" },
   { to: "/admin", label: "Admin" },
   { to: "/docs", label: "Docs" },
 ] as const;
@@ -30,6 +32,12 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-md focus:bg-[var(--accent)] focus:px-4 focus:py-2 focus:text-[var(--accent-fg)]"
+      >
+        Skip to content
+      </a>
       <header className="border-b border-white/10 bg-[var(--nav)] text-[var(--nav-fg)]">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4">
           <div className="flex items-center justify-between gap-4">
@@ -50,7 +58,7 @@ export function AppShell() {
           <AppNav items={NAV_ITEMS} />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main id="main-content" className="vaaniq-enter mx-auto max-w-6xl px-4 py-8">
         <Outlet />
       </main>
     </div>

@@ -42,8 +42,10 @@
 
 **Phase 1 scaffold status (step 15):** Foundation complete on `main` (ROADMAP-001–010).
 Verified locally: backend ruff/mypy/pytest, frontend tsc/eslint/vitest, Alembic
-upgrade/downgrade, OpenAPI drift guard, Telugu guard. Docker compose healthchecks
-remain pending until Docker Desktop is installed on the developer machine.
+upgrade/downgrade, OpenAPI drift guard, Telugu guard. Docker compose **verified**
+(Desktop 4.86 / Engine 29.7.2 / Compose v5.3.1): `db`, `api`, and `web` all healthy;
+`GET /health` via API `:8000` and nginx proxy `:8080` returned `{"status":"ok"}`.
+Command: `docker compose -f deployment/docker-compose.yml up --build -d`.
 
 ---
 
@@ -64,6 +66,9 @@ remain pending until Docker Desktop is installed on the developer machine.
 
 **Exit:** Manifests for all three languages with real+fake labels; licence matrix published.
 
+**Status:** Offline pipeline implemented (adapters, schema, splits, stats, DB tables).
+Real HF curation and licence matrix publication remain operator steps (gated access).
+
 **Risks:** Gated HF access delays; Tamil real-data gap (OQ-003).
 
 ---
@@ -83,6 +88,9 @@ remain pending until Docker Desktop is installed on the developer machine.
 
 **Exit:** 100% curated clips have Opus twins; compressor unit/integration tests pass.
 
+**Status:** Loader/preprocess/Opus compressor + pairing implemented; property tests added.
+ffmpeg PATH required for live Opus tests; curated twin sweep is operator-side.
+
 ---
 
 ## P4 — Embedding extraction & caching
@@ -97,6 +105,9 @@ remain pending until Docker Desktop is installed on the developer machine.
 | ROADMAP-028 | Cache checksum verification | REQ-137 |
 
 **Exit:** Embeddings for train/val/test recoverable without GPU on subsequent runs.
+
+**Status:** Extractor + cache + checksums done (unit tests use mock backend; `[ml]` for
+real weights). ROADMAP-027 notebooks deferred.
 
 ---
 
@@ -113,6 +124,9 @@ remain pending until Docker Desktop is installed on the developer machine.
 | ROADMAP-033 | English-only ASVspoof control | REQ-044, OQ-015 |
 | ROADMAP-034 | Optional acoustic aux ablation | REQ-095, OQ-033 |
 | ROADMAP-035 | Model registry entries | Architecture §8 |
+
+**Status:** AASIST head, Trainer (early stop/ckpt/resume/AMP probe/TB), baselines
+(LFCC+GMM, RawNet2, English-only), and registry implemented (NumPy CI path; torch optional via `[ml]`).
 
 **Exit:** Four comparable models train end-to-end on cached features; manifests written.
 
@@ -131,6 +145,8 @@ remain pending until Docker Desktop is installed on the developer machine.
 | ROADMAP-040 | Confusion + per-language/attack/compression slices | REQ-052–053, 080–081 |
 | ROADMAP-041 | Eval report generator | REQ-118 |
 | ROADMAP-042 | Bootstrap CIs / stats helpers | OQ-009 |
+
+**Status:** Metrics, ROC/PR, matrices, slices, and report generator implemented.
 
 **Exit:** Success criteria REQ-121–122 satisfied (honest numbers OK).
 
@@ -151,6 +167,8 @@ remain pending until Docker Desktop is installed on the developer machine.
 
 **Exit:** Calibration report published; REQ-063 boolean evaluated.
 
+**Status:** Temperature scaling, ECE, Brier, entropy, coverage curves, reliability badge implemented.
+
 ---
 
 ## P8 — Explainability engine
@@ -166,6 +184,8 @@ remain pending until Docker Desktop is installed on the developer machine.
 | ROADMAP-053 | Wire explain artefacts into API | REQ-089 |
 
 **Exit:** At least one explain view per demo inference (feeds REQ-124).
+
+**Status:** Grad-CAM proxy, frequency bands, spectrogram, compression-artifact views + API wire-up done.
 
 ---
 

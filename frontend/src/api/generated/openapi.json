@@ -1,6 +1,322 @@
 {
   "components": {
     "schemas": {
+      "AdminStatusResponse": {
+        "additionalProperties": false,
+        "description": "Monitoring hook for deployment (ROADMAP-062).",
+        "properties": {
+          "env": {
+            "title": "Env",
+            "type": "string"
+          },
+          "git_sha": {
+            "title": "Git Sha",
+            "type": "string"
+          },
+          "hardware": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Hardware",
+            "type": "object"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "env",
+          "hardware",
+          "git_sha"
+        ],
+        "title": "AdminStatusResponse",
+        "type": "object"
+      },
+      "Body_infer_api_v1_inference_post": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "contentMediaType": "application/octet-stream",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "language": {
+            "default": "hi",
+            "title": "Language",
+            "type": "string"
+          },
+          "model_id": {
+            "default": "aasist-v1",
+            "title": "Model Id",
+            "type": "string"
+          },
+          "upload_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upload Id"
+          }
+        },
+        "title": "Body_infer_api_v1_inference_post",
+        "type": "object"
+      },
+      "Body_live_ingest_api_v1_live_ingest_post": {
+        "properties": {
+          "chunk": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Chunk",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "chunk"
+        ],
+        "title": "Body_live_ingest_api_v1_live_ingest_post",
+        "type": "object"
+      },
+      "Body_upload_audio_api_v1_uploads_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_audio_api_v1_uploads_post",
+        "type": "object"
+      },
+      "CalibrationResponse": {
+        "additionalProperties": false,
+        "description": "Calibration artefacts summary.",
+        "properties": {
+          "brier": {
+            "title": "Brier",
+            "type": "number"
+          },
+          "coverage_curve": {
+            "items": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "title": "Coverage Curve",
+            "type": "array"
+          },
+          "ece": {
+            "title": "Ece",
+            "type": "number"
+          },
+          "reliability_diagram": {
+            "items": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "title": "Reliability Diagram",
+            "type": "array"
+          },
+          "temperatures": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Temperatures",
+            "type": "object"
+          }
+        },
+        "required": [
+          "ece",
+          "brier",
+          "reliability_diagram",
+          "coverage_curve",
+          "temperatures"
+        ],
+        "title": "CalibrationResponse",
+        "type": "object"
+      },
+      "DatasetExplorerResponse": {
+        "additionalProperties": false,
+        "description": "Dataset explorer payload (O1 / REQ-034).",
+        "properties": {
+          "counts_by_label": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts By Label",
+            "type": "object"
+          },
+          "counts_by_language": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts By Language",
+            "type": "object"
+          },
+          "hours_by_label": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Hours By Label",
+            "type": "object"
+          },
+          "hours_by_language": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Hours By Language",
+            "type": "object"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Languages",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "total_clips": {
+            "title": "Total Clips",
+            "type": "integer"
+          },
+          "total_hours": {
+            "title": "Total Hours",
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_clips",
+          "total_hours",
+          "counts_by_language",
+          "hours_by_language",
+          "counts_by_label",
+          "hours_by_label",
+          "languages",
+          "note"
+        ],
+        "title": "DatasetExplorerResponse",
+        "type": "object"
+      },
+      "ExperimentCompareResponse": {
+        "additionalProperties": false,
+        "description": "Experiment comparison table.",
+        "properties": {
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "metric",
+          "rows"
+        ],
+        "title": "ExperimentCompareResponse",
+        "type": "object"
+      },
+      "ExperimentItem": {
+        "additionalProperties": false,
+        "description": "Experiment summary.",
+        "properties": {
+          "experiment_id": {
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "path"
+        ],
+        "title": "ExperimentItem",
+        "type": "object"
+      },
+      "ExperimentsResponse": {
+        "additionalProperties": false,
+        "description": "Experiment list.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExperimentItem"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ExperimentsResponse",
+        "type": "object"
+      },
+      "ExplainResponse": {
+        "additionalProperties": false,
+        "description": "Explainability artefacts.",
+        "properties": {
+          "artefacts": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Artefacts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "artefacts"
+        ],
+        "title": "ExplainResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "additionalProperties": false,
         "description": "Liveness payload for ``/health``.",
@@ -12,6 +328,294 @@
           }
         },
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "HistoryItem": {
+        "additionalProperties": false,
+        "description": "History row.",
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "prediction_id": {
+            "title": "Prediction Id",
+            "type": "string"
+          },
+          "reliability": {
+            "title": "Reliability",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prediction_id",
+          "label",
+          "confidence",
+          "reliability",
+          "language",
+          "created_at"
+        ],
+        "title": "HistoryItem",
+        "type": "object"
+      },
+      "HistoryResponse": {
+        "additionalProperties": false,
+        "description": "History list.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryItem"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "HistoryResponse",
+        "type": "object"
+      },
+      "HumanResponseIn": {
+        "additionalProperties": false,
+        "description": "Single forced-choice trial.",
+        "properties": {
+          "choice": {
+            "title": "Choice",
+            "type": "string"
+          },
+          "clip_id": {
+            "title": "Clip Id",
+            "type": "string"
+          },
+          "compression_status": {
+            "default": "clean",
+            "title": "Compression Status",
+            "type": "string"
+          },
+          "confidence_1_5": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Confidence 1 5",
+            "type": "integer"
+          },
+          "language": {
+            "default": "hi",
+            "title": "Language",
+            "type": "string"
+          },
+          "participant_id": {
+            "title": "Participant Id",
+            "type": "string"
+          },
+          "response_ms": {
+            "minimum": 0.0,
+            "title": "Response Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "participant_id",
+          "clip_id",
+          "choice",
+          "confidence_1_5",
+          "response_ms"
+        ],
+        "title": "HumanResponseIn",
+        "type": "object"
+      },
+      "HumanStudyReportResponse": {
+        "additionalProperties": false,
+        "description": "Human vs model comparison.",
+        "properties": {
+          "n_responses": {
+            "title": "N Responses",
+            "type": "integer"
+          },
+          "stats": {
+            "additionalProperties": true,
+            "title": "Stats",
+            "type": "object"
+          }
+        },
+        "required": [
+          "stats",
+          "n_responses"
+        ],
+        "title": "HumanStudyReportResponse",
+        "type": "object"
+      },
+      "LiveIngestResponse": {
+        "additionalProperties": false,
+        "description": "Live streaming window predictions.",
+        "properties": {
+          "predictions": {
+            "items": {
+              "$ref": "#/components/schemas/PredictionResponse"
+            },
+            "title": "Predictions",
+            "type": "array"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "predictions"
+        ],
+        "title": "LiveIngestResponse",
+        "type": "object"
+      },
+      "MetricsResponse": {
+        "additionalProperties": false,
+        "description": "Research metrics snapshot.",
+        "properties": {
+          "matrices": {
+            "additionalProperties": true,
+            "title": "Matrices",
+            "type": "object"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "slices": {
+            "additionalProperties": true,
+            "title": "Slices",
+            "type": "object"
+          }
+        },
+        "required": [
+          "metrics",
+          "matrices",
+          "slices"
+        ],
+        "title": "MetricsResponse",
+        "type": "object"
+      },
+      "ParticipantCreate": {
+        "additionalProperties": false,
+        "description": "Volunteer registration (anonymous).",
+        "properties": {
+          "fluency_self_report": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Fluency Self Report",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fluency_self_report"
+        ],
+        "title": "ParticipantCreate",
+        "type": "object"
+      },
+      "ParticipantResponse": {
+        "additionalProperties": false,
+        "description": "Anonymous participant payload.",
+        "properties": {
+          "clip_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Clip Ids",
+            "type": "array"
+          },
+          "fluency_self_report": {
+            "title": "Fluency Self Report",
+            "type": "string"
+          },
+          "participant_id": {
+            "title": "Participant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "participant_id",
+          "fluency_self_report",
+          "clip_ids"
+        ],
+        "title": "ParticipantResponse",
+        "type": "object"
+      },
+      "PredictionResponse": {
+        "additionalProperties": false,
+        "description": "Inference verdict payload (REQ-087-091).",
+        "properties": {
+          "compression_status": {
+            "title": "Compression Status",
+            "type": "string"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          },
+          "prediction_id": {
+            "title": "Prediction Id",
+            "type": "string"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Probabilities",
+            "type": "object"
+          },
+          "reliability": {
+            "title": "Reliability",
+            "type": "string"
+          },
+          "spectrogram": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Spectrogram",
+            "type": "array"
+          },
+          "waveform": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Waveform",
+            "type": "array"
+          }
+        },
+        "required": [
+          "prediction_id",
+          "label",
+          "confidence",
+          "reliability",
+          "language",
+          "compression_status",
+          "probabilities"
+        ],
+        "title": "PredictionResponse",
         "type": "object"
       },
       "ReadyResponse": {
@@ -32,6 +636,96 @@
           "database"
         ],
         "title": "ReadyResponse",
+        "type": "object"
+      },
+      "ReportResponse": {
+        "additionalProperties": false,
+        "description": "Downloadable report pointer.",
+        "properties": {
+          "experiment_id": {
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "report_markdown": {
+            "title": "Report Markdown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "report_markdown",
+          "experiment_id"
+        ],
+        "title": "ReportResponse",
+        "type": "object"
+      },
+      "UploadResponse": {
+        "additionalProperties": false,
+        "description": "Upload acknowledgement.",
+        "properties": {
+          "content_type": {
+            "title": "Content Type",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "upload_id": {
+            "title": "Upload Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "upload_id",
+          "filename",
+          "size_bytes",
+          "content_type"
+        ],
+        "title": "UploadResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
         "type": "object"
       },
       "VersionResponse": {
@@ -73,21 +767,23 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/api/v1/admin": {
+    "/api/v1/admin/status": {
       "get": {
-        "description": "Admin stub \u2014 implemented in ROADMAP-007 follow-ons / ROADMAP-062.",
-        "operationId": "admin_stub_api_v1_admin_get",
+        "description": "Health/monitoring hook for compose and Spaces.",
+        "operationId": "admin_status_api_v1_admin_status_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStatusResponse"
+                }
               }
             },
             "description": "Successful Response"
           }
         },
-        "summary": "Admin Stub",
+        "summary": "Admin Status",
         "tags": [
           "admin"
         ]
@@ -95,28 +791,174 @@
     },
     "/api/v1/calibration": {
       "get": {
-        "description": "Calibration stub \u2014 implemented in ROADMAP-043+.",
-        "operationId": "calibration_stub_api_v1_calibration_get",
+        "description": "Calibration ECE / reliability snapshot (RQ4).",
+        "operationId": "calibration_api_v1_calibration_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CalibrationResponse"
+                }
               }
             },
             "description": "Successful Response"
           }
         },
-        "summary": "Calibration Stub",
+        "summary": "Calibration",
         "tags": [
           "calibration"
         ]
       }
     },
+    "/api/v1/datasets/explorer": {
+      "get": {
+        "description": "Language x label hours for the active clip pool (O1).",
+        "operationId": "dataset_explorer_api_v1_datasets_explorer_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetExplorerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Dataset Explorer",
+        "tags": [
+          "datasets"
+        ]
+      }
+    },
     "/api/v1/experiments": {
       "get": {
-        "description": "Experiments stub \u2014 implemented in ROADMAP-030+.",
-        "operationId": "experiments_stub_api_v1_experiments_get",
+        "description": "List experiment runs.",
+        "operationId": "experiments_api_v1_experiments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Experiments",
+        "tags": [
+          "experiments"
+        ]
+      }
+    },
+    "/api/v1/experiments/compare": {
+      "get": {
+        "description": "Compare stored experiments on a named metric.",
+        "operationId": "compare_experiments_api_v1_experiments_compare_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "metric",
+            "required": false,
+            "schema": {
+              "default": "eer",
+              "title": "Metric",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentCompareResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Experiments",
+        "tags": [
+          "experiments"
+        ]
+      }
+    },
+    "/api/v1/experiments/report": {
+      "get": {
+        "description": "Downloadable evaluation report markdown.",
+        "operationId": "experiment_report_api_v1_experiments_report_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "experiment_id",
+            "required": false,
+            "schema": {
+              "default": "demo",
+              "title": "Experiment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Experiment Report",
+        "tags": [
+          "experiments"
+        ]
+      }
+    },
+    "/api/v1/experiments/report.md": {
+      "get": {
+        "description": "Raw markdown report download.",
+        "operationId": "experiment_report_md_api_v1_experiments_report_md_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "experiment_id",
+            "required": false,
+            "schema": {
+              "default": "demo",
+              "title": "Experiment Id",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -125,9 +967,103 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Experiments Stub",
+        "summary": "Experiment Report Md",
+        "tags": [
+          "experiments"
+        ]
+      }
+    },
+    "/api/v1/experiments/search": {
+      "get": {
+        "description": "Search the research catalogue.",
+        "operationId": "search_experiments_api_v1_experiments_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Language"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "rq_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rq Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Search Experiments Api V1 Experiments Search Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Experiments",
         "tags": [
           "experiments"
         ]
@@ -135,19 +1071,49 @@
     },
     "/api/v1/explain": {
       "get": {
-        "description": "Explainability stub \u2014 implemented in ROADMAP-049+.",
-        "operationId": "explain_stub_api_v1_explain_get",
+        "description": "Explainability artefacts for a prediction.",
+        "operationId": "explain_api_v1_explain_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "prediction_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prediction Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainResponse"
+                }
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Explain Stub",
+        "summary": "Explain",
         "tags": [
           "explain"
         ]
@@ -155,39 +1121,157 @@
     },
     "/api/v1/history": {
       "get": {
-        "description": "History stub \u2014 implemented in ROADMAP-054+.",
-        "operationId": "history_stub_api_v1_history_get",
+        "description": "List recent predictions.",
+        "operationId": "history_api_v1_history_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
               }
             },
             "description": "Successful Response"
           }
         },
-        "summary": "History Stub",
+        "summary": "History",
         "tags": [
           "history"
         ]
       }
     },
-    "/api/v1/human-study": {
+    "/api/v1/human-study/export": {
       "get": {
-        "description": "Human-study stub \u2014 implemented in ROADMAP-059+.",
-        "operationId": "human_study_stub_api_v1_human_study_get",
+        "description": "Write anonymised CSV under the object-store root.",
+        "operationId": "export_responses_api_v1_human_study_export_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Export Responses Api V1 Human Study Export Get",
+                  "type": "object"
+                }
               }
             },
             "description": "Successful Response"
           }
         },
-        "summary": "Human Study Stub",
+        "summary": "Export Responses",
+        "tags": [
+          "human_study"
+        ]
+      }
+    },
+    "/api/v1/human-study/register": {
+      "post": {
+        "description": "Register an anonymous volunteer and assign balanced clips (RQ5).",
+        "operationId": "register_api_v1_human_study_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParticipantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "human_study"
+        ]
+      }
+    },
+    "/api/v1/human-study/report": {
+      "get": {
+        "description": "Human vs model accuracy/calibration comparison (RQ5).",
+        "operationId": "human_report_api_v1_human_study_report_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanStudyReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Human Report",
+        "tags": [
+          "human_study"
+        ]
+      }
+    },
+    "/api/v1/human-study/response": {
+      "post": {
+        "description": "Record a timed real/fake judgement with 1-5 confidence.",
+        "operationId": "submit_response_api_v1_human_study_response_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanResponseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Submit Response Api V1 Human Study Response Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Response",
         "tags": [
           "human_study"
         ]
@@ -195,39 +1279,130 @@
     },
     "/api/v1/inference": {
       "post": {
-        "description": "Inference stub \u2014 implemented in ROADMAP-054+.",
-        "operationId": "infer_stub_api_v1_inference_post",
+        "description": "Run inference from upload_id or multipart file (REQ-085-091).",
+        "operationId": "infer_api_v1_inference_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_infer_api_v1_inference_post"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Infer Stub",
+        "summary": "Infer",
         "tags": [
           "inference"
         ]
       }
     },
-    "/api/v1/metrics": {
-      "get": {
-        "description": "Research metrics stub \u2014 implemented in ROADMAP-036+.",
-        "operationId": "metrics_stub_api_v1_metrics_get",
+    "/api/v1/live/ingest": {
+      "post": {
+        "description": "Ingest a PCM chunk for sliding-window inference.",
+        "operationId": "live_ingest_api_v1_live_ingest_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_live_ingest_api_v1_live_ingest_post"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LiveIngestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Live Ingest",
+        "tags": [
+          "live"
+        ]
+      }
+    },
+    "/api/v1/live/session": {
+      "post": {
+        "description": "Create a live MediaRecorder session (REQ-096).",
+        "operationId": "live_session_api_v1_live_session_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Live Session Api V1 Live Session Post",
+                  "type": "object"
+                }
               }
             },
             "description": "Successful Response"
           }
         },
-        "summary": "Metrics Stub",
+        "summary": "Live Session",
+        "tags": [
+          "live"
+        ]
+      }
+    },
+    "/api/v1/metrics": {
+      "get": {
+        "description": "Research metrics snapshot (RQ1-RQ3 tables).",
+        "operationId": "metrics_api_v1_metrics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Metrics",
         "tags": [
           "metrics"
         ]
@@ -235,19 +1410,41 @@
     },
     "/api/v1/uploads": {
       "post": {
-        "description": "Upload stub \u2014 implemented in ROADMAP-054 / ROADMAP-057.",
-        "operationId": "upload_stub_api_v1_uploads_post",
+        "description": "Upload and validate an audio file (REQ-084, REQ-135).",
+        "operationId": "upload_audio_api_v1_uploads_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_audio_api_v1_uploads_post"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
-        "summary": "Upload Stub",
+        "summary": "Upload Audio",
         "tags": [
           "uploads"
         ]

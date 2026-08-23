@@ -49,9 +49,9 @@ class UploadRow(Base):
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
-    language: Mapped[str] = mapped_column(String(8), nullable=False)
+    language: Mapped[str] = mapped_column(String(8), nullable=False, index=True)
     compression_status: Mapped[str] = mapped_column(String(64), nullable=False)
-    storage_uri: Mapped[str] = mapped_column(String(1024), nullable=False)
+    storage_uri: Mapped[str] = mapped_column(String(1024), nullable=False, index=True)
     duration_sec: Mapped[float] = mapped_column(Float, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -73,6 +73,7 @@ class PredictionRow(Base):
         Uuid(as_uuid=True),
         ForeignKey("uploads.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     label: Mapped[str] = mapped_column(String(16), nullable=False)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
@@ -117,6 +118,7 @@ class ExperimentMetricRow(Base):
         Uuid(as_uuid=True),
         ForeignKey("experiments.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     metric_name: Mapped[str] = mapped_column(String(128), nullable=False)
     value: Mapped[float] = mapped_column(Float, nullable=False)
@@ -159,6 +161,7 @@ class CalibrationRunRow(Base):
         Uuid(as_uuid=True),
         ForeignKey("models.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     temperatures: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     ece_pre: Mapped[float] = mapped_column(Float, nullable=False)
@@ -198,9 +201,79 @@ class HumanStudyResponseRow(Base):
         Uuid(as_uuid=True),
         ForeignKey("human_study_participants.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     clip_id: Mapped[str] = mapped_column(String(256), nullable=False)
     choice: Mapped[str] = mapped_column(String(16), nullable=False)
     confidence_1_5: Mapped[int] = mapped_column(Integer, nullable=False)
+    response_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    language: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    compression_status: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     participant: Mapped[HumanStudyParticipantRow] = relationship(back_populates="responses")
+
+
+class DatasetCatalogRow(Base):
+    """Registered corpus / dataset catalog entry (``datasets``).
+
+    Serves ROADMAP-011 / REQ-101-106.
+    """
+
+    __tablename__ = "datasets"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=_uuid)
+    source_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    gated: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    licence_note: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    config_relpath: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    clips: Mapped[list[AudioClipRow]] = relationship(back_populates="dataset")
+
+
+class AudioClipRow(Base):
+    """Persisted clip metadata aligned with ``ClipMetadata`` (``audio_clips``).
+
+    Optional enrichment columns: ``# ASSUMPTION: OQ-036``.
+    Serves ROADMAP-011 / ROADMAP-012 / REQ-131-133.
+    """
+
+    __tablename__ = "audio_clips"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=_uuid)
+    dataset_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("datasets.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    clip_id: Mapped[str] = mapped_column(String(256), nullable=False, unique=True, index=True)
+    language: Mapped[str] = mapped_column(String(8), nullable=False, index=True)
+    source: Mapped[str] = mapped_column(String(64), nullable=False)
+    label: Mapped[str] = mapped_column(String(16), nullable=False)
+    compression_status: Mapped[str] = mapped_column(String(64), nullable=False)
+    sample_rate_hz: Mapped[int] = mapped_column(Integer, nullable=False)
+    duration_sec: Mapped[float] = mapped_column(Float, nullable=False)
+    split: Mapped[str] = mapped_column(String(16), nullable=False, index=True)
+    dataset_source: Mapped[str] = mapped_column(String(512), nullable=False)
+    speaker_id: Mapped[str | None] = mapped_column(String(256), nullable=True, index=True)
+    attack_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    generation_model: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    pair_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    consent_ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # ASSUMPTION: OQ-036
+    gender: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    file_size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    speaker_age: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    emotion: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    recording_medium: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    quality: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    checksum_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    uri: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+
+    dataset: Mapped[DatasetCatalogRow | None] = relationship(back_populates="clips")

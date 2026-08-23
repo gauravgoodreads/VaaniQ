@@ -68,6 +68,8 @@ def test_openapi_docs_available(client: TestClient) -> None:
     paths = schema["paths"]
     assert "/health" in paths
     assert "/api/v1/version" in paths
+    assert "/api/v1/human-study/register" in paths
+    assert "/api/v1/datasets/explorer" in paths
 
 
 def test_cors_allows_configured_origin(client: TestClient) -> None:
@@ -83,29 +85,102 @@ def test_cors_allows_configured_origin(client: TestClient) -> None:
 
 
 @pytest.mark.parametrize(
-    ("method", "path", "roadmap_id"),
+    ("method", "path"),
     [
-        ("POST", "/api/v1/inference", "ROADMAP-054"),
-        ("POST", "/api/v1/uploads", "ROADMAP-054"),
-        ("GET", "/api/v1/history", "ROADMAP-054"),
-        ("GET", "/api/v1/experiments", "ROADMAP-030"),
-        ("GET", "/api/v1/metrics", "ROADMAP-036"),
-        ("GET", "/api/v1/calibration", "ROADMAP-043"),
-        ("GET", "/api/v1/explain", "ROADMAP-049"),
-        ("GET", "/api/v1/human-study", "ROADMAP-059"),
-        ("GET", "/api/v1/admin", "ROADMAP-062"),
+        ("GET", "/api/v1/history"),
+        ("GET", "/api/v1/experiments"),
+        ("GET", "/api/v1/metrics"),
+        ("GET", "/api/v1/calibration"),
+        ("GET", "/api/v1/explain"),
+        ("GET", "/api/v1/human-study/report"),
+        ("GET", "/api/v1/admin/status"),
+        ("GET", "/api/v1/datasets/explorer"),
+        ("GET", "/api/v1/experiments/compare"),
     ],
 )
-def test_stubs_return_501_problem_json(
-    client: TestClient,
-    method: str,
-    path: str,
-    roadmap_id: str,
-) -> None:
+def test_research_and_ml_routes_live(client: TestClient, method: str, path: str) -> None:
+    """Phase-4 routers return 2xx rather than 501 stubs."""
     response = client.request(method, path)
-    assert response.status_code == 501
-    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.status_code == 200, path
+
+
+def test_human_study_register(client: TestClient) -> None:
+    """Volunteer registration returns an anonymous id and balanced clips."""
+    response = client.post(
+        "/api/v1/human-study/register",
+        json={"fluency_self_report": "hi+mr"},
+    )
+    assert response.status_code == 200
     body = response.json()
-    assert body["title"] == "NotImplementedInPhaseError"
-    assert body["roadmap_id"] == roadmap_id
-    assert roadmap_id in (body.get("detail") or "")
+    assert body["participant_id"]
+    assert body["clip_ids"]
+
+
+def test_openapi_hidden_in_prod(tmp_path: Path) -> None:
+    """Production profile must not expose Swagger (REQ-136)."""
+    db_path = tmp_path / "prod.db"
+    cfg = AppConfig(
+        env="prod",
+        database_url=f"sqlite:///{db_path.as_posix()}",
+        api=ApiConfig(cors_origins=["http://localhost:5173"]),
+    )
+    prod_client = TestClient(create_app(cfg))
+    assert prod_client.get("/docs").status_code == 404
+    assert prod_client.get("/openapi.json").status_code == 404
+
+
+def test_inference_rejects_unsupported_language(client: TestClient) -> None:
+    response = client.post("/api/v1/inference", data={"language": "xx", "model_id": "aasist-v1"})
+    assert response.status_code == 400
+
+
+def test_upload_rejects_oversized_payload(tmp_path: Path) -> None:
+    cfg = AppConfig(
+        env="local",
+        database_url=f"sqlite:///{(tmp_path / 'oversize.db').as_posix()}",
+        api=ApiConfig(max_upload_bytes=64, cors_origins=["http://localhost:5173"]),
+    )
+    oversized = TestClient(create_app(cfg))
+    payload = b"RIFF" + b"x" * 200
+    response = oversized.post(
+        "/api/v1/uploads",
+        files={"file": ("clip.wav", payload, "audio/wav")},
+    )
+    assert response.status_code == 400
+
+
+def test_upload_ignores_path_traversal_filename(client: TestClient, tmp_path: Path) -> None:
+    from vaaniq.api.services.ml_demo import write_sine_wav
+
+    wav = tmp_path / "ok.wav"
+    write_sine_wav(wav, seconds=0.6)
+    response = client.post(
+        "/api/v1/uploads",
+        files={"file": ("../../../etc/passwd.wav", wav.read_bytes(), "audio/wav")},
+    )
+    assert response.status_code == 200
+    upload_id = response.json()["upload_id"]
+    infer = client.post(
+        "/api/v1/inference",
+        data={"upload_id": upload_id, "language": "hi", "model_id": "aasist-v1"},
+    )
+    assert infer.status_code == 200
+
+
+def test_inference_rejects_long_audio(tmp_path: Path) -> None:
+    from vaaniq.api.services.ml_demo import write_sine_wav
+
+    cfg = AppConfig(
+        env="local",
+        database_url=f"sqlite:///{(tmp_path / 'dur.db').as_posix()}",
+        api=ApiConfig(max_audio_duration_sec=1, cors_origins=["http://localhost:5173"]),
+    )
+    timed = TestClient(create_app(cfg))
+    wav = tmp_path / "long.wav"
+    write_sine_wav(wav, seconds=2.0)
+    response = timed.post(
+        "/api/v1/inference",
+        files={"file": ("long.wav", wav.read_bytes(), "audio/wav")},
+        data={"language": "hi", "model_id": "aasist-v1"},
+    )
+    assert response.status_code == 400

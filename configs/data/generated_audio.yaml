@@ -1,0 +1,19 @@
+# Generated / fraud-pattern TTS supplements — ROADMAP-016 / REQ-031-033
+# ASSUMPTION: OQ-006 — ≤8 s clips; prompt bank elsewhere under configs/data/
+# ASSUMPTION: OQ-004 — overweight Parler-TTS TA if IndicSynth TA is thin
+
+source_id: parler_tts
+hf_dataset_id: null
+local_root: ./data/raw/generated_audio
+gated: false
+languages:
+  - hi
+  - mr
+  - ta
+label: fake
+# ASSUMPTION: OQ-002 — hours logged in dataset report; placeholder target
+target_hours_per_language: 5.0
+split_policy: speaker_disjoint
+notes: >
+  Offline manifests for Parler-TTS / XTTS-v2 fraud-pattern supplements.
+  Rows choose source enum parler_tts or xtts_v2 via metadata parser.

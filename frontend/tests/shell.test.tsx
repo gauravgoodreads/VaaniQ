@@ -56,9 +56,43 @@ describe("frontend shell", () => {
     expect(healthCall).toBeDefined();
   });
 
-  it("routes to upload stub page", async () => {
+  it("routes to upload page with detect action", async () => {
     renderApp("/upload");
     expect(await screen.findByRole("heading", { name: "Upload" })).toBeInTheDocument();
-    expect(screen.getByText(/ROADMAP-054/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Detect" })).toBeInTheDocument();
+  });
+
+  it("renders human study registration", async () => {
+    renderApp("/human-study");
+    expect(await screen.findByRole("heading", { name: "Human study" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Register anonymous ID" })).toBeInTheDocument();
+  });
+
+  it("exposes a skip-to-content link", () => {
+    renderApp("/");
+    expect(screen.getByRole("link", { name: "Skip to content" })).toHaveAttribute(
+      "href",
+      "#main-content",
+    );
+  });
+
+  it.each([
+    ["/", "VaaniQ"],
+    ["/dashboard", "Dashboard"],
+    ["/upload", "Upload"],
+    ["/live", "Live"],
+    ["/inference", "Inference"],
+    ["/history", "History"],
+    ["/research-metrics", "Research metrics"],
+    ["/experiments", "Experiments"],
+    ["/calibration", "Calibration"],
+    ["/explainability", "Explainability"],
+    ["/human-study", "Human study"],
+    ["/datasets", "Dataset explorer"],
+    ["/admin", "Admin"],
+    ["/docs", "Docs"],
+  ] as const)("renders %s heading", async (path, heading) => {
+    renderApp(path);
+    expect(await screen.findByRole("heading", { name: heading })).toBeInTheDocument();
   });
 });

@@ -40,6 +40,9 @@
 | OQ-033 | Aux acoustic features: early fusion, late fusion, or meta-classifier? | Ablation design | No | Late concatenation into AASIST input projection | Proposal p.8 |
 | OQ-034 | Grad-CAM on spectrogram vs on AASIST graph features — which input? | Implementation | No | Spectrogram/path aligned to model input used at inference | Proposal p.7 “spectrogram input used here” |
 | OQ-035 | Dataset open release under which umbrella licence given CC BY-NC IndicSynth subset? | Legal | Yes (before public release) | Dual: release manifests + scripts; redistribute only licence-compatible subsets; document NonCommercial | Proposal p.11, §20 |
+| OQ-036 | Should ClipMetadata include optional enrichment (gender, file_size_bytes, speaker_age, emotion, recording_medium, quality, checksum_sha256, uri)? | Schema completeness vs proposal sketch | No | All optional (nullable, default None); store when sources provide them | Not in Proposal §7.1 sketch; Phase-2 metadata prompt |
+| OQ-037 | Packet-loss simulation parameters (frame size, loss model) for WhatsApp-style delivery? | RQ1 SHOULD ablation; proposal lists Opus/resampling/noise, not packet loss | No | Bernoulli frame drops at 20 ms; fractions 0 / 0.05 / 0.10 | Proposal p.6 “Opus, resampling, noise”; Phase-4 prompt |
+| OQ-038 | Resample ladder for delivery simulation besides 16 kHz? | RQ1 SHOULD ablation | No | Round-trip 8 kHz / 16 kHz / 22.05 kHz then restore 16 kHz | Proposal p.6 resampling |
 
 ## Conflict log (Proposal wins)
 

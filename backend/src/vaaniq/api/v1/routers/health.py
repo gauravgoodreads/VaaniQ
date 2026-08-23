@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
+import structlog
 from fastapi import APIRouter, Depends
 from sqlalchemy import text
 
@@ -11,6 +12,8 @@ from vaaniq.api.deps import get_config
 from vaaniq.api.schemas import HealthResponse, ReadyResponse
 from vaaniq.config.models import AppConfig
 from vaaniq.persistence.session import create_db_engine
+
+log = structlog.get_logger(__name__)
 
 router = APIRouter(tags=["health"])
 
@@ -31,6 +34,7 @@ def ready(config: Annotated[AppConfig, Depends(get_config)]) -> ReadyResponse:
         db_status = "ok"
         status = "ready"
     except Exception:
+        log.warning("readiness_db_unreachable")
         db_status = "error"
         status = "not_ready"
     finally:

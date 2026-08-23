@@ -16,8 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # Paths scanned for hard language-code defects
 SCAN_GLOBS = (
     "backend/**/*.py",
-    "frontend/src/**/*.{ts,tsx}",
-    "configs/**/*.{yaml,yml}",
+    "frontend/src/**/*.ts",
+    "frontend/src/**/*.tsx",
+    "configs/**/*.yaml",
+    "configs/**/*.yml",
 )
 
 # Explicit project-language assignment patterns that must never use Telugu

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from vaaniq.persistence.base import Base
 from vaaniq.persistence.models import (
+    AudioClipRow,
     CalibrationRunRow,
+    DatasetCatalogRow,
     ExperimentMetricRow,
     ExperimentRow,
     HumanStudyParticipantRow,
@@ -17,8 +19,10 @@ from vaaniq.persistence.models import (
 from vaaniq.persistence.session import create_db_engine, create_session_factory, session_scope
 
 __all__ = [
+    "AudioClipRow",
     "Base",
     "CalibrationRunRow",
+    "DatasetCatalogRow",
     "ExperimentMetricRow",
     "ExperimentRow",
     "HumanStudyParticipantRow",

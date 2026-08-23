@@ -9,12 +9,30 @@
 | `SYSTEM_ARCHITECTURE.md` | C4 + ports |
 | `PROJECT_ROADMAP.md` | P1–P9 / ROADMAP-001–064 |
 | `DEVELOPER_GUIDE.md` | Day-to-day engineering |
-| `API.md` | HTTP + OpenAPI types |
-| `DATASETS.md` | Corpora |
 | `TRAINING.md` | Train / baselines |
-| `DEPLOYMENT.md` | Compose / Spaces |
 | `RESEARCH.md` | RQs / metrics |
-| `EXPERIMENTS.md` | Run layout |
+| `FINAL_ARCHITECTURE.md` | Phase-4 architecture addendum |
+| `EXPERIMENTS.md` | Experiment store + RQ suites |
+| `CALIBRATION.md` | RQ4 calibration studies |
+| `DATASET.md` | Dataset explorer / conditions |
+| `DATASETS.md` | Corpora inventory |
+| `HUMAN_STUDY.md` | RQ5 protocol |
+| `API_REFERENCE.md` | Live HTTP surface |
+| `API.md` | OpenAPI generation notes |
+| `RESEARCH_CONTRIBUTIONS.md` | RQ/O mapping |
+| `KNOWN_LIMITATIONS.md` | Dissertation §18 analogue |
+| `FUTURE_WORK.md` | After Phase 4 |
+| `PROJECT_COMPLETION_CHECKLIST.md` | Complete / partial / remaining |
+| `CODE_REVIEW.md` | Phase 5 engineering audit |
+| `PROPOSAL_COMPLIANCE.md` | RQ/O mapping vs proposal |
+| `ML_REVIEW.md` | Training, leakage, metrics |
+| `PERFORMANCE_REPORT.md` | CPU/demo performance register |
+| `SECURITY_REVIEW.md` | Uploads, API, secrets |
+| `PROJECT_SCORECARD.md` | 1–10 grades with rationale |
+| `FINAL_REFACTOR_SUMMARY.md` | Phase 5 safe fixes (no API breaks) |
+| `PHASE_VERIFICATION.md` | Phase 1–5 module/e2e matrix |
+| `RESEARCH_EXECUTION_STATUS.md` | Phase 6: hours, RQ PENDING/COMPLETE (measured only) |
+| `DEPLOYMENT.md` | Compose / Spaces |
 | `CONTRIBUTING.md` | Contribution rules |
 
 On conflict: **proposal wins** (`source/Capstone_Project_Proposal.md`).

@@ -1,0 +1,22 @@
+# RQ1 degradation ladder — ROADMAP-023 / OQ-012 / OQ-037 / OQ-038
+# Primary WhatsApp setting remains 16 kbps / 16 kHz (OQ-007).
+
+name: research_conditions
+# ASSUMPTION: OQ-012
+bitrate_ladder_kbps:
+  - 8
+  - 16
+  - 24
+# ASSUMPTION: OQ-038 — resample levels for delivery simulation (proposal p.6)
+resample_hz:
+  - 8000
+  - 16000
+  - 22050
+# ASSUMPTION: OQ-037 — packet-loss fractions not stated in the proposal
+packet_loss_fractions:
+  - 0.0
+  - 0.05
+  - 0.10
+primary_bitrate_kbps: 16
+primary_sample_rate_hz: 16000
+notes: "Primary cell is Opus 16 kbps VoIP; ladder/loss/resample are SHOULD ablations."
