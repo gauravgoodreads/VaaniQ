@@ -29,9 +29,17 @@ flowchart LR
 Full design: [`docs/SYSTEM_ARCHITECTURE.md`](./docs/SYSTEM_ARCHITECTURE.md).
 Roadmap: [`docs/PROJECT_ROADMAP.md`](./docs/PROJECT_ROADMAP.md).
 
+## Full install on a new PC
+
+Step-by-step for another machine (folder map, Windows fixes, Docker, research CLI):
+**[`INSTALL_AND_RUN.md`](./INSTALL_AND_RUN.md)**.
+
 ## 5-minute quickstart
 
 Prerequisites: **Python 3.11**, [**uv**](https://github.com/astral-sh/uv), **Node.js 22+**.
+
+On Windows, if `uvicorn.exe` is blocked by Application Control, use:
+`uv run python -m uvicorn ...` (see `INSTALL_AND_RUN.md`).
 
 ### 1. Clone and env
 

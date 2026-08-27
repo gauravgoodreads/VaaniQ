@@ -1,0 +1,2 @@
+status,reason,model,training_languages,evaluation_language,condition,eer,min_dcf,accuracy,f1
+PENDING,no_curated_audio_bytes_no_cached_xlsr_embeddings,,,,,,,,

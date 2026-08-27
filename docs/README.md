@@ -2,6 +2,7 @@
 
 | Path | Role |
 |------|------|
+| [`../INSTALL_AND_RUN.md`](../INSTALL_AND_RUN.md) | **New PC**: clone, install, run, folder map, Windows fixes |
 | `source/` | Extracted proposal + topic-approval deck (authoritative inputs) |
 | `REQUIREMENTS.md` | REQ catalogue |
 | `PROJECT_ANALYSIS.md` | Derived analysis with citations |

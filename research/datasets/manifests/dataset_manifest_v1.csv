@@ -1,0 +1,7 @@
+sample_id,source_id,speaker_id,language,label,dataset,attack_type,generation_model,compression,bitrate,sample_rate,duration,split,checksum,corpus_role,audio_bytes_present
+hi_real_001,kathbath,spk_hi_a,hi,real,ai4bharat/Kathbath,,,clean,,16000,2.0,train,,schema_fixture,false
+hi_fake_001,indicsynth,spk_hi_b,hi,fake,ai4bharat/IndicSynth,tts,indicsynth,clean,,16000,1.5,train,,schema_fixture,false
+mr_real_001,indicvoices_r,spk_mr_a,mr,real,ai4bharat/indicvoices_r,,,clean,,16000,3.0,train,,schema_fixture,false
+mr_fake_001,parler_tts,,mr,fake,local/generated_audio,tts_fraud_pattern,indic-parler-tts,opus_whatsapp_sim,,16000,2.5,train,,schema_fixture,false
+ta_real_001,common_voice,spk_ta_a,ta,real,mozilla-foundation/common_voice_17_0,,,clean,,16000,1.0,train,,schema_fixture,false
+ta_fake_001,xtts_v2,spk_ta_b,ta,fake,local/generated_audio,voice_clone_fraud_pattern,xtts-v2,clean,,16000,4.0,train,abc123,schema_fixture,false

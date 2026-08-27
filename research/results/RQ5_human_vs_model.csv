@@ -1,0 +1,2 @@
+status,reason,participant_or_model,language,condition,accuracy,mean_confidence,ece,sample_count
+PENDING,human_n=0_and_no_shared_test_clip_ids_from_trained_model,,,,,,,

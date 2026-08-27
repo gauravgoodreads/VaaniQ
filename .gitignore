@@ -54,6 +54,9 @@ frontend/coverage/
 /data/**
 !/data/.gitkeep
 !/data/README.md
+# Local API uploads / embedding caches (never commit)
+backend/data/
+!backend/data/.gitkeep
 /models/**
 !/models/.gitkeep
 !/models/registry.json
