@@ -1,19 +1,18 @@
 # Future work
 
-Recommended next steps after Phase 4 software. Each item maps to a ROADMAP / OQ id.
+Remaining work **after** approved Round 3. Canonical metrics are frozen in
+`artifacts/final_results_manifest.json`. Do not change those numbers unless a
+new experiment is completed.
 
-1. **Ingest curated hours** for HI/MR/TA with speaker-disjoint manifests (OQ-002, ROADMAP-011–018).
-2. **Run Opus twins on a host where ffmpeg can spawn** (OQ-007).
-3. **Train clovaai/AASIST on GPU** (Colab T4 / Kaggle per proposal §11; OQ-014).
-4. **Fill RQ1–RQ4 tables** from those runs; bootstrap 95% CI (OQ-009).
-5. **Recruit ≥12–15 listeners** on shared clip IDs (ROADMAP-060, REQ-123).
-6. **Draft the arXiv / conference paper** structured on RQ1–RQ5 (ROADMAP-064).
-7. **Open-release packaging + ethics / licence matrix** (ROADMAP-063, OQ-035).
-8. **Optional Node BFF** if the academic demo requires the three-tier wording literally (ROADMAP-058).
-9. **HF Spaces publish** using `deployment/spaces/` once a public demo host is chosen (OQ-020).
-10. **Literature refresh** before Review 3 (REQ-129).
-11. **Phase 6 corpus + GPU runs** remain blocked until an HF token is available
-    for gated Kathbath / IndicVoices-R / IndicSynth ingest, Tamil audio is
-    verified on disk, XLS-R embeddings are cached on Colab T4 / Kaggle, and
-    RQ1-RQ5 are executed. Do not treat `--mode fixtures` SVG/CSV or
-    `backend/research/explain/*.json` as dissertation results.
+1. **Balance Benchmark V2** source×label cells (currently PARTIAL; source probe 98.48%).
+2. **Re-evaluate FLEURS** as a new experiment if using the local 150-clip ingest
+   (`data/benchmark_v2/provenance.json`). Frozen Round 3 evidence remains n=9 PILOT.
+3. **Generator-disjoint evaluation** when a genuine held-out generator cell exists (n=0 PENDING).
+4. **Faithful RawNet2** implementation (approximate baseline is not faithful RawNet2).
+5. **Recruit RQ5 listeners** on shared clip IDs; protocol ready; N=0.
+6. **Open-release packaging + ethics / licence matrix** (ROADMAP-063, OQ-035).
+7. **Optional Node BFF** if the academic demo requires the three-tier wording literally (ROADMAP-058).
+8. **HF Spaces publish** using `deployment/spaces/` if a public demo host is chosen (OQ-020).
+
+Do not treat `--mode fixtures` SVG/CSV or `backend/research/explain/*.json` as
+dissertation results.

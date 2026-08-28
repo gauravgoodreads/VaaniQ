@@ -26,9 +26,11 @@ uv run python -m vaaniq.research.cli --root ./research --seed 42
 
 CI runs the same functions on **synthetic embeddings** (no network, no GPU). Those numbers are **not** RQ answers.
 
-## Real RQ tables (remaining)
+## Real RQ tables (measured)
 
-Curated hours (OQ-002), gated HF downloads, and GPU AASIST (OQ-014) are required before citing EER deltas in the dissertation. Re-run the same CLI/entrypoints on cached embeddings after ingest.
+Canonical numbers are frozen in `artifacts/final_results_manifest.json`. CI still runs
+synthetic embeddings; those numbers are **not** RQ answers. Dissertation citations must
+use the frozen Round 3 artifacts, not fixture logits.
 
 ## Primary WhatsApp cell
 

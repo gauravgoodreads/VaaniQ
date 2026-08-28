@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import urllib.request
 import zipfile
 from datetime import UTC, datetime
@@ -205,7 +206,13 @@ def _metric(
 
 
 def load_train_report() -> dict[str, object]:
-    """Load persisted training metrics; used when API omits nested eval blocks."""
+    """Load Baseline V1 with frozen Round 3 metrics overriding legacy files."""
+    sys.path.insert(0, str(REPO / "scripts"))
+    from report_data import load_train_report as load_frozen_train_report
+
+    frozen = load_frozen_train_report()
+    if frozen:
+        return frozen
     if not TRAIN_REPORT.is_file():
         return {}
     with TRAIN_REPORT.open(encoding="utf-8") as fh:
@@ -341,7 +348,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         ax.text(
             bar.get_x() + bar.get_width() / 2,
             value + 0.025,
-            f"{value:.1%}",
+            f"{value:.2%}",
             ha="center",
             va="bottom",
             fontsize=10,
@@ -397,7 +404,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
                 bar.get_height() + 0.025,
-                f"{bar.get_height():.1%}",
+                f"{bar.get_height():.2%}",
                 ha="center",
                 va="bottom",
                 fontsize=10,
@@ -438,7 +445,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
                 max(bar.get_height() + 0.025, 0.025),
-                f"{bar.get_height():.1%}",
+                f"{bar.get_height():.2%}",
                 ha="center",
                 va="bottom",
                 fontsize=10,
@@ -595,7 +602,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
                 ax.text(
                     bar.get_x() + bar.get_width() / 2,
                     max(value + 0.025, 0.025),
-                    f"{value:.1%}",
+                    f"{value:.2%}",
                     ha="center",
                     va="bottom",
                     fontsize=9,
@@ -652,7 +659,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         "Validate",
         "Preprocess",
         "Embed",
-        "AASIST",
+        "AASIST-compat. head",
         "Calibrate",
         "Explain",
         "UI/API",
@@ -743,9 +750,10 @@ def build_doc(
     add_title(doc, "1. Executive Summary", 1)
     doc.add_paragraph(
         "VaaniQ is a research-grade capstone system that detects AI-generated (cloned and TTS) "
-        "voice in Hindi, Marathi, and Tamil. Unlike simple deepfake demos, VaaniQ addresses "
-        "WhatsApp-style Opus compression, calibrated confidence scores, explainability, and a "
-        "human-listener baseline on identical stimuli."
+        "voice in Hindi, Marathi, and Tamil. Unlike simple deepfake demos, VaaniQ studies "
+        "WhatsApp-style Opus simulation, calibrated confidence, explainability, and a "
+        "human-listener protocol on identical stimuli. Human-study protocol ready; participant "
+        "data collection pending (N=0)."
     )
     doc.add_paragraph(
         "This document is the master reference for capstone presentation, viva voce, and "
@@ -772,11 +780,11 @@ def build_doc(
         ],
         [
             "Held-out test accuracy",
-            f"{float(pipeline.get('test_accuracy', pipeline.get('val_accuracy', 0))):.1%}",
+            f"{float(pipeline.get('test_accuracy', pipeline.get('val_accuracy', 0))):.2%}",
         ],
         [
             "Held-out test EER",
-            f"{float(pipeline.get('test_eer', pipeline.get('val_eer', 0))):.1%}",
+            f"{float(pipeline.get('test_eer', pipeline.get('val_eer', 0))):.2%}",
         ],
         [
             f"Detection on real {sample_kind} clip",
@@ -791,9 +799,36 @@ def build_doc(
             f"{float(pipeline.get('test_ece', pipeline.get('val_ece', 0))):.3f}",
         ],
         ["GPU acceleration", str(pipeline.get("gpu", "CUDA available"))],
-        ["Human study protocol", "Ready — recruitment pending"],
+        ["Human study protocol", "Ready; N=0; BLOCKED ON HUMAN DATA"],
     ]
     add_table(doc, ["Component", "Status"], status_rows)
+
+    add_title(doc, "Approved Round 3 Canonical Results", 2)
+    doc.add_paragraph(
+        "All headline metrics below are copied from artifacts/final_results_manifest.json "
+        "(commit 084bd47ca6ca1b69a7cdbf424e2946f3794c2a95). Acoustic Baseline V1 is an "
+        "acoustic embedding plus AASIST-compatible head, not canonical AASIST and not XLS-R. "
+        "Frozen XLS-R improved ranking performance while classification performance remained "
+        "broadly comparable."
+    )
+    add_table(
+        doc,
+        ["Experiment", "Status", "Canonical result"],
+        [
+            ["Baseline V1", "COMPLETE", "n=584; acc 91.61%; P 85.48%; R 98.11%; F1 91.36%; EER 6.56%; AUC 0.9729; min-DCF 0.7841; threshold 0.5"],
+            ["Frozen XLS-R main", "COMPLETE", "facebook/wav2vec2-xls-r-300m frozen mean-pool; n=584; acc 92.12%; EER 6.88%; AUC 0.9828; min-DCF 0.3144"],
+            ["RQ1 acoustic", "COMPLETE", "Clean 93.84% / Opus 16 kbps WhatsApp-style simulation 89.38% (n=292)"],
+            ["RQ1 frozen XLS-R", "COMPLETE", "Clean 91.44% / Opus 92.81% (n=292); codec impact is model-dependent"],
+            ["RQ2 English-only", "COMPLETE", "54.8% acc; 76.56% EER; 0.162 AUC; all REAL at 0.5; not a score-contract bug"],
+            ["RQ3 LOO", "COMPLETE", "Hindi 78.83% / 21.83% EER; Marathi 93.29% / 7.14%; Tamil 93.94% / 6.35%"],
+            ["RQ4 calibration", "COMPLETE", "Val-selected per-language-and-condition; test ECE 0.0245 → 0.026"],
+            ["RQ5 human study", "BLOCKED ON HUMAN DATA", "Human-study protocol ready; participant data collection pending (N=0)"],
+            ["Benchmark V2", "PARTIAL", "External-source pilot; source probe 98.48%; does not solve source confounding"],
+            ["FLEURS unseen-real", "PILOT", "n=9; 55.6% retained only as pipeline validation"],
+            ["Generator-disjoint", "PENDING", "n=0; no result claimed"],
+            ["Faithful RawNet2", "PENDING", "Approximate baseline exists; faithful implementation remaining"],
+        ],
+    )
 
     doc.add_page_break()
 
@@ -848,7 +883,7 @@ def build_doc(
         "Preprocessing (16 kHz mono, peak normalisation, silence handling)",
         "Optional Opus compression twin for robustness evaluation",
         "Acoustic embedding extraction (demo path) or frozen Wav2Vec2-XLS-R (research path)",
-        "AASIST classifier head — lightweight anti-spoofing graph attention network",
+        "AASIST-compatible NumPy classification head (not canonical AASIST)",
         "Temperature scaling calibration per language and compression condition",
         "Reliability badge assignment based on confidence and entropy",
         "Explainability artefact generation (Grad-CAM, bands, spectrogram, compression view)",
@@ -941,9 +976,9 @@ def build_doc(
         ["Training clips", str(pipeline.get("n_train", 360))],
         ["Validation clips", str(pipeline.get("n_val", 90))],
         ["Held-out test clips", str(pipeline.get("n_test", 90))],
-        ["Validation accuracy", f"{float(pipeline.get('val_accuracy', 0)):.1%}"],
-        ["Held-out test accuracy", f"{float(pipeline.get('test_accuracy', 0)):.1%}"],
-        ["Held-out test EER", f"{float(pipeline.get('test_eer', 0)):.1%}"],
+        ["Validation accuracy", f"{float(pipeline.get('val_accuracy', 0)):.2%}"],
+        ["Held-out test accuracy", f"{float(pipeline.get('test_accuracy', 0)):.2%}"],
+        ["Held-out test EER", f"{float(pipeline.get('test_eer', 0)):.2%}"],
         ["Held-out test ROC-AUC", f"{float(pipeline.get('test_roc_auc', 0)):.3f}"],
         ["Held-out test ECE", f"{float(pipeline.get('test_ece', 0)):.3f}"],
         ["Held-out test Brier", f"{float(pipeline.get('test_brier', 0)):.3f}"],
@@ -979,12 +1014,12 @@ def build_doc(
 
     m = metrics.get("metrics") or {}
     metric_rows = [
-        ["EER (held-out test)", f"{float(m.get('eer', pipeline.get('test_eer', 0))):.1%}"],
+        ["EER (held-out test)", f"{float(m.get('eer', pipeline.get('test_eer', 0))):.2%}"],
         ["min-DCF", f"{float(m.get('min_dcf', pipeline.get('test_min_dcf', 0))):.3f}"],
-        ["Accuracy (held-out test)", f"{float(m.get('accuracy', test_acc)):.1%}"],
-        ["Precision", f"{float(m.get('precision', test_block.get('precision', 0))):.1%}"],
-        ["Recall", f"{float(m.get('recall', test_block.get('recall', 0))):.1%}"],
-        ["F1 score", f"{float(m.get('f1', test_block.get('f1', 0))):.1%}"],
+        ["Accuracy (held-out test)", f"{float(m.get('accuracy', test_acc)):.2%}"],
+        ["Precision", f"{float(m.get('precision', test_block.get('precision', 0))):.2%}"],
+        ["Recall", f"{float(m.get('recall', test_block.get('recall', 0))):.2%}"],
+        ["F1 score", f"{float(m.get('f1', test_block.get('f1', 0))):.2%}"],
         ["ROC-AUC", f"{float(test_block.get('roc_auc', pipeline.get('test_roc_auc', 0))):.3f}"],
         ["ECE (post-calibration)", f"{float(m.get('ece', pipeline.get('test_ece', 0))):.3f}"],
         ["Brier (post-calibration)", f"{float(m.get('brier', pipeline.get('test_brier', 0))):.3f}"],
@@ -1001,9 +1036,9 @@ def build_doc(
             [
                 name,
                 str(block.get("n", per_lang_n)),
-                f"{_metric(block, 'accuracy'):.1%}",
-                f"{_metric(block, 'eer'):.1%}",
-                f"{_metric(block, 'f1'):.1%}",
+                f"{_metric(block, 'accuracy'):.2%}",
+                f"{_metric(block, 'eer'):.2%}",
+                f"{_metric(block, 'f1'):.2%}",
             ]
         )
     add_title(doc, "Per-Language Held-Out Test Metrics", 2)
@@ -1025,9 +1060,9 @@ def build_doc(
                     train_pairs[code],
                     names[code],
                     str(block.get("n", 0)),
-                    f"{_metric(block, 'accuracy'):.1%}",
-                    f"{_metric(block, 'eer'):.1%}",
-                    f"{_metric(block, 'f1'):.1%}",
+                    f"{_metric(block, 'accuracy'):.2%}",
+                    f"{_metric(block, 'eer'):.2%}",
+                    f"{_metric(block, 'f1'):.2%}",
                 ]
             )
         add_title(doc, "RQ3: Leave-One-Language-Out Transfer", 2)
@@ -1046,7 +1081,7 @@ def build_doc(
         "The tables and figures below are generated from persisted held-out test metrics. "
         f"The test set contains {test_n} {corpus_kind} instances "
         f"(~{per_lang_n} per language). Overall accuracy is "
-        f"{test_acc:.1%}, with a 95% bootstrap interval for EER of {eer_lo:.1%} to {eer_hi:.1%}. "
+        f"{test_acc:.2%}, with a 95% bootstrap interval for EER of {eer_lo:.2%} to {eer_hi:.2%}. "
         "Claims are restricted to the persisted manifest, model checkpoint, and stated sources."
     )
 
@@ -1110,13 +1145,13 @@ def build_doc(
         [
             [
                 "RQ1",
-                f"Clean {clean_acc:.1%} accuracy vs Opus-sim {opus_acc:.1%} (n={test_n})",
+                f"Clean {clean_acc:.2%} accuracy vs Opus-sim {opus_acc:.2%} (n={test_n})",
                 "Measured on paired test instances" if is_publication_subset else "Pending",
             ],
             [
                 "RQ2",
-                "Multilingual Hindi/Marathi/Tamil model trained",
-                "English-only baseline experiment pending",
+                "English-only 54.8% acc / 76.56% EER / 0.162 AUC vs multilingual Baseline V1 91.61% / 6.56% / 0.9729",
+                "COMPLETE — catastrophic English→Indic transfer; scores not flipped",
             ],
             [
                 "RQ3",
@@ -1169,7 +1204,9 @@ def build_doc(
     doc.add_paragraph(
         "A bounded listening-test protocol is implemented in the web application. Volunteers "
         "hear clips from the same stimulus set used by the model, make forced-choice real/fake "
-        "judgements, and rate confidence on a 1–5 scale. Gold labels remain hidden during trials."
+        "judgements, and rate confidence on a 1–5 scale. Gold labels remain hidden during trials. "
+        "Human-study protocol ready; participant data collection pending (N=0). There are no "
+        "human accuracy, confidence, calibration, or model-versus-human results."
     )
     doc.add_paragraph("Target: 20–30 participants; minimum floor 12–15 for analysis.")
 
@@ -1263,7 +1300,7 @@ def build_doc(
             ],
             ["GPU", str(pipeline.get("gpu", "NVIDIA RTX 3050"))],
             ["CUDA", str(pipeline.get("cuda_available", False))],
-            ["Checkpoint", "AASIST v1 NumPy weights"],
+            ["Checkpoint", "AASIST-compatible NumPy weights (not canonical AASIST)"],
             [
                 "Dataset manifest",
                 f"{pipeline.get('n_clips', 900)} clips; versioned train/val/test labels",
@@ -1298,11 +1335,11 @@ def build_doc(
         "Explainability: heatmaps and frequency bands.",
         "Human study protocol walkthrough.",
         (
-            "Honest limitations: bounded publication subset, model baselines, and human study."
+            "Honest limitations: V1 source-label confound, partial V2, FLEURS n=9 PILOT, RQ5 N=0."
             if is_publication_subset
             else "Honest limitations: demonstration corpus and pending research-data ingest."
         ),
-        "Close with novelty claim and future work toward conference submission.",
+        "Close with measured contributions, honest limitations, and remaining PENDING/BLOCKED work.",
     ]
     for i, step in enumerate(flow, 1):
         doc.add_paragraph(f"{i}. {step}")
@@ -1318,9 +1355,10 @@ def build_doc(
             "The software and bounded real/fake benchmark are ready for capstone demonstration. "
             "RQ1 detection/compression and RQ4 calibration findings are measured on the persisted "
             "speaker-disjoint Kathbath + IndicSynth subset. Conference-level external validity "
-            "still requires the frozen XLS-R research front-end, multiple detector baselines, "
-            f"{rq3_requirement}broader attack families, and a completed human study. No result "
-            "in this document is generalized beyond the declared subset."
+            "still requires a balanced V2 source×label design, generator-disjoint evaluation "
+            f"(n=0), faithful RawNet2, statistically useful unseen-source n, {rq3_requirement}"
+            "and real RQ5 participants (N=0). Frozen XLS-R main and RQ1–RQ4 are already measured. "
+            "No result in this document is generalized beyond the declared subset."
         )
     else:
         doc.add_paragraph(
@@ -1455,31 +1493,58 @@ def svg_to_png() -> None:
 def main() -> None:
     real_sample, real_language = resolve_inference_sample("real")
     fake_sample, fake_language = resolve_inference_sample("fake")
-    print("Seeding inference for dashboard data...")
-    if real_sample.is_file():
-        post_inference(real_sample, real_language)
-    if fake_sample.is_file():
-        post_inference(fake_sample, fake_language)
-
-    print("Fetching API metrics...")
-    pipeline = merge_pipeline(fetch_json(f"{API}/api/v1/metrics/pipeline"))
-    calib = fetch_json(f"{API}/api/v1/calibration")
-    dataset = fetch_json(f"{API}/api/v1/datasets/explorer")
-    metrics = fetch_json(f"{API}/api/v1/metrics")
-    admin = fetch_json(f"{API}/api/v1/admin/status")
-
-    infer_real = (
-        post_inference(real_sample, real_language) if real_sample.is_file() else {}
-    )
-    infer_fake = (
-        post_inference(fake_sample, fake_language) if fake_sample.is_file() else {}
-    )
+    pipeline = load_train_report()
+    calib: dict[str, object] = {}
+    dataset: dict[str, object] = {}
+    metrics: dict[str, object] = {"metrics": pipeline.get("test_metrics") or {}}
+    admin: dict[str, object] = {"git_sha": "084bd47ca6ca1b69a7cdbf424e2946f3794c2a95"}
+    infer_real: dict[str, object] = {}
+    infer_fake: dict[str, object] = {}
+    try:
+        print("Seeding inference for dashboard data...")
+        if real_sample.is_file():
+            post_inference(real_sample, real_language)
+        if fake_sample.is_file():
+            post_inference(fake_sample, fake_language)
+        print("Fetching API metrics...")
+        pipeline = merge_pipeline(fetch_json(f"{API}/api/v1/metrics/pipeline"))
+        frozen = load_train_report()
+        for key in (
+            "eval_metrics",
+            "test_metrics",
+            "validation_metrics",
+            "test_accuracy",
+            "test_eer",
+            "test_ece",
+            "test_brier",
+            "test_roc_auc",
+            "n_clips",
+            "n_train",
+            "n_val",
+            "n_test",
+            "data_provenance",
+            "corpus_provenance",
+            "speaker_disjoint_verified",
+        ):
+            if frozen.get(key) is not None:
+                pipeline[key] = frozen[key]
+        calib = fetch_json(f"{API}/api/v1/calibration")
+        dataset = fetch_json(f"{API}/api/v1/datasets/explorer")
+        metrics = fetch_json(f"{API}/api/v1/metrics")
+        admin = fetch_json(f"{API}/api/v1/admin/status")
+        infer_real = (
+            post_inference(real_sample, real_language) if real_sample.is_file() else {}
+        )
+        infer_fake = (
+            post_inference(fake_sample, fake_language) if fake_sample.is_file() else {}
+        )
+        print("Capturing UI screenshots...")
+        capture_screenshots()
+    except Exception as exc:
+        print(f"Live API/screenshots unavailable ({exc}); using frozen Round 3 artifacts.")
 
     print("Generating verified figures from persisted test metrics...")
     generate_verified_figures(pipeline)
-
-    print("Capturing UI screenshots...")
-    capture_screenshots()
 
     print("Building DOCX...")
     saved = build_doc(

@@ -1,5 +1,12 @@
 # VaaniQ — Complete Project Documentation
 
+> **ARCHIVED PRE-ROUND-3 SNAPSHOT.** This file preserves an earlier engineering
+> documentation state and its demo-era metrics; it is not a source for current
+> research claims. Use `artifacts/final_results_manifest.json`,
+> `docs/VaaniQ_IEEE_Research_Paper_Final.docx`,
+> `docs/VaaniQ_Master_Presentation_FINAL_v2.docx`, and
+> `research/paper/manuscript/VaaniQ_manuscript.md` for the approved Round 3 baseline.
+
 **Document ID:** `VaaniQ-DOC-001`  
 **Version:** 1.0  
 **Generated:** 2026-08-28 (UTC+5:30)  

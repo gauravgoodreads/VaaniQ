@@ -1,15 +1,22 @@
 # VaaniQ — Next Steps
 
-Phase 4 research-platform software is in place. Remaining for dissertation **results**:
+> Remaining work after approved Round 3. Canonical metrics are frozen in
+> `artifacts/final_results_manifest.json`. Do not retrain or change those numbers
+> unless a new experiment is completed.
 
-1. **Operator data** — Curate HI/MR/TA hours, generate Opus twins (needs working ffmpeg), fill embedding cache with real XLS-R (`uv sync --extra ml` + HF token).
-2. **Paper-faithful AASIST** — Swap NumPy head for clovaai/aasist torch graph on Colab/Kaggle T4; keep the same Trainer/manifest contract.
-3. **Fill RQ tables** — `python -m vaaniq.research.cli` on real embeddings; paste SVG/CSV into the dissertation.
-4. **Human study collection** — ≥12–15 responses on shared clip IDs (ROADMAP-060). Software/UI is ready.
-5. **Paper draft (ROADMAP-064)** — Structure on RQ1–RQ5.
-6. **Open release (ROADMAP-063)** — Licence matrix (OQ-035).
-7. **Optional** — Node BFF (ROADMAP-058); publish HF Spaces (`deployment/spaces/`).
+Remaining research items:
 
-Do **not** claim success criteria REQ-063 / 121–124 until real curated eval numbers and human N exist.
+1. **Benchmark V2** — PARTIAL; balance source×label cells. The current source probe (98.48%) does not show reduced confounding.
+2. **FLEURS external-source** — Frozen eval is PILOT n=9. Local ingest now has
+   150 FLEURS reals; that is not a new result until re-evaluated.
+3. **Generator-disjoint evaluation** — PENDING; n=0.
+4. **Faithful RawNet2** — PENDING implementation (the approximate baseline is not faithful RawNet2).
+5. **RQ5 human study** — BLOCKED ON HUMAN DATA; protocol ready; N=0.
+6. **Paper draft (ROADMAP-064)** — Structure on RQ1–RQ5.
+7. **Open release (ROADMAP-063)** — Licence matrix (OQ-035).
+8. **Optional** — Node BFF (ROADMAP-058); publish HF Spaces (`deployment/spaces/`).
+
+Do **not** claim RQ5 success criteria until human N exists. RQ1–RQ4 claims must
+cite the frozen bounded-V1 manifest, not proposal hour targets.
 
 See [`PROJECT_COMPLETION_CHECKLIST.md`](PROJECT_COMPLETION_CHECKLIST.md).

@@ -1,5 +1,10 @@
 # Performance report (Phase 5)
 
+> **Historical engineering-performance snapshot.** This report predates the approved
+> Round 3 research baseline and is retained only for CPU/UI performance traceability.
+> Its statements about dataset or experiment readiness are not current research claims;
+> use `artifacts/final_results_manifest.json` for measured results.
+
 No GPU is assumed on this workstation (proposal §11: Colab T4 / Kaggle). This report is **evidence from local CPU gates**, not a CUDA Nsight profile. Optimisations were applied only where they were correctness-adjacent (indexes, upload key, avoiding extra copies of unsafe filenames).
 
 ## What was measured

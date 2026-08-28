@@ -1,18 +1,12 @@
-# Results audit
+# Results audit (archived pre-Round-3 snapshot)
 
-Generated: 2026-08-27T17:59:43.353502+00:00
-Git: `8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2`
-
-| Check | Result |
-|-------|--------|
-| RQ1-RQ5 metric cells empty / PENDING | YES |
-| Fixture EER copied into RQ CSVs | NO |
-| Proposal target hours treated as measured hours | NO |
-| Speaker-disjoint research split written | NO (no corpus) |
-| Temperature fit on test | N/A (not run) |
-| Human clips = model test IDs | N/A (n=0) |
-| Tamil audio verified | False |
-| can_train | False |
-
-Existing `backend/research/explain/*.json` files are **demo inference artefacts**, not RQ tables.
-Existing fixture SVG from `--mode fixtures` are **software-path demos**.
+> **STALE.** This file records a software-path audit from before the bounded V1
+> experiments were frozen. Current evidence:
+>
+> - RQ1–RQ4: COMPLETE (`artifacts/final_results_manifest.json`)
+> - RQ5: BLOCKED ON HUMAN DATA (N=0)
+> - Speaker-disjoint publication split: yes (1254 / 508 / 584)
+> - `can_train`: publication subset already trained
+>
+> Do not treat demo `backend/research/explain/*.json` or `--mode fixtures`
+> SVG/CSV as dissertation results.

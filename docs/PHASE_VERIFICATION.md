@@ -1,8 +1,13 @@
 # Phase verification (Phases 1–5)
 
+> **Historical Phase 1–5 software verification.** For approved Round 3 measured
+> results use `artifacts/final_results_manifest.json` and
+> `docs/RESEARCH_EXECUTION_STATUS.md`. This file records earlier software-vs-empirical
+> status and must not be cited as current RQ numbers.
+
 This file answers: **are all Cursor phases done?**  
 **Software: yes, as an implementable research platform.**  
-**Empirical dissertation results: no.** Do not treat fixture EER or empty-history metrics as paper numbers.
+**Empirical dissertation results:** measured Round 3 evidence now exists for RQ1–RQ4 on the bounded V1 benchmark; RQ5 remains N=0. Do not treat fixture EER or empty-history metrics as paper numbers.
 
 Status key:
 

@@ -22,10 +22,10 @@ estimation for **AI-generated voice** in Indian languages, with a human-percepti
 | Calibration (RQ4) | |
 | Human vs model on same clips (RQ5) | |
 
-**Current honesty rule:** software + demo are built; curated research hours and RQ metric
-tables are largely **PENDING** until real data is ingested and experiments are run.
-Do not treat demo/fixture numbers as dissertation results.
-See `docs/RESEARCH_EXECUTION_STATUS.md` and `research/RESEARCH_EXECUTION_STATUS.md`.
+**Current honesty rule:** software + demo are built; bounded V1 RQ1–RQ4 results are
+frozen in `artifacts/final_results_manifest.json`. RQ5 is N=0. Benchmark V2 is
+PARTIAL. FLEURS unseen-real eval is a PILOT (n=9). Do not treat demo/fixture
+numbers as dissertation results. See `docs/RESEARCH_EXECUTION_STATUS.md`.
 
 ---
 
@@ -54,9 +54,9 @@ broscapstone/
 ├── models/                  # Weight placeholders (gitignored bulk)
 ├── research/                # Results, reports, paper draft, experiment layout
 │   ├── datasets/            # Manifests + dataset reports
-│   ├── results/             # RQ1–RQ5 CSVs (PENDING until real runs)
-│   ├── reports/             # Findings, audit, status
-│   └── paper/               # Manuscript draft (methods; Results = NOT RUN)
+│   ├── results/             # RQ tables; canonical metrics live in artifacts/
+│   ├── reports/             # Findings (use research/reports/ + frozen manifest)
+│   └── paper/               # Manuscript draft
 ├── docs/                    # Specs, architecture, RQs, limitations
 │   └── source/              # Authoritative proposal + topic approval extracts
 ├── deployment/              # Docker Compose + nginx
@@ -272,9 +272,9 @@ Upload / live audio
   → explainability + API + React UI
 ```
 
-**Research path (when data exists):** curated HI/MR/TA corpus → speaker-disjoint
-manifests (clean/compressed pairs stay in the same split) → cache XLS-R once →
-train AASIST head only → RQ1–RQ4 → human study on same test clip IDs (RQ5) → paper.
+**Research path (already run on bounded V1):** speaker-disjoint Kathbath +
+IndicSynth subset → acoustic / frozen XLS-R heads → RQ1–RQ4. RQ5 still needs
+listeners. Further V2/FLEURS work is a new experiment, not the frozen baseline.
 
 ---
 
@@ -285,10 +285,11 @@ train AASIST head only → RQ1–RQ4 → human study on same test clip IDs (RQ5)
 | Architecture, API, React demo | Done |
 | Dataset adapters + Opus pipeline | Done (software) |
 | Metrics / calibration / explain / human-study UI | Done (software) |
-| Curated research hours on disk | **PENDING** (often 0 until HF ingest) |
-| RQ1–RQ5 measured tables | **PENDING** until real runs |
-| Human participant N | **PENDING** (0 until recruitment) |
-| Paper with real result numbers | Methods draft only |
+| Bounded V1 corpus + RQ1–RQ4 tables | Frozen in `artifacts/final_results_manifest.json` |
+| RQ5 human study | **BLOCKED ON HUMAN DATA** (N=0) |
+| Benchmark V2 / FLEURS eval | **PARTIAL** / **PILOT** (frozen n=9); larger local ingest is unevaluated |
+| Human-study UI | Done (software); N=0 |
+| Paper / master docs | Generated from frozen manifest; not a new experiment |
 
 Never copy proposal target numbers into result CSVs.
 

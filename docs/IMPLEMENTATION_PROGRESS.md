@@ -1,7 +1,8 @@
 # VaaniQ — Implementation Progress
 
-> Generated at end of data-pipeline implementation (ROADMAP-011–028).
-> Does not replace `docs/PROJECT_ROADMAP.md`.
+> **Historical data-pipeline snapshot (ROADMAP-011–028).** Current measured results
+> are in `artifacts/final_results_manifest.json`. This file does not replace
+> `docs/PROJECT_ROADMAP.md` or the Round 3 experiment matrix.
 
 ## What was completed
 

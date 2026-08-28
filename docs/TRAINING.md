@@ -16,7 +16,7 @@ hardware, dataset checksums (REQ-137).
 
 | Profile | Path | Purpose |
 |---------|------|---------|
-| default | `configs/train/default.yaml` | Primary XLS-R + AASIST |
+| default | `configs/train/default.yaml` | Primary frozen XLS-R or acoustic + AASIST-compatible head |
 | cv | `configs/train/cv.yaml` | Cross-validation |
 | english_only | `configs/train/english_only.yaml` | ASVspoof control (REQ-044, OQ-015) |
 
@@ -24,14 +24,14 @@ hardware, dataset checksums (REQ-137).
 
 | Model | Config | ROADMAP |
 |-------|--------|---------|
-| XLS-R 300m + AASIST | `configs/model/xlsr_aasist.yaml` | ROADMAP-025, 029 |
+| Frozen XLS-R 300m + AASIST-compatible head | `configs/model/xlsr_aasist.yaml` | ROADMAP-025, 029 |
 | LFCC + GMM | `configs/model/lfcc_gmm.yaml` | ROADMAP-031 |
-| RawNet2 | `configs/model/rawnet2.yaml` | ROADMAP-032 |
+| RawNet2-style approximate baseline | `configs/model/rawnet2.yaml` | ROADMAP-032; faithful RawNet2 PENDING |
 
 Checkpoint: HF `facebook/wav2vec2-xls-r-300m` only (REQ-041, OQ-027).
 
-## TODO
+## TODO / remaining implementation notes
 
-- TODO(ROADMAP-030): implement `Trainer` + `FileExperimentTracker`
-- TODO(ROADMAP-014): document IndicSynth sampling for fakes
-- TODO(ROADMAP-033): English-only ASVspoof protocol details (OQ-015)
+Trainer, experiment tracker, IndicSynth sampling, and the English-only ASVspoof
+protocol now have measured Round 3 artifacts. Remaining model work is **faithful
+RawNet2 (PENDING)**, not the approximate baseline.

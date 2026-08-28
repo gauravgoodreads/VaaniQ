@@ -1,5 +1,10 @@
 # Project scorecard (Phase 5)
 
+> **Historical Phase 5 audit — not the approved Round 3 assessment.** Scores and
+> statements below intentionally preserve the pre-experiment review state. They must
+> not be used as current research results or ratings. Current metrics are frozen in
+> `artifacts/final_results_manifest.json`; this documentation pass does not rerate them.
+
 Grades are **1–10** against what an ICSE reviewer, a FAANG hiring manager, and a university examiner would actually inspect. 10 means publication-grade empirical science **and** production-grade engineering. This repo is stronger as software than as completed research.
 
 | Category | Score | Why |

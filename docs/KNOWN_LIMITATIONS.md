@@ -2,18 +2,22 @@
 
 Honest constraints for the dissertation §18 analogue. Do not hide these in RQ tables.
 
-1. **NumPy AASIST-style head** is not clovaai graph-attention parity (OQ-014). GPU swap is future work.
-2. **Fixture / demo scores** in CI are not curated-hour results (OQ-002).
-3. **Gated Hugging Face corpora** are not downloaded in this environment.
-4. **ffmpeg Opus twins** skip when the host blocks process spawn (observed on some Windows Application Control setups).
-5. **Human study N** is below the proposal floor until volunteers are recruited (REQ-123).
-6. **English-only baseline** uses the ASVspoof 2019 LA *protocol* default (OQ-015); domain shift vs Indic test audio must be disclosed.
-7. **Packet loss and bitrate ladder** are SHOULD ablations, not the primary WhatsApp cell (OQ-007, OQ-012, OQ-037).
-8. **Grad-CAM** is spectrogram-energy aligned (OQ-034), not backprop through a graph AASIST.
-9. **Node.js BFF** is not deployed (OQ-026 / ROADMAP-058).
-10. **IndicSynth CC BY-NC** may block a full public audio dump (OQ-035).
-11. **Tamil-fluent listeners** may be unavailable (OQ-025).
-12. **WhatsApp Opus args** are a documented simulation, not a byte-identical WhatsApp encoder (proposal §18; OQ-007).
-13. **Live MediaRecorder** ingest is not decoded WebM→PCM; labels are a session-path check.
-14. **`/api/v1/admin/status`** is unauthenticated (lab compose only).
-15. **Empty history metrics** may return toy scores — never cite them as RQ results.
+1. **V1 source-label confound:** REAL=Kathbath and FAKE=IndicSynth, so source identity is associated with class.
+2. **Bounded benchmark:** V1 has 1,800 source clips and does not represent the complete upstream corpora.
+3. **Domain scope:** academic speech is not equivalent to real scam or telephony traffic.
+4. **Codec scope:** the paired condition is a WhatsApp-style Opus simulation, not actual WhatsApp transport.
+5. **Language scope:** evidence covers Hindi, Marathi, and Tamil only.
+6. **Model fidelity:** the measured classifier is AASIST-compatible NumPy code, not canonical AASIST.
+7. **Baseline fidelity:** the RawNet2-style approximate baseline is not faithful RawNet2; faithful RawNet2 is pending.
+8. **V2 incomplete:** its source probe reaches 98.48%, so it has not removed source-domain confounding.
+9. **External-source pilot:** frozen held-out FLEURS evaluation is n=9 (pipeline
+   evidence only). A later local ingest recorded 150 FLEURS reals on disk; that
+   corpus is **not** the Round 3 result until a new evaluation is run.
+10. **Generator generalization:** generator-disjoint evaluation has n=0; no result is claimed.
+11. **Human study:** protocol ready; participant data collection pending (N=0).
+12. **Calibration transfer:** Baseline V1's validation-selected strategy slightly worsened held-out ECE.
+13. **Validation heterogeneity:** Tamil validation was weak and Marathi validation unusually strong; the exact cause is unresolved.
+14. **Explainability scope:** Grad-CAM is spectrogram-energy aligned, not backpropagation through canonical AASIST.
+15. **Deployment scope:** the application is a research prototype, not a production fraud detector.
+16. **Licensing:** IndicSynth CC BY-NC may prevent redistribution of a full public audio dump.
+17. **Security:** `/api/v1/admin/status` is unauthenticated and intended only for a closed lab deployment.

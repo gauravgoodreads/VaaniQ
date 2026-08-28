@@ -10,16 +10,16 @@ The citable contribution is the **combination** of Indic voice-cloning/TTS fraud
 
 | ID | Question / objective | Software | Result status |
 |----|----------------------|----------|---------------|
-| RQ1 | Opus degradation vs clean | Compression suite, Opus compressor, degrade ops, degradation SVG | **Partial** — fixture curves; real hours pending |
-| RQ2 | Multilingual vs English-only | AASIST head, LFCC-GMM, RawNet2, English-only baseline, metrics | **Partial** — models exist; ASVspoof ingest pending (OQ-015) |
-| RQ3 | Unseen-language generalisation | Leave-one-language-out runner + heatmap | **Partial** — folds implemented; real embeddings pending |
-| RQ4 | Calibration under compression | Temperature scaling, ECE/Brier, reliability figures | **Partial** — suite on logits; val/test from manifests pending |
-| RQ5 | Human vs model | Protocol, UI, export, stats | **Partial** — software done; N≥12–15 not collected |
-| O1 | Dataset | Parsers, manifests, stats, explorer | **Partial** — pipeline; curated hours not ingested |
-| O2 | WhatsApp simulation | ffmpeg Opus + resample/loss ladder | **Partial** — Windows spawn may skip ffmpeg |
-| O3 | Benchmarked model | Four-model comparison table generator | **Partial** — NumPy AASIST-style, not clovaai graph |
-| O4 | Generalisation study | Cross-lingual + cross-condition matrices | **Partial** — code; data pending |
-| O5 | Calibrated reliability | Calibration module + UI badge | **Partial** — demo snapshot, not paper tables |
-| O6 | Human baseline | Human-study module | **Partial** — no field sample yet |
+| RQ1 | Opus degradation vs clean | Paired 16 kbps Opus evaluation | **Complete** — model-dependent acoustic and XLS-R results |
+| RQ2 | Multilingual vs English-only | English-only ASVspoof control and multilingual comparator | **Complete** — catastrophic English→Indic transfer documented |
+| RQ3 | Unseen-language generalisation | Three leave-one-language-out folds | **Complete** — asymmetric transfer; Hindi weakest |
+| RQ4 | Calibration under shift | Validation-selected temperature scaling and held-out audit | **Complete** — Baseline V1 ECE slightly worsened on test |
+| RQ5 | Human vs model | Protocol, UI, export, stats | **Blocked on human data** — N=0; no human result |
+| O1 | Dataset | Parsers, manifests, stats, explorer | **Complete for bounded V1; V2 partial** |
+| O2 | WhatsApp simulation | ffmpeg/libopus paired twins | **Complete for 16 kbps simulation** |
+| O3 | Benchmarked model | Acoustic, frozen XLS-R, LFCC-GMM, approximate RawNet2-style, English control | **Complete except faithful RawNet2 pending** |
+| O4 | Generalisation study | Cross-lingual matrix and V2 pilot | **Partial externally** — generator-disjoint n=0 |
+| O5 | Calibrated reliability | Calibration module, held-out metrics, UI | **Complete with negative transfer result retained** |
+| O6 | Human baseline | Human-study module | **Blocked on human data** — N=0 |
 | O7 | Live demo | FastAPI + React + compose | **Complete** as a demo (upload/live/confidence/flag/explain) |
-| O8 | Publication | SVG/CSV/report bundle; arXiv not written | **Partial** — figures path; ROADMAP-064 paper not drafted |
+| O8 | Publication | Frozen manifest, figures, CSVs, IEEE and master documents | **Complete for capstone documentation** |

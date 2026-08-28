@@ -14,8 +14,11 @@ from docx import Document
 from PIL import Image, ImageChops
 
 REPO = Path(__file__).resolve().parents[1]
-TRAIN_REPORT = REPO / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
+sys.path.insert(0, str(REPO / "scripts"))
+from report_data import load_final_results, load_train_report  # noqa: E402
+
 DOCX_CANDIDATES = [
+    REPO / "docs" / "VaaniQ_Master_Presentation_FINAL_v2.docx",
     REPO / "docs" / "VaaniQ_Master_Presentation_FINAL.docx",
     REPO / "docs" / "VaaniQ_Master_Presentation_COMPLETE.docx",
     REPO / "docs" / "VaaniQ_Master_Presentation.docx",
@@ -24,9 +27,8 @@ API = "http://127.0.0.1:8001"
 
 
 def load_report() -> dict[str, object]:
-    with TRAIN_REPORT.open(encoding="utf-8") as fh:
-        raw = json.load(fh)
-    return raw if isinstance(raw, dict) else {}
+    """Load Baseline V1 metadata with frozen Round 3 metrics overlaid."""
+    return load_train_report()
 
 
 def fetch_json(url: str) -> dict[str, object]:
@@ -96,21 +98,30 @@ def main() -> int:
     doc = Document(str(docx_path))
     text = doc_text(doc)
 
-    publication_subset = "kathbath" in str(report.get("data_provenance", ""))
+    frozen = load_final_results()
+    xlsr = frozen.get("xlsr_main")
+    xlsr = xlsr if isinstance(xlsr, dict) else {}
+    n_train = xlsr.get("n_train", report.get("n_train"))
+    n_val = xlsr.get("n_val", report.get("n_val"))
+    n_test = xlsr.get("n_test", report.get("n_test"))
+    n_clips = xlsr.get("n_clips", report.get("n_clips"))
+    acc = float(report.get("test_accuracy", 0))
+    if f"{acc:.2%}" not in text and pct(acc) not in text:
+        print(f"FAIL: DOCX missing frozen accuracy ({acc:.2%} or {pct(acc)})")
+        return 1
     required_strings = [
-        pct(float(report.get("test_accuracy", 0))),
         f"{float(report.get('test_ece', 0)):.3f}",
         f"{float(report.get('test_brier', 0)):.3f}",
-        str(report.get("n_clips", 900)),
-        str(report.get("n_train", 540)),
-        str(report.get("n_val", 180)),
-        str(report.get("n_test", 180)),
+        str(n_clips),
+        str(n_train),
+        str(n_val),
+        str(n_test),
         "Hindi",
         "Marathi",
         "Tamil",
-        "Kathbath" if publication_subset else "synthetic",
-        "IndicSynth" if publication_subset else "demonstration",
-        "Speaker-disjoint" if publication_subset else "Data provenance",
+        "Kathbath",
+        "IndicSynth",
+        "Speaker-disjoint",
     ]
     missing = [item for item in required_strings if item not in text]
     if missing:

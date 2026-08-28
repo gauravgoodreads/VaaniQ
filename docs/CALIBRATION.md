@@ -26,4 +26,8 @@
 
 ## Completeness
 
-**Software complete.** Citing “ECE improved under Opus” as an RQ4 result still requires held-out val/test from curated manifests — not fixture logits.
+**RQ4 COMPLETE** on bounded V1. Production Baseline V1 strategy was selected on **validation only**
+(per-language-and-condition; val ECE 0.0487). Held-out ECE moved 0.0245 → 0.026 (slightly
+worsened). A standalone test-set comparison where global temperature scaling looked better
+is exploratory and must not be used for strategy selection. Frozen XLS-R used
+validation-selected global temperature scaling.

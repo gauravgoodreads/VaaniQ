@@ -1,26 +1,32 @@
-# Research findings
+# Research findings — approved Round 3
 
-No RQ is answered. Experiments were **not run** on curated hours.
+Source: `artifacts/final_results_manifest.json`.
 
-## RQ1
+## Primary models
 
-PENDING. No clean vs Opus evaluation on held-out Indic test audio.
+- **Baseline V1:** n=584, accuracy 91.61%, F1 91.36%, EER 6.56%,
+  ROC-AUC 0.9729, normalized min-DCF 0.7841.
+- **Frozen XLS-R main:** n=584, accuracy 92.12%, EER 6.88%,
+  ROC-AUC 0.9828, normalized min-DCF 0.3144.
 
-## RQ2
+Frozen XLS-R improved ranking performance while classification performance remained
+broadly comparable.
 
-PENDING. English-only vs multilingual comparison not executed on real embeddings.
+## Research questions
 
-## RQ3
+- **RQ1 COMPLETE:** Compression was model-dependent. Acoustic accuracy changed
+  93.84%→89.38%; XLS-R changed 91.44%→92.81% under WhatsApp-style Opus simulation.
+- **RQ2 COMPLETE:** English-only→Indic transfer was catastrophic: 54.8% accuracy,
+  76.56% EER, 0.162 AUC, and all predictions REAL at threshold 0.5.
+- **RQ3 COMPLETE:** Held-out accuracy was Hindi 78.83%, Marathi 93.29%, Tamil 93.94%;
+  cross-language transfer was asymmetric.
+- **RQ4 COMPLETE:** Baseline V1's validation-selected calibration changed held-out
+  ECE from 0.0245 to 0.026; calibration did not uniformly transfer.
+- **RQ5 BLOCKED ON HUMAN DATA:** Human-study protocol ready; participant data
+  collection pending (N=0).
 
-PENDING. Leave-one-language-out (HI+MR→TA, HI+TA→MR, MR+TA→HI) not executed on real data.
-Software folds exist; they are not results.
+## External validity
 
-## RQ4
-
-PENDING. Temperature scaling was not fit on a speaker-disjoint validation set of real logits.
-
-## RQ5
-
-PENDING. Human participant count = 0. No shared test clip IDs from a trained model.
-
-Do not copy numbers from `python -m vaaniq.research.cli --mode fixtures` into this file.
+Benchmark V2 is a **PARTIAL external-source pilot** and does not solve source-label
+confounding. FLEURS n=9 is **PILOT** evidence only. Generator-disjoint evaluation
+has n=0 and is **PENDING**. Faithful RawNet2 is **PENDING**.

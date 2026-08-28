@@ -1,6 +1,13 @@
-# Research execution status
+# Research execution status (archived pre-Round-3 snapshot)
+
+> **ARCHIVED.** Do not cite this file for measured results.
+> Current status: [`docs/RESEARCH_EXECUTION_STATUS.md`](../../docs/RESEARCH_EXECUTION_STATUS.md)
+> Canonical metrics: `artifacts/final_results_manifest.json`
 
 Generated: 2026-08-27T17:59:43.353502+00:00
+
+The remainder of this file is a historical Phase-6 software-only snapshot from before
+the bounded V1 experiments were frozen.
 
 Statuses: COMPLETE = actually run on curated data and validated.
 PARTIAL / PENDING / FAILED as defined in the Phase 6 prompt.

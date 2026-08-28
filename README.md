@@ -11,39 +11,47 @@ AI-Generated Voice in Indian Languages, with a Human-Perception Baseline.**
 Languages in scope: **Hindi (`hi`)**, **Marathi (`mr`)**, **Tamil (`ta`)**.
 Telugu is **not** a project language (REQ-139).
 
-> Research-grade system (dataset → train → eval → calibrate → explain → web app).
-> **Measured Baseline V1** exists on a speaker-disjoint Kathbath + IndicSynth subset (~4.11 h).
-> All headline metrics live in `artifacts/experiments/baseline_v1/metrics.json` (synced from `train_report.json`).
+> VaaniQ is a reproducible research system for studying multilingual audio-deepfake
+> detection under language, codec, and confidence-calibration shift. It evaluates
+> Hindi, Marathi, and Tamil; it does not claim universal deepfake detection.
+>
+> The approved evidence is a bounded, speaker-disjoint V1 benchmark built from
+> Kathbath real speech and IndicSynth fake speech. Its main limitation is structural:
+> source dataset and class label are associated. The partial V2 pilot does not yet
+> remove that confound.
+>
+> **Frozen source of truth:** [`artifacts/final_results_manifest.json`](./artifacts/final_results_manifest.json),
+> approved at commit `084bd47ca6ca1b69a7cdbf424e2946f3794c2a95`.
 
-## Research status (measured vs pending)
+## Approved research status
 
-| Item | Status | Artifact |
-|------|--------|----------|
-| Baseline V1 (acoustic + AASIST-compatible head) | **Measured** | `artifacts/experiments/baseline_v1/` — 91.6% test acc, 6.56% EER (speaker-disjoint Kathbath-real / IndicSynth-fake) |
-| RQ1 clean vs Opus | **Measured** | `baseline_v1` per-condition metrics |
-| RQ2 English-only vs multilingual | **Measured** | `artifacts/experiments/rq2_english_control/` — English-only 54.8% acc on Indic test |
-| RQ3 leave-one-language-out | **Measured** | `artifacts/experiments/rq3_crosslingual/` |
-| RQ4 calibration (val-selected strategy) | **Measured** | `artifacts/experiments/rq4_calibration/` + `baseline_v1` |
-| LFCC-GMM / RawNet2-style approximate baseline | **Measured** | `artifacts/experiments/baseline_matrix/` — not canonical RawNet2 |
-| Source-shortcut analysis | **Measured** | `artifacts/experiments/source_shortcut/` — V1 confound documented |
-| Split diagnostics (val/test gap) | **Measured** | `artifacts/experiments/split_diagnostics/final_analysis.json` |
-| Frozen XLS-R main model | **Measured** | `artifacts/experiments/xlsr_main/` — 92.1% test acc, 6.88% EER |
-| Benchmark V2 (multi-source) | **Partial** | `artifacts/experiments/benchmark_v2/` — 50 FLEURS hi real + generator tags; mr/ta pending |
-| RQ5 human study | **Protocol ready, N=0** | `make analyze-human-study` or `scripts/analyze_human_study.py` |
+| Experiment | Status | Canonical result |
+|---|---|---|
+| Baseline V1: acoustic embedding + AASIST-compatible head | **COMPLETE** | n=584; accuracy 91.61%; F1 91.36%; EER 6.56%; ROC-AUC 0.9729 |
+| Frozen XLS-R main | **COMPLETE** | n=584; accuracy 92.12%; EER 6.88%; ROC-AUC 0.9828 |
+| RQ1 compression | **COMPLETE** | Acoustic: clean 93.84% → WhatsApp-style Opus simulation 89.38%; XLS-R: 91.44% → 92.81% |
+| RQ2 English-only transfer | **COMPLETE** | n=584; accuracy 54.8%; EER 76.56%; ROC-AUC 0.162; all predictions REAL at threshold 0.5 |
+| RQ3 leave-one-language-out | **COMPLETE** | Hindi 78.83%; Marathi 93.29%; Tamil 93.94% accuracy |
+| RQ4 calibration | **COMPLETE** | Validation-selected Baseline V1 strategy; held-out ECE 0.0245 → 0.026 |
+| LFCC-GMM | **COMPLETE** | Accuracy 54.79%; EER 23.48%; ROC-AUC 0.8195 |
+| RawNet2-style approximate baseline | **COMPLETE** | Accuracy 54.79%; EER 43.18%; ROC-AUC 0.5845; not faithful RawNet2 |
+| Benchmark V2 | **PARTIAL** | External-source pilot; source probe 98.48%, so source identity remains highly predictable |
+| FLEURS unseen-real evaluation | **PILOT** | n=9; no statistically useful unseen-source estimate claimed |
+| Generator-disjoint evaluation | **PENDING** | n=0; no result claimed |
+| Faithful RawNet2 | **PENDING** | Not implemented |
+| RQ5 human study | **BLOCKED ON HUMAN DATA** | Human-study protocol ready; participant data collection pending (N=0) |
 
-### Reproduce main results
+### Reproduce and verify persisted results
 
 ```bash
 cd backend
 uv pip install -e ".[dev,data,docs]"
-uv run python ../scripts/sync_experiment_artifacts.py
-uv run python ../scripts/export_predictions.py
-uv run python ../scripts/evaluate_baselines.py
-uv run python ../scripts/sync_research_results.py
 uv run python ../scripts/verify_research_integrity.py   # must exit 0
 ```
 
-Regenerate documents from artifacts: `uv run python ../scripts/generate_master_docx.py` (see `docs/TRAINING_GUIDE.md`).
+The commands above verify existing evidence; they do not retrain models. Documentation
+is generated from the frozen manifest. See `docs/TRAINING_GUIDE.md` for experimental
+entry points and provenance.
 
 ## Architecture (C4 container sketch)
 

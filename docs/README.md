@@ -2,8 +2,9 @@
 
 | Path | Role |
 |------|------|
-| [`VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md`](VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md) | **Master doc (Markdown)**: architecture, pipeline, metrics, validation, citations |
-| [`VaaniQ_Master_Presentation.docx`](VaaniQ_Master_Presentation.docx) | **Master doc (DOCX)**: live screenshots, metrics tables, PPT-ready |
+| [`VaaniQ_Master_Presentation_FINAL_v2.docx`](VaaniQ_Master_Presentation_FINAL_v2.docx) | **Master defense document (DOCX)** |
+| [`VaaniQ_IEEE_Research_Paper_Final.docx`](VaaniQ_IEEE_Research_Paper_Final.docx) | **Final IEEE-style paper (DOCX)** |
+| [`VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md`](VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md) | Archived pre-Round-3 engineering snapshot |
 | [`../INSTALL_AND_RUN.md`](../INSTALL_AND_RUN.md) | **New PC**: clone, install, run, folder map, Windows fixes |
 | `source/` | Extracted proposal + topic-approval deck (authoritative inputs) |
 | `REQUIREMENTS.md` | REQ catalogue |
@@ -34,8 +35,9 @@
 | `PROJECT_SCORECARD.md` | 1–10 grades with rationale |
 | `FINAL_REFACTOR_SUMMARY.md` | Phase 5 safe fixes (no API breaks) |
 | `PHASE_VERIFICATION.md` | Phase 1–5 module/e2e matrix |
-| `RESEARCH_EXECUTION_STATUS.md` | Phase 6: hours, RQ PENDING/COMPLETE (measured only) |
+| `RESEARCH_EXECUTION_STATUS.md` | Approved experiment status and canonical summary |
 | `DEPLOYMENT.md` | Compose / Spaces |
 | `CONTRIBUTING.md` | Contribution rules |
 
-On conflict: **proposal wins** (`source/Capstone_Project_Proposal.md`).
+For historical plans and requirements, the proposal wins. For measured results and
+experiment status, `../artifacts/final_results_manifest.json` wins.

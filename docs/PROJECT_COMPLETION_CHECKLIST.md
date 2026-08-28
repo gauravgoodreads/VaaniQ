@@ -3,8 +3,9 @@
 > Maps implemented software to research questions (proposal §4), objectives (proposal §6),
 > proposal sections, and dissertation chapter analogues.
 >
-> **Complete** means implemented, unit-tested, and documented.
-> Fixture/demo numbers are **not** treated as dissertation results.
+> **Complete** means a meaningful experiment has sufficient data, valid protocol,
+> persisted evidence, and final metrics. The frozen source is
+> `artifacts/final_results_manifest.json`.
 
 Dissertation chapter analogues (proposal has numbered sections, not named chapters):
 
@@ -25,38 +26,38 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 
 | ID | Item | Status | Evidence | Remaining |
 |----|------|--------|----------|-----------|
-| RQ1 | Opus degradation vs clean | **Partial** | Compression suite, Opus compressor, SVG/CSV | Curated-hour EER deltas |
-| RQ2 | Multilingual vs English-only | **Partial** | Four classifiers + metrics module | ASVspoof ingest + GPU train |
-| RQ3 | Unseen Indian language | **Partial** | Leave-one-lang-out folds HI/MR/TA | Real embeddings / hours |
-| RQ4 | Calibration under compression | **Partial** | T-scaling, ECE, diagrams | Val/test from manifests |
-| RQ5 | Human vs model | **Partial** | Protocol, UI, export, stats | N≥12–15 on shared audio |
+| RQ1 | Opus degradation vs clean | **Complete** | Acoustic and frozen XLS-R clean/Opus cells | — |
+| RQ2 | Multilingual vs English-only | **Complete** | English-only ASVspoof control on Indic test | — |
+| RQ3 | Unseen Indian language | **Complete** | Three leave-one-language-out folds | — |
+| RQ4 | Calibration under shift | **Complete** | Validation selection plus held-out ECE | — |
+| RQ5 | Human vs model | **Blocked on human data** | Protocol, UI, export, stats | Real participants; N=0 |
 
 ## Objectives
 
 | ID | Item | Status | Evidence | Remaining |
 |----|------|--------|----------|-----------|
-| O1 | Dataset | **Partial** | Parsers, manifests, explorer | Gated downloads / hour report |
-| O2 | WhatsApp simulation | **Partial** | Opus + resample + loss ladder | Reliable ffmpeg on all hosts |
-| O3 | Benchmarked model | **Partial** | XLS-R freeze path + NumPy AASIST-style + baselines | clovaai graph AASIST |
-| O4 | Generalisation study | **Partial** | Cross-lingual + cross-condition runners | Paper tables |
-| O5 | Calibrated reliability | **Partial** | Calibration module + UI | RQ4 result cells |
-| O6 | Human baseline | **Partial** | Software complete | Field collection |
+| O1 | Dataset | **Complete for bounded V1; V2 partial** | Versioned speaker-disjoint manifests | Balance V2 source×label |
+| O2 | WhatsApp simulation | **Complete** | Paired 16 kbps libopus twins | — |
+| O3 | Benchmarked model | **Complete except faithful RawNet2** | Acoustic, XLS-R, LFCC-GMM, approximate RawNet2-style, English control | Faithful RawNet2 |
+| O4 | Generalisation study | **Partial externally** | RQ3 complete; FLEURS pilot | Generator-disjoint n=0 |
+| O5 | Calibrated reliability | **Complete** | Validation-selected strategy and held-out negative result | — |
+| O6 | Human baseline | **Blocked on human data** | Software complete | Field collection; N=0 |
 | O7 | Live demo | **Complete** | Upload/live/confidence/badge/explain + compose | Node BFF optional |
-| O8 | Publication | **Partial** | Vector SVG/CSV/reports | arXiv draft (ROADMAP-064) |
+| O8 | Publication | **Complete for capstone** | Frozen manifest, IEEE paper, master document, reports | External submission optional |
 
 ## Proposal sections (software coverage)
 
 | Section | Topic | Status |
 |---------|-------|--------|
-| §7.1 Dataset | Manifest/pipeline | Partial (no full hours) |
-| §7.2 Compression | Opus WhatsApp-style | Partial (ffmpeg host-dependent) |
-| §7.3 Model | XLS-R + AASIST vs baselines | Partial (NumPy head) |
-| §7.4 Eval matrices | Cross-lingual / condition | Partial (code) |
-| §7.5 Calibration | ECE, T-scaling, badge | Partial (demo) |
-| §7.6 Human study | Listening test | Partial (no N) |
+| §7.1 Dataset | Manifest/pipeline | V1 complete (bounded); V2 partial |
+| §7.2 Compression | WhatsApp-style Opus simulation | RQ1 complete |
+| §7.3 Model | Acoustic / frozen XLS-R + AASIST-compatible head | Complete; not canonical AASIST |
+| §7.4 Eval matrices | Cross-lingual / condition | RQ1 and RQ3 complete |
+| §7.5 Calibration | ECE, T-scaling, badge | RQ4 complete (val-selected; test ECE slightly worsened) |
+| §7.6 Human study | Listening test | Protocol complete; N=0 |
 | §7.7 Explainability | Grad-CAM / bands / artifacts | Complete as proxy (OQ-034) |
-| §7.9 Web app | Three-tier | Partial (FastAPI+React+nginx; no Node) |
-| §8 Pipeline | End-to-end | Partial without curated data |
+| §7.9 Web app | Three-tier | Complete (FastAPI+React; no Node BFF) |
+| §8 Pipeline | End-to-end | Complete on bounded V1 |
 | §10 Inventory | Sources | Complete as configs/adapters |
 | §11 Compute | Colab/Kaggle | Remaining (no local GPU assumed) |
 | §17 Success criteria | Binary gates | See below |
@@ -68,8 +69,8 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 
 | Criterion | Status |
 |-----------|--------|
-| Detector better than chance on held-out Indic test | **Partial** (demo path only) |
-| Calibration improves ECE in majority of cells | **Partial** (suite exists; not on real cells) |
+| Detector better than chance on held-out Indic test | **Complete** on bounded V1 |
+| Calibration improves ECE in majority of cells | **Not supported**; Baseline V1 held-out ECE slightly worsened |
 | ≥12–15 human responses analysed | **Remaining** |
 | Demo returns confidence + reliability flag + ≥1 explain view | **Complete** (software) |
 
@@ -78,9 +79,9 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 | Step | Status | Notes |
 |------|--------|-------|
 | 1 Experiment framework | **Complete** | JSONL store + compare/search |
-| 2 Cross-lingual experiments | **Complete** (software) | Real data remaining |
-| 3 Compression robustness | **Complete** (software) | ffmpeg remaining on some hosts |
-| 4 Calibration studies | **Complete** (software) | |
+| 2 Cross-lingual experiments | **Complete** | RQ3 measured |
+| 3 Compression robustness | **Complete** | RQ1 measured |
+| 4 Calibration studies | **Complete** | RQ4 measured |
 | 5 Human baseline module | **Complete** (software) | Collection remaining |
 | 6 Explainability expansion | **Complete** (proxy) | Graph CAM remaining |
 | 7 Error analysis | **Complete** | Markdown reports |
@@ -88,7 +89,7 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 | 9 Frontend enhancements | **Complete** | Dark mode already present; gauges/explorer added |
 | 10 Deployment | **Partial** | Compose+health; Spaces Dockerfile added, not published |
 | 11 Code quality | **Partial** | Gates run this phase; 80% coverage target |
-| 12 Publication support | **Complete** (path) | SVG/CSV; paper not written |
+| 12 Publication support | **Complete for capstone** | IEEE paper regenerated from frozen metrics |
 | 13 Final documentation | **Complete** | This file + companion docs |
 
 ## Phase 5 audit (hardening)
@@ -108,12 +109,11 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 
 ## Remaining work (do not skip)
 
-1. Ingest real datasets and write the hour report (OQ-002).
-2. Train/evaluate on GPU; replace fixture EER.
-3. Collect human-study responses (ROADMAP-060).
-4. Draft paper (ROADMAP-064).
-5. Licence/ethics for open release (ROADMAP-063).
-6. Optional Node BFF (ROADMAP-058).
+1. Complete and balance Benchmark V2.
+2. Run generator-disjoint evaluation; current n=0.
+3. Implement faithful RawNet2.
+4. Collect human-study responses; current N=0.
+5. Resolve licensing/ethics requirements for any open audio release.
 
 ## Recommended next steps for publication and capstone submission
 
@@ -121,4 +121,4 @@ Dissertation chapter analogues (proposal has numbered sections, not named chapte
 2. Produce RQ1–RQ4 tables from the experiment store; paste SVGs into the dissertation.
 3. Run the human study on the **same clip IDs** used for model scores.
 4. Copy `KNOWN_LIMITATIONS.md` into dissertation Ch.7.
-5. Submit Review 3 with this checklist attached; do not claim RQ answers until the remaining column is empty.
+5. Keep RQ5, V2, generator-disjoint, and faithful RawNet2 labelled as blocked/partial/pending. Do not invent human results.

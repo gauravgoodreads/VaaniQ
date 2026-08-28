@@ -17,6 +17,18 @@ Protocol YAML: `configs/human_study/protocol.yaml`.
 
 ## Not complete (do not mark RQ5 done)
 
-Proposal success floor is **≥12–15 collected responses** on **shared stimuli** (REQ-123 / ROADMAP-060). CI does not recruit listeners. Demo clips have IDs but not ingested audio files until the object store is populated.
+**Status: BLOCKED ON HUMAN DATA.**
+
+Human-study protocol ready; participant data collection pending (**N=0**). There are
+no human accuracy, confidence, calibration, or model-versus-human results.
+
+Proposal success floor is **≥12–15 collected responses** on **shared stimuli**
+(REQ-123 / ROADMAP-060). CI does not recruit listeners.
 
 Tamil-fluent listeners: recruit if available; otherwise disclose HI/MR listeners on TA clips (OQ-025).
+
+Run the analysis only after real responses exist:
+
+```bash
+make analyze-human-study
+```

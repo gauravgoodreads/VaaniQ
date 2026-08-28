@@ -16,7 +16,7 @@
 | Default HI/MR/TA | `configs/train/default.yaml` | Primary run |
 | CV | `configs/train/cv.yaml` | Folded eval |
 | English-only | `configs/train/english_only.yaml` | RQ2 control (OQ-015) |
-| Model | `configs/model/xlsr_aasist.yaml` | XLS-R + AASIST knobs (OQ-013/014) |
+| Model | `configs/model/xlsr_aasist.yaml` | Frozen XLS-R + AASIST-compatible head (OQ-013/014) |
 
 ## Minimal training loop (embeddings in-memory)
 
@@ -82,7 +82,7 @@ All paper and DOCX values must be read from the resulting persisted
 ## Baselines
 
 - **LFCC+GMM:** `LfccGmmClassifier.fit(waveforms, labels)` then `predict_waveform`.
-- **RawNet2:** `RawNet2Classifier.train_epoch` / `predict_waveform`.
+- **RawNet2-style approximate baseline:** `RawNet2Classifier.train_epoch` / `predict_waveform`. Faithful RawNet2 is PENDING.
 - **English-only:** `EnglishOnlyXlsrAasistBaseline(train_config).run(dataset)`.
 
 ## Artefacts
