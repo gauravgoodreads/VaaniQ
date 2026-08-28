@@ -1,0 +1,90 @@
+{
+  "experiment_id": "benchmark_v2",
+  "source_x_label": {
+    "indicsynth": {
+      "fake": 1169
+    },
+    "kathbath": {
+      "real": 1177
+    },
+    "fleurs": {
+      "real": 50
+    }
+  },
+  "generator_x_label": {
+    "freevc24": {
+      "fake": 805
+    },
+    "xtts_v2": {
+      "fake": 364
+    },
+    "None": {
+      "real": 1227
+    }
+  },
+  "evaluations": {
+    "full_test": {
+      "n": 593,
+      "accuracy": 0.9106,
+      "f1": 0.9072,
+      "eer": 0.076,
+      "min_dcf": 0.7841,
+      "roc_auc": 0.9667,
+      "eval_name": "full_test"
+    },
+    "kathbath_test": {
+      "n": 320,
+      "accuracy": 0.8625,
+      "f1": 0.0,
+      "eer": 0.0031,
+      "min_dcf": 0.0594,
+      "roc_auc": 0.0,
+      "eval_name": "kathbath_test"
+    },
+    "common_voice_real_test": {
+      "n": 9,
+      "accuracy": 0.5556,
+      "f1": 0.0,
+      "eer": 0.1111,
+      "min_dcf": 2.1111,
+      "roc_auc": 0.0,
+      "eval_name": "independent_real_test"
+    },
+    "generator_held_out_test": {
+      "n": 0
+    }
+  },
+  "source_shortcut_v2": {
+    "experiment_id": "source_shortcut",
+    "sources": [
+      "fleurs",
+      "indicsynth",
+      "kathbath"
+    ],
+    "primary_source_baseline": "fleurs",
+    "test_n": 593,
+    "label_probe_test_accuracy": 0.8583,
+    "source_probe_test_accuracy": 0.9848,
+    "source_beats_label_by_pp": 12.65,
+    "duration_by_source": {
+      "fleurs": {
+        "mean_sec": 10.0056,
+        "std_sec": 2.2341,
+        "n": 50
+      },
+      "indicsynth": {
+        "mean_sec": 6.3983,
+        "std_sec": 1.9397,
+        "n": 1169
+      },
+      "kathbath": {
+        "mean_sec": 6.2273,
+        "std_sec": 1.9106,
+        "n": 1177
+      }
+    },
+    "interpretation": "If source classification accuracy on test exceeds label classification, the benchmark may be partially solvable via dataset fingerprints (Baseline V1 confound). Benchmark V2 with multi-source real/fake is intended to reduce this dependence. Observed: source probe test accuracy (0.985) > label probe (0.858) by >5pp.",
+    "benchmark_v1_confound": true
+  },
+  "v1_vs_v2_shortcut_comparison_note": "Compare label_probe_test_accuracy and source_probe_test_accuracy against artifacts/experiments/source_shortcut/metrics.json (V1)."
+}

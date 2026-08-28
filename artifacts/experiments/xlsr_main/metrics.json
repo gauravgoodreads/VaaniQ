@@ -1,0 +1,772 @@
+{
+  "experiment_id": "xlsr_main",
+  "front_end": "frozen_xlsr_300m_mean_pool",
+  "n_train": 1254,
+  "n_val": 508,
+  "n_test": 584,
+  "n_clips": 2346,
+  "total_hours": 4.11,
+  "val_accuracy": 0.9094,
+  "val_eer": 0.0876,
+  "val_min_dcf": 0.3285,
+  "val_ece": 0.0686,
+  "val_brier": 0.0647,
+  "test_accuracy": 0.9212,
+  "test_eer": 0.0688,
+  "test_min_dcf": 0.3144,
+  "test_roc_auc": 0.9828,
+  "test_ece": 0.0891,
+  "test_brier": 0.0675,
+  "validation_metrics": {
+    "n": 508,
+    "accuracy": 0.9094,
+    "eer": 0.0876,
+    "min_dcf": 0.3285,
+    "roc_auc": 0.9788,
+    "ece": 0.0686,
+    "brier": 0.0647,
+    "confusion_matrix": [
+      [
+        215,
+        19
+      ],
+      [
+        27,
+        247
+      ]
+    ],
+    "eer_95ci": [
+      0.0876,
+      0.0664,
+      0.1156
+    ],
+    "min_dcf_95ci": [
+      0.3285,
+      0.2537,
+      0.3778
+    ],
+    "precision": 0.9286,
+    "recall": 0.9015,
+    "f1": 0.9148,
+    "per_language": {
+      "hi": {
+        "n": 100,
+        "accuracy": 0.9,
+        "eer": 0.0125,
+        "min_dcf": 0.05,
+        "f1": 0.8
+      },
+      "mr": {
+        "n": 250,
+        "accuracy": 0.964,
+        "eer": 0.0263,
+        "min_dcf": 0.069,
+        "f1": 0.9748
+      },
+      "ta": {
+        "n": 158,
+        "accuracy": 0.8291,
+        "eer": 0.0641,
+        "min_dcf": 0.25,
+        "f1": 0.797
+      }
+    },
+    "per_condition": {
+      "clean": {
+        "n": 254,
+        "accuracy": 0.8898,
+        "eer": 0.1026,
+        "min_dcf": 0.3285,
+        "f1": 0.8963
+      },
+      "opus_whatsapp_sim": {
+        "n": 254,
+        "accuracy": 0.9291,
+        "eer": 0.0684,
+        "min_dcf": 0.3066,
+        "f1": 0.9333
+      }
+    },
+    "calibration_pre": {
+      "ece": 0.1677,
+      "brier": 0.0937
+    },
+    "calibration_post": {
+      "ece": 0.0686,
+      "brier": 0.0647
+    },
+    "calibration_strategy_comparison": {
+      "global_temperature_val_ece": 0.0686,
+      "per_language_and_condition_val_ece": 0.0686,
+      "selected_strategy": "global_temperature",
+      "selection_criterion": "lowest_validation_ece"
+    }
+  },
+  "test_metrics": {
+    "n": 584,
+    "accuracy": 0.9212,
+    "eer": 0.0688,
+    "min_dcf": 0.3144,
+    "roc_auc": 0.9828,
+    "ece": 0.0891,
+    "brier": 0.0675,
+    "confusion_matrix": [
+      [
+        287,
+        33
+      ],
+      [
+        13,
+        251
+      ]
+    ],
+    "eer_95ci": [
+      0.0688,
+      0.0475,
+      0.0942
+    ],
+    "min_dcf_95ci": [
+      0.3144,
+      0.2248,
+      0.3623
+    ],
+    "precision": 0.8838,
+    "recall": 0.9508,
+    "f1": 0.9161,
+    "per_language": {
+      "hi": {
+        "n": 222,
+        "accuracy": 0.8739,
+        "eer": 0.125,
+        "min_dcf": 0.7,
+        "f1": 0.8272
+      },
+      "mr": {
+        "n": 164,
+        "accuracy": 0.9329,
+        "eer": 0.0385,
+        "min_dcf": 0.1696,
+        "f1": 0.9532
+      },
+      "ta": {
+        "n": 198,
+        "accuracy": 0.9646,
+        "eer": 0.0159,
+        "min_dcf": 0.0556,
+        "f1": 0.9536
+      }
+    },
+    "per_condition": {
+      "clean": {
+        "n": 292,
+        "accuracy": 0.9144,
+        "eer": 0.0813,
+        "min_dcf": 0.2803,
+        "f1": 0.9104
+      },
+      "opus_whatsapp_sim": {
+        "n": 292,
+        "accuracy": 0.9281,
+        "eer": 0.0606,
+        "min_dcf": 0.3106,
+        "f1": 0.9219
+      }
+    },
+    "calibration_pre": {
+      "ece": 0.2048,
+      "brier": 0.1034
+    },
+    "calibration_post": {
+      "ece": 0.0891,
+      "brier": 0.0675
+    },
+    "reliability_diagram": [
+      {
+        "bin_lo": 0.0,
+        "bin_hi": 0.06666666666666667,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.06666666666666667,
+        "bin_hi": 0.13333333333333333,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.13333333333333333,
+        "bin_hi": 0.2,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.2,
+        "bin_hi": 0.26666666666666666,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.26666666666666666,
+        "bin_hi": 0.3333333333333333,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.3333333333333333,
+        "bin_hi": 0.4,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.4,
+        "bin_hi": 0.4666666666666667,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.4666666666666667,
+        "bin_hi": 0.5333333333333333,
+        "confidence": 0.5181726046970913,
+        "accuracy": 0.5238095238095238,
+        "count": 21.0
+      },
+      {
+        "bin_lo": 0.5333333333333333,
+        "bin_hi": 0.6,
+        "confidence": 0.5684150143673545,
+        "accuracy": 0.6842105263157895,
+        "count": 38.0
+      },
+      {
+        "bin_lo": 0.6,
+        "bin_hi": 0.6666666666666666,
+        "confidence": 0.6346850633621216,
+        "accuracy": 0.7714285714285715,
+        "count": 35.0
+      },
+      {
+        "bin_lo": 0.6666666666666666,
+        "bin_hi": 0.7333333333333333,
+        "confidence": 0.6993887186050415,
+        "accuracy": 0.825,
+        "count": 40.0
+      },
+      {
+        "bin_lo": 0.7333333333333333,
+        "bin_hi": 0.8,
+        "confidence": 0.7692812321678041,
+        "accuracy": 0.9206349206349206,
+        "count": 63.0
+      },
+      {
+        "bin_lo": 0.8,
+        "bin_hi": 0.8666666666666667,
+        "confidence": 0.8361907086254637,
+        "accuracy": 0.9506172839506173,
+        "count": 81.0
+      },
+      {
+        "bin_lo": 0.8666666666666667,
+        "bin_hi": 0.9333333333333333,
+        "confidence": 0.9058379052263318,
+        "accuracy": 1.0,
+        "count": 132.0
+      },
+      {
+        "bin_lo": 0.9333333333333333,
+        "bin_hi": 1.0,
+        "confidence": 0.9628390690376019,
+        "accuracy": 1.0,
+        "count": 174.0
+      }
+    ],
+    "coverage_curve": [
+      {
+        "threshold": 0.0,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.05263157894736842,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.10526315789473684,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.15789473684210525,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.21052631578947367,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.2631578947368421,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.3157894736842105,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.3684210526315789,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.42105263157894735,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.47368421052631576,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.5263157894736842,
+        "coverage": 0.9726027397260274,
+        "accuracy": 0.9330985915492958
+      },
+      {
+        "threshold": 0.5789473684210527,
+        "coverage": 0.922945205479452,
+        "accuracy": 0.9517625231910947
+      },
+      {
+        "threshold": 0.631578947368421,
+        "coverage": 0.8715753424657534,
+        "accuracy": 0.9607072691552063
+      },
+      {
+        "threshold": 0.6842105263157894,
+        "coverage": 0.821917808219178,
+        "accuracy": 0.9708333333333333
+      },
+      {
+        "threshold": 0.7368421052631579,
+        "coverage": 0.7654109589041096,
+        "accuracy": 0.9798657718120806
+      },
+      {
+        "threshold": 0.7894736842105263,
+        "coverage": 0.6815068493150684,
+        "accuracy": 0.9874371859296482
+      },
+      {
+        "threshold": 0.8421052631578947,
+        "coverage": 0.5821917808219178,
+        "accuracy": 0.9970588235294118
+      },
+      {
+        "threshold": 0.894736842105263,
+        "coverage": 0.4537671232876712,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 0.9473684210526315,
+        "coverage": 0.2208904109589041,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.0,
+        "accuracy": 0.0
+      }
+    ]
+  },
+  "eval_metrics": {
+    "n": 584,
+    "accuracy": 0.9212,
+    "eer": 0.0688,
+    "min_dcf": 0.3144,
+    "roc_auc": 0.9828,
+    "ece": 0.0891,
+    "brier": 0.0675,
+    "confusion_matrix": [
+      [
+        287,
+        33
+      ],
+      [
+        13,
+        251
+      ]
+    ],
+    "eer_95ci": [
+      0.0688,
+      0.0475,
+      0.0942
+    ],
+    "min_dcf_95ci": [
+      0.3144,
+      0.2248,
+      0.3623
+    ],
+    "precision": 0.8838,
+    "recall": 0.9508,
+    "f1": 0.9161,
+    "per_language": {
+      "hi": {
+        "n": 222,
+        "accuracy": 0.8739,
+        "eer": 0.125,
+        "min_dcf": 0.7,
+        "f1": 0.8272
+      },
+      "mr": {
+        "n": 164,
+        "accuracy": 0.9329,
+        "eer": 0.0385,
+        "min_dcf": 0.1696,
+        "f1": 0.9532
+      },
+      "ta": {
+        "n": 198,
+        "accuracy": 0.9646,
+        "eer": 0.0159,
+        "min_dcf": 0.0556,
+        "f1": 0.9536
+      }
+    },
+    "per_condition": {
+      "clean": {
+        "n": 292,
+        "accuracy": 0.9144,
+        "eer": 0.0813,
+        "min_dcf": 0.2803,
+        "f1": 0.9104
+      },
+      "opus_whatsapp_sim": {
+        "n": 292,
+        "accuracy": 0.9281,
+        "eer": 0.0606,
+        "min_dcf": 0.3106,
+        "f1": 0.9219
+      }
+    },
+    "calibration_pre": {
+      "ece": 0.2048,
+      "brier": 0.1034
+    },
+    "calibration_post": {
+      "ece": 0.0891,
+      "brier": 0.0675
+    },
+    "reliability_diagram": [
+      {
+        "bin_lo": 0.0,
+        "bin_hi": 0.06666666666666667,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.06666666666666667,
+        "bin_hi": 0.13333333333333333,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.13333333333333333,
+        "bin_hi": 0.2,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.2,
+        "bin_hi": 0.26666666666666666,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.26666666666666666,
+        "bin_hi": 0.3333333333333333,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.3333333333333333,
+        "bin_hi": 0.4,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.4,
+        "bin_hi": 0.4666666666666667,
+        "confidence": 0.0,
+        "accuracy": 0.0,
+        "count": 0.0
+      },
+      {
+        "bin_lo": 0.4666666666666667,
+        "bin_hi": 0.5333333333333333,
+        "confidence": 0.5181726046970913,
+        "accuracy": 0.5238095238095238,
+        "count": 21.0
+      },
+      {
+        "bin_lo": 0.5333333333333333,
+        "bin_hi": 0.6,
+        "confidence": 0.5684150143673545,
+        "accuracy": 0.6842105263157895,
+        "count": 38.0
+      },
+      {
+        "bin_lo": 0.6,
+        "bin_hi": 0.6666666666666666,
+        "confidence": 0.6346850633621216,
+        "accuracy": 0.7714285714285715,
+        "count": 35.0
+      },
+      {
+        "bin_lo": 0.6666666666666666,
+        "bin_hi": 0.7333333333333333,
+        "confidence": 0.6993887186050415,
+        "accuracy": 0.825,
+        "count": 40.0
+      },
+      {
+        "bin_lo": 0.7333333333333333,
+        "bin_hi": 0.8,
+        "confidence": 0.7692812321678041,
+        "accuracy": 0.9206349206349206,
+        "count": 63.0
+      },
+      {
+        "bin_lo": 0.8,
+        "bin_hi": 0.8666666666666667,
+        "confidence": 0.8361907086254637,
+        "accuracy": 0.9506172839506173,
+        "count": 81.0
+      },
+      {
+        "bin_lo": 0.8666666666666667,
+        "bin_hi": 0.9333333333333333,
+        "confidence": 0.9058379052263318,
+        "accuracy": 1.0,
+        "count": 132.0
+      },
+      {
+        "bin_lo": 0.9333333333333333,
+        "bin_hi": 1.0,
+        "confidence": 0.9628390690376019,
+        "accuracy": 1.0,
+        "count": 174.0
+      }
+    ],
+    "coverage_curve": [
+      {
+        "threshold": 0.0,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.05263157894736842,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.10526315789473684,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.15789473684210525,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.21052631578947367,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.2631578947368421,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.3157894736842105,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.3684210526315789,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.42105263157894735,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.47368421052631576,
+        "coverage": 1.0,
+        "accuracy": 0.9212328767123288
+      },
+      {
+        "threshold": 0.5263157894736842,
+        "coverage": 0.9726027397260274,
+        "accuracy": 0.9330985915492958
+      },
+      {
+        "threshold": 0.5789473684210527,
+        "coverage": 0.922945205479452,
+        "accuracy": 0.9517625231910947
+      },
+      {
+        "threshold": 0.631578947368421,
+        "coverage": 0.8715753424657534,
+        "accuracy": 0.9607072691552063
+      },
+      {
+        "threshold": 0.6842105263157894,
+        "coverage": 0.821917808219178,
+        "accuracy": 0.9708333333333333
+      },
+      {
+        "threshold": 0.7368421052631579,
+        "coverage": 0.7654109589041096,
+        "accuracy": 0.9798657718120806
+      },
+      {
+        "threshold": 0.7894736842105263,
+        "coverage": 0.6815068493150684,
+        "accuracy": 0.9874371859296482
+      },
+      {
+        "threshold": 0.8421052631578947,
+        "coverage": 0.5821917808219178,
+        "accuracy": 0.9970588235294118
+      },
+      {
+        "threshold": 0.894736842105263,
+        "coverage": 0.4537671232876712,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 0.9473684210526315,
+        "coverage": 0.2208904109589041,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 1.0,
+        "coverage": 0.0,
+        "accuracy": 0.0
+      }
+    ]
+  },
+  "checkpoint": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_main\\aasist-v1.npz",
+  "temperatures": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_main\\temperatures.json",
+  "temperature_table": {
+    "hi|clean": 0.5
+  },
+  "calibration_strategy": "global_temperature",
+  "calibration_strategy_comparison": {
+    "global_temperature_val_ece": 0.0686,
+    "per_language_and_condition_val_ece": 0.0686,
+    "selected_strategy": "global_temperature",
+    "selection_criterion": "lowest_validation_ece"
+  },
+  "languages": [
+    "hi",
+    "mr",
+    "ta"
+  ],
+  "train_languages": [
+    "hi",
+    "mr",
+    "ta"
+  ],
+  "test_languages": [
+    "hi",
+    "mr",
+    "ta"
+  ],
+  "cuda_available": false,
+  "data_provenance": "kathbath_real_plus_indicsynth_fake_publication_subset",
+  "corpus_provenance": {
+    "clips_per_source_language": 300,
+    "created_at": "2026-08-28T08:38:28.796097+00:00",
+    "label_counts": {
+      "fake": 900,
+      "real": 900
+    },
+    "language_counts": {
+      "hi": 600,
+      "mr": 600,
+      "ta": 600
+    },
+    "languages": [
+      "hi",
+      "mr",
+      "ta"
+    ],
+    "max_duration_sec": 12.0,
+    "opus_evaluation": {
+      "bitrate": "16k",
+      "codec": "libopus",
+      "decoded_for_model_input": true,
+      "paired_validation_test_twins": 546
+    },
+    "sample_rate_hz": 16000,
+    "scope_note": "Reproducible bounded subset because the six full target-language cells exceed 300 GB; results apply only to this persisted subset.",
+    "seed": 42,
+    "sources": {
+      "fake": {
+        "license": "CC BY-NC 4.0; non-commercial academic research",
+        "repository": "vdivyasharma/IndicSynth"
+      },
+      "real": {
+        "license": "CC0 packaging; source terms accepted by the authenticated user",
+        "repository": "ai4bharat/Kathbath"
+      }
+    },
+    "split_counts": {
+      "test": 292,
+      "train": 1254,
+      "val": 254
+    },
+    "split_protocol": "SHA-256(seed:speaker_id), 70/15/15; shared IDs span neither source nor split",
+    "total_clips": 1800,
+    "total_clips_with_opus_twins": 2346,
+    "total_hours": 3.1506,
+    "unique_speakers_by_split": {
+      "test": 44,
+      "train": 178,
+      "val": 45
+    }
+  },
+  "speaker_disjoint_verified": true,
+  "speaker_counts": {
+    "train": 178,
+    "val": 45,
+    "test": 44
+  },
+  "split_protocol": "SHA-256(seed:speaker_id), 70/15/15; shared IDs span neither source nor split",
+  "note": "Measured on a persisted, speaker-disjoint Kathbath bonafide plus IndicSynth generated-speech subset; claims are limited to this subset.",
+  "pipeline": "preprocess -> frozen XLS-R embedding -> AASIST head -> temperature scaling",
+  "status": "trained_calibrated"
+}

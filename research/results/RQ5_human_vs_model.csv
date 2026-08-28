@@ -1,2 +1,2 @@
 status,reason,n_participants,human_accuracy,model_accuracy
-PENDING,human_n=0; protocol ready,0,,
+PENDING,Human-study protocol ready; participant data collection pending (N=0).,0,,

@@ -1,0 +1,7 @@
+{
+  "experiment_id": "xlsr_main",
+  "xlsr_model_id": "facebook/wav2vec2-xls-r-300m",
+  "cache_root": "C:\\Users\\Gary\\Desktop\\capstone project\\data\\embedding_cache\\xlsr_300m",
+  "checkpoint": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_main\\aasist-v1.npz",
+  "seed": 42
+}

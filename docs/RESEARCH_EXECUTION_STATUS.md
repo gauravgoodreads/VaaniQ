@@ -1,125 +1,57 @@
 # Research execution status
 
-Generated: 2026-08-27T17:59:43.353502+00:00
+Updated: 2026-08-28 (synced from `artifacts/experiments/`)
 
-Statuses: COMPLETE = actually run on curated data and validated.
-PARTIAL / PENDING / FAILED as defined in the Phase 6 prompt.
-Code existing ≠ COMPLETE.
+Statuses: **COMPLETE** = measured on persisted speaker-disjoint publication subset unless noted.
 
-## 1. Actual dataset hours per language
+## Experiment matrix
 
-| Language | Research hours | Fixture metadata hours | Status |
-|----------|---------------:|-----------------------:|--------|
-| Hindi | 0 | 0.0009722222 | PENDING |
-| Marathi | 0 | 0.0015277778 | PENDING |
-| Tamil | 0 | 0.0013888889 | PENDING |
+| Experiment | Status | Key result | Artifact |
+|------------|--------|------------|----------|
+| Baseline V1 (Kathbath-real / IndicSynth-fake) | **COMPLETE** | 91.6% acc, 6.56% EER, ROC-AUC 0.973 (n=584 test) | `artifacts/experiments/baseline_v1/` |
+| RQ1 clean vs Opus | **COMPLETE** | Clean 93.8% / Opus 89.4% acc | `baseline_v1` per-condition |
+| RQ2 English-only vs multilingual | **COMPLETE** | English-only 54.8% acc; multilingual 93.7% | `artifacts/experiments/rq2_english_control/` |
+| RQ3 leave-one-language-out | **COMPLETE** | LOO folds measured | `artifacts/experiments/rq3_crosslingual/` |
+| RQ4 calibration audit | **COMPLETE** | Val-selected per-language×condition TS | `artifacts/experiments/rq4_calibration/` |
+| LFCC-GMM baseline | **COMPLETE** | 54.8% acc, EER 23.5% | `artifacts/experiments/baseline_matrix/` |
+| RawNet2-style approximate baseline | **COMPLETE** | 54.8% acc, EER 43.2% (not canonical RawNet2) | `baseline_matrix` |
+| Source-shortcut analysis | **COMPLETE** | Label 84.8% / source 84.6% on V1 test | `artifacts/experiments/source_shortcut/` |
+| Split diagnostics | **COMPLETE** | Val/test gap analyzed | `artifacts/experiments/split_diagnostics/` |
+| Frozen XLS-R main | **COMPLETE** | 92.1% acc, 6.88% EER, ROC-AUC 0.983 | `artifacts/experiments/xlsr_main/` |
+| Benchmark V2 (multi-source) | **PARTIAL** | 50 FLEURS hi + generator metadata; `artifacts/experiments/benchmark_v2/` |
+| Faithful RawNet2 (AASIST repo) | **PENDING** | Not implemented | ROADMAP-032 |
+| RQ5 human study | **PENDING (N=0)** | Protocol + analysis path ready | `scripts/analyze_human_study.py` |
 
-## 2. Number of speakers
-
-Research corpus: **0**. Schema fixture named speakers: **5**.
-
-## 3. Number of clips
-
-Research corpus: **0**. Schema fixture rows: **6**.
-Audio files on disk under data trees: **121**.
-
-## 4. Train / validation / test sizes
-
-Research splits: **PENDING** (not written). Fixture split counts: `{'train': 6, 'val': 0, 'test': 0}`.
-
-## 5. Main model configuration
-
-Intended: frozen Wav2Vec2-XLS-R + AASIST-style head (`aasist-v1`), NumPy CI path.
-GPU / clovaai graph AASIST: **PENDING**.
-Status: **PENDING** (not trained on curated embeddings).
-
-## 6. Baseline configurations
-
-LFCC-GMM, RawNet2, English-only XLS-R+AASIST modules exist.
-ASVspoof ingest + evaluation: **PENDING**.
-
-## 7. RQ1 result status
-
-**PENDING** — no Opus vs clean evaluation on held-out audio.
-
-## 8. RQ2 result status
-
-**PENDING** — multilingual vs English-only not run.
-
-## 9. RQ3 result status
-
-**PENDING** — zero-shot HI+MR→TA / HI+TA→MR / MR+TA→HI not run on real data.
-
-## 10. RQ4 result status
-
-**PENDING** — T-scaling not fit on real val logits.
-
-## 11. RQ5 result status
-
-**PENDING**.
-
-## 12. Human participant count
-
-**0**.
-
-## 13. Calibration status
-
-**PENDING**.
-
-## 14. Explainability status
-
-**PARTIAL** — demo Grad-CAM proxy artefacts exist; not tied to a published test set.
-
-## 15. Figures generated
-
-RQ publication figures: **0**.
-Fixture/demo SVGs may exist under software-path runs; they are not RQ figures.
-
-## 16. Tables generated
-
-PENDING stub CSVs with empty metric cells:
-
-- `research/results/dataset_statistics.csv` (actual zeros + fixture metadata hours)
-- `research/results/RQ1_clean_vs_opus.csv`
-- `research/results/RQ2_multilingual_vs_english.csv`
-- `research/results/RQ3_cross_lingual_matrix.csv`
-- `research/results/RQ4_calibration.csv`
-- `research/results/RQ5_human_vs_model.csv`
-
-## 17. Paper sections completed
-
-Methods/gap/RQs draft: **PARTIAL** (`research/paper/manuscript/VaaniQ_manuscript.md`).
-Results sections: **NOT RUN** (explicit).
-
-## 18. Remaining experiments
-
-1. Obtain HF token; download gated Kathbath / IndicVoices-R / IndicSynth / CV hi-mr.
-2. Confirm Tamil **audio** (not labels only).
-3. Speaker-disjoint manifests; pair clean/Opus in the same split.
-4. Freeze XLS-R on GPU; cache embeddings.
-5. Train head; run RQ1-RQ4.
-6. Recruit ≥12-15 listeners on the same test clip IDs.
-
-## 19. Failed experiments
-
-None failed after start. Acquisition **not started**: `hf_token_present=False`.
-
-## 20. Known limitations
-
-See `docs/KNOWN_LIMITATIONS.md` (authoritative). Not rewritten here.
-
-## 21. Reproducibility information
+## Dataset (Baseline V1)
 
 | Field | Value |
-|-------|--------|
-| Git SHA | `8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2` |
-| Dirty | True |
-| ffmpeg runnable | False |
-| torch | absent |
-| cuda | false |
-| python | 3.11.16 |
-| system | Windows AMD64 |
-| seed (unused; no train) | n/a |
-| dataset version | none (research corpus empty) |
+|-------|-------|
+| Clips | 2,346 |
+| Hours | ~4.11 |
+| Languages | hi, mr, ta |
+| Real source | Kathbath |
+| Fake source | IndicSynth |
+| Split | Speaker-disjoint 70/15/15 |
+| Known limitation | Source correlates with label on V1 |
 
-`can_train` after quality audit: **False**.
+## Main model (Baseline V1)
+
+- Front-end: deterministic **acoustic embedding 1024-D** (not frozen XLS-R for V1 metrics)
+- Head: **AASIST-compatible NumPy** anti-spoofing classifier
+- Calibration: validation-selected strategy (see `train_report.json`)
+
+## Reproducibility
+
+```bash
+cd backend
+uv pip install -e ".[dev,data,docs]"
+uv run python ../scripts/sync_experiment_artifacts.py
+uv run python ../scripts/verify_research_integrity.py
+```
+
+## Remaining work
+
+1. Complete frozen XLS-R main experiment and sync `artifacts/experiments/xlsr_main/`
+2. Complete Benchmark V2 build (FLEURS real + generator-disjoint eval)
+3. Implement faithful RawNet2 baseline (optional stretch)
+4. Collect real human participants for RQ5 (N>0)

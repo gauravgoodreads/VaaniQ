@@ -1,35 +1,35 @@
 {
-  "accuracy_gap_test_minus_val": 0.0547,
+  "accuracy_gap_test_minus_val": 0.0421,
   "conclusion": "If Tamil validation was weak while test Tamil was strong, inspect per-language speaker counts and val cell sizes before assuming leakage. Cause remains unresolved without per-clip error traces.",
   "experiment_id": "split_diagnostics",
   "hypotheses": [
     "test_accuracy_exceeds_validation_by>4pp: may reflect small/heterogeneous val cells (not necessarily leakage)",
-    "large_val_test_gap_ta: val_acc=0.677 test_acc=0.934 (val_n=158 test_n=198)",
-    "source_label_confound: at least one dataset source maps to a single label on test"
+    "source_label_confound: at least one dataset source maps to a single label on test",
+    "lang_count_imbalance_hi: val_n=100 test_n=222"
   ],
   "test_metrics": {
-    "accuracy": 0.9366,
+    "accuracy": 0.9161,
     "eer": 0.0656,
     "per_language": {
       "hi": {
-        "accuracy": 0.9369,
-        "eer": 0.0563,
-        "f1": 0.9186,
-        "min_dcf": 0.65,
+        "accuracy": 0.9099,
+        "eer": 0.0704,
+        "f1": 0.8876,
+        "min_dcf": 0.625,
         "n": 222
       },
       "mr": {
-        "accuracy": 0.939,
+        "accuracy": 0.9329,
         "eer": 0.0625,
-        "f1": 0.955,
-        "min_dcf": 0.0804,
+        "f1": 0.952,
+        "min_dcf": 0.0893,
         "n": 164
       },
       "ta": {
-        "accuracy": 0.9343,
+        "accuracy": 0.9091,
         "eer": 0.0714,
-        "f1": 0.9161,
-        "min_dcf": 0.6627,
+        "f1": 0.8875,
+        "min_dcf": 0.5655,
         "n": 198
       }
     }
@@ -39,12 +39,33 @@
       "clean": 292,
       "opus_whatsapp_sim": 292
     },
-    "duration_sec_max": 12.0,
-    "duration_sec_mean": 6.0595,
-    "duration_sec_min": 2.72,
+    "duration_sec": {
+      "max": 12.0,
+      "mean": 6.0595,
+      "median": 5.5728,
+      "min": 2.72,
+      "p25": 4.38,
+      "p75": 7.1538,
+      "std": 2.0905,
+      "total_sec": 3538.767
+    },
     "labels": {
       "fake": 264,
       "real": 320
+    },
+    "lang_x_label": {
+      "hi": {
+        "fake": 80,
+        "real": 142
+      },
+      "mr": {
+        "fake": 112,
+        "real": 52
+      },
+      "ta": {
+        "fake": 72,
+        "real": 126
+      }
     },
     "languages": {
       "hi": 222,
@@ -53,9 +74,83 @@
     },
     "n": 584,
     "n_speakers": 44,
+    "source_x_label": {
+      "indicsynth": {
+        "fake": 264,
+        "real": 0
+      },
+      "kathbath": {
+        "fake": 0,
+        "real": 320
+      }
+    },
     "sources": {
       "indicsynth": 264,
       "kathbath": 320
+    },
+    "speakers_per_language": {
+      "hi": 16,
+      "mr": 12,
+      "ta": 16
+    }
+  },
+  "train_profile": {
+    "conditions": {
+      "clean": 1254
+    },
+    "duration_sec": {
+      "max": 12.0,
+      "mean": 6.2798,
+      "median": 5.9417,
+      "min": 2.4381,
+      "p25": 4.9691,
+      "p75": 7.22,
+      "std": 1.7958,
+      "total_sec": 7874.9031
+    },
+    "labels": {
+      "fake": 631,
+      "real": 623
+    },
+    "lang_x_label": {
+      "hi": {
+        "fake": 250,
+        "real": 189
+      },
+      "mr": {
+        "fake": 157,
+        "real": 236
+      },
+      "ta": {
+        "fake": 224,
+        "real": 198
+      }
+    },
+    "languages": {
+      "hi": 439,
+      "mr": 393,
+      "ta": 422
+    },
+    "n": 1254,
+    "n_speakers": 178,
+    "source_x_label": {
+      "indicsynth": {
+        "fake": 631,
+        "real": 0
+      },
+      "kathbath": {
+        "fake": 0,
+        "real": 623
+      }
+    },
+    "sources": {
+      "indicsynth": 631,
+      "kathbath": 623
+    },
+    "speakers_per_language": {
+      "hi": 51,
+      "mr": 57,
+      "ta": 72
     }
   },
   "val_profile": {
@@ -63,12 +158,33 @@
       "clean": 254,
       "opus_whatsapp_sim": 254
     },
-    "duration_sec_max": 12.0,
-    "duration_sec_mean": 6.684,
-    "duration_sec_min": 2.5078,
+    "duration_sec": {
+      "max": 12.0,
+      "mean": 6.684,
+      "median": 6.2578,
+      "min": 2.5078,
+      "p25": 5.3174,
+      "p75": 7.6161,
+      "std": 1.9875,
+      "total_sec": 3395.4788
+    },
     "labels": {
       "fake": 274,
       "real": 234
+    },
+    "lang_x_label": {
+      "hi": {
+        "fake": 20,
+        "real": 80
+      },
+      "mr": {
+        "fake": 174,
+        "real": 76
+      },
+      "ta": {
+        "fake": 80,
+        "real": 78
+      }
     },
     "languages": {
       "hi": 100,
@@ -77,34 +193,49 @@
     },
     "n": 508,
     "n_speakers": 45,
+    "source_x_label": {
+      "indicsynth": {
+        "fake": 274,
+        "real": 0
+      },
+      "kathbath": {
+        "fake": 0,
+        "real": 234
+      }
+    },
     "sources": {
       "indicsynth": 274,
       "kathbath": 234
+    },
+    "speakers_per_language": {
+      "hi": 11,
+      "mr": 20,
+      "ta": 14
     }
   },
   "validation_metrics": {
-    "accuracy": 0.8819,
-    "eer": 0.1197,
+    "accuracy": 0.874,
+    "eer": 0.1241,
     "per_language": {
       "hi": {
-        "accuracy": 0.94,
-        "eer": 0.025,
-        "f1": 0.8696,
-        "min_dcf": 0.475,
+        "accuracy": 0.85,
+        "eer": 0.0375,
+        "f1": 0.7273,
+        "min_dcf": 0.525,
         "n": 100
       },
       "mr": {
-        "accuracy": 0.988,
+        "accuracy": 0.984,
         "eer": 0.0057,
-        "f1": 0.9914,
+        "f1": 0.9886,
         "min_dcf": 0.0057,
         "n": 250
       },
       "ta": {
-        "accuracy": 0.6772,
-        "eer": 0.225,
-        "f1": 0.6222,
-        "min_dcf": 0.6375,
+        "accuracy": 0.7152,
+        "eer": 0.2308,
+        "f1": 0.6897,
+        "min_dcf": 0.625,
         "n": 158
       }
     }

@@ -1,5 +1,5 @@
 {
-  "checkpoint_sha256": "a5233e122fbc3b9d1c405ff224dbc6754f89a8a0db51c099a55a240e3a4fa0b4",
+  "checkpoint_sha256": "0f9e8479994cd2c694edd9019e1604832e22ffa86d6fef45cea134151800898e",
   "experiment_id": "baseline_v1",
   "manifest_sha256": "9f3496ec0e4ed21e61a7b902f31cb5081c73bc8fe6c3583ea8e09e0e9c8ec33d",
   "provenance_json": {
@@ -55,5 +55,5 @@
     }
   },
   "scope_limitation": "Results apply only to this bounded Kathbath + IndicSynth subset; real and fake sources are perfectly associated with class labels in V1.",
-  "train_report_sha256": "2c721bb5d87883ac81b57c41d28674df5c8d2a32df22997a33653f37e29531b9"
+  "train_report_sha256": "258d65bbfbf820b84436e9ba841d916dcc5238e02debd4467e71b57f56a45f30"
 }

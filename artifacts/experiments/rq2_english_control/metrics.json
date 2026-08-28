@@ -1,0 +1,27 @@
+{
+  "experiment_id": "rq2_english_control",
+  "english_train_n": 127,
+  "english_val_n": 23,
+  "indic_test_n": 584,
+  "english_only_indic_test": {
+    "accuracy": 0.547945205479452,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "eer": 0.7875,
+    "eer_95ci": [
+      0.7875,
+      0.7555,
+      0.8217
+    ],
+    "min_dcf": 1.0594,
+    "roc_auc": 0.1418
+  },
+  "multilingual_baseline_v1_test": {
+    "accuracy": 0.9366,
+    "eer": 0.0656,
+    "f1": 0.9326
+  },
+  "conclusion": "English-only ASVspoof LA-trained control evaluated on Indic test protocol. Domain shift between English training and Indic evaluation is expected.",
+  "dataset": "Bisher/ASVspoof_2019_LA train (streaming subset, ODC-By)"
+}

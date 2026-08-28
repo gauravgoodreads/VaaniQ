@@ -19,16 +19,17 @@ Telugu is **not** a project language (REQ-139).
 
 | Item | Status | Artifact |
 |------|--------|----------|
-| Baseline V1 (acoustic + AASIST head) | **Measured** | `artifacts/experiments/baseline_v1/` |
+| Baseline V1 (acoustic + AASIST-compatible head) | **Measured** | `artifacts/experiments/baseline_v1/` — 91.6% test acc, 6.56% EER (speaker-disjoint Kathbath-real / IndicSynth-fake) |
 | RQ1 clean vs Opus | **Measured** | `baseline_v1` per-condition metrics |
+| RQ2 English-only vs multilingual | **Measured** | `artifacts/experiments/rq2_english_control/` — English-only 54.8% acc on Indic test |
 | RQ3 leave-one-language-out | **Measured** | `artifacts/experiments/rq3_crosslingual/` |
-| RQ4 calibration audit | **Measured** | `artifacts/experiments/rq4_calibration/` |
-| LFCC-GMM / RawNet2 baselines | **Measured** | `artifacts/experiments/baseline_matrix/` |
-| Source-shortcut analysis | **Measured** | `artifacts/experiments/source_shortcut/` |
-| Frozen XLS-R main model | **Pending** | run `extract_xlsr_embeddings.py` + `train_demo_detector.py --front-end xlsr` |
-| Benchmark V2 (multi-source) | **Pending** | `prepare_benchmark_v2.py` (needs HF_TOKEN) |
-| RQ2 English-only ASVspoof | **Pending** | OQ-015 |
-| RQ5 human study | **Protocol ready, N=0** | `/api/v1/human-study/*` |
+| RQ4 calibration (val-selected strategy) | **Measured** | `artifacts/experiments/rq4_calibration/` + `baseline_v1` |
+| LFCC-GMM / RawNet2-style approximate baseline | **Measured** | `artifacts/experiments/baseline_matrix/` — not canonical RawNet2 |
+| Source-shortcut analysis | **Measured** | `artifacts/experiments/source_shortcut/` — V1 confound documented |
+| Split diagnostics (val/test gap) | **Measured** | `artifacts/experiments/split_diagnostics/final_analysis.json` |
+| Frozen XLS-R main model | **Measured** | `artifacts/experiments/xlsr_main/` — 92.1% test acc, 6.88% EER |
+| Benchmark V2 (multi-source) | **Partial** | `artifacts/experiments/benchmark_v2/` — 50 FLEURS hi real + generator tags; mr/ta pending |
+| RQ5 human study | **Protocol ready, N=0** | `make analyze-human-study` or `scripts/analyze_human_study.py` |
 
 ### Reproduce main results
 

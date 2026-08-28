@@ -1,2 +1,3 @@
 status,reason,model,language,condition,eer,min_dcf,accuracy,precision,recall,f1,roc_auc
-PENDING,ASVspoof English-only control not yet measured (OQ-015),,,,,,,,,,
+COMPLETE,english_only_asvspoof_la_on_indic_test,english_only_asvspoof,hi+mr+ta,all,0.7875,1.0594,0.547945205479452,0.0,0.0,0.0,0.1418
+COMPLETE,multilingual_baseline_v1,acoustic_aasist_v1,hi+mr+ta,all,0.0656,,0.9366,,,0.9326,

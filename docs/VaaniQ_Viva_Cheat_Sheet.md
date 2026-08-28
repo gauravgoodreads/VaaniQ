@@ -26,24 +26,24 @@ In Baseline V1, real=Kathbath and fake=IndicSynth always. Source correlates with
 Yes, structurally possible. Source-shortcut probe on test: label 84.8%, source 84.6% (similar).
 
 **8. What did we do to test that?**  
-`artifacts/experiments/source_shortcut/metrics.json`; Benchmark V2 script adds Common Voice + generator tags.
+`artifacts/experiments/source_shortcut/metrics.json`; Benchmark V2 adds FLEURS real speech + generator metadata (IndicVoices-R/CV blocked without gated access).
 
 ## Models
 
 **9. Why XLS-R?**  
-Multilingual frozen front-end per proposal (wav2vec2-xls-r-300m).
+Multilingual frozen front-end per proposal (wav2vec2-xls-r-300m). Baseline V1 used a deterministic acoustic embedding; frozen XLS-R main experiment is separate (`artifacts/experiments/xlsr_main/` when complete).
 
 **10. Why freeze XLS-R?**  
 REQ-041: use pretrained representation; train only the anti-spoofing head unless ablation justifies fine-tuning.
 
 **11. What is AASIST?**  
-Graph-attention anti-spoofing architecture. VaaniQ uses an **AASIST-compatible NumPy head**, not clovaai graph AASIST.
+Graph-attention anti-spoofing architecture. VaaniQ uses an **AASIST-compatible NumPy head**, not the canonical clovaai/AASIST graph implementation.
 
 **12. What is LFCC-GMM?**  
 Classical cepstral features + diagonal GMMs. Test EER ~23.5% on V1 (artifact: `baseline_matrix`).
 
-**13. What is RawNet2?**  
-Raw-waveform CNN anti-spoofing. VaaniQ uses a **lightweight approximation** for CI (EER ~43% on V1).
+**13. What is RawNet2-style approximate baseline?**  
+Not canonical RawNet2. A lightweight raw-waveform CNN placeholder (EER ~43% on V1). Faithful RawNet2 from AASIST repo remains **pending**.
 
 ## Metrics
 
@@ -133,4 +133,4 @@ Harder benchmarks, unseen generators, calibrated deployment thresholds, human st
 Speaker-disjoint V1 detection: **93.7% acc, 6.6% EER** on 584 test instances with paired Opus eval.
 
 **42. Weakest result?**  
-Hindi LOO EER 21.8%; LFCC-GMM/RawNet2 baselines weak vs head; min-DCF 0.787.
+Hindi LOO EER 21.8%; LFCC-GMM / RawNet2-style approximate baselines weak vs head; min-DCF 0.784 on V1.

@@ -137,16 +137,65 @@ def main() -> int:
                 rq4_rows or [["PARTIAL", "run export_predictions.py", "", "", "", "", "", "", "", "", "", ""]],
             )
 
+    rq2 = _load_metrics("rq2_english_control")
+    if rq2:
+        en = rq2.get("english_only_indic_test") or {}
+        ml = rq2.get("multilingual_baseline_v1_test") or {}
+        rq2_rows = [
+            [
+                "COMPLETE",
+                "english_only_asvspoof_la_on_indic_test",
+                "english_only_asvspoof",
+                "hi+mr+ta",
+                "all",
+                en.get("eer"),
+                en.get("min_dcf"),
+                en.get("accuracy"),
+                en.get("precision"),
+                en.get("recall"),
+                en.get("f1"),
+                en.get("roc_auc"),
+            ],
+            [
+                "COMPLETE",
+                "multilingual_baseline_v1",
+                "acoustic_aasist_v1",
+                "hi+mr+ta",
+                "all",
+                ml.get("eer"),
+                "",
+                ml.get("accuracy"),
+                "",
+                "",
+                ml.get("f1"),
+                "",
+            ],
+        ]
+        for dest in (RESULTS, BACKEND_RESULTS):
+            _write_csv(dest / "RQ2_multilingual_vs_english.csv", header, rq2_rows)
+    else:
+        for dest in (RESULTS, BACKEND_RESULTS):
+            _write_csv(
+                dest / "RQ2_multilingual_vs_english.csv",
+                header,
+                [["PENDING", "ASVspoof English-only control not yet measured", "", "", "", "", "", "", "", "", "", ""]],
+            )
+
+    rq5 = _load_metrics("rq5_human")
+    rq5_status = str((rq5 or {}).get("status", "PENDING"))
     for dest in (RESULTS, BACKEND_RESULTS):
-        _write_csv(
-            dest / "RQ2_multilingual_vs_english.csv",
-            header,
-            [["PENDING", "ASVspoof English-only control not yet measured (OQ-015)", "", "", "", "", "", "", "", "", "", ""]],
-        )
         _write_csv(
             dest / "RQ5_human_vs_model.csv",
             ("status", "reason", "n_participants", "human_accuracy", "model_accuracy"),
-            [["PENDING", "human_n=0; protocol ready", 0, "", ""]],
+            [
+                [
+                    rq5_status,
+                    (rq5 or {}).get("note", "human protocol ready"),
+                    (rq5 or {}).get("n_participants", 0),
+                    "",
+                    "",
+                ]
+            ],
         )
 
     print("synced research/results CSVs from artifacts")

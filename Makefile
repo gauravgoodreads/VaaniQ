@@ -68,6 +68,9 @@ research-baselines:
 research-verify:
 	cd "$(BACKEND)" && $(UV) run python "../scripts/verify_research_integrity.py"
 
+analyze-human-study:
+	cd "$(BACKEND)" && $(UV) run python "../scripts/analyze_human_study.py"
+
 # Windows without GNU make:
 #   powershell -File scripts/check_all.ps1
 

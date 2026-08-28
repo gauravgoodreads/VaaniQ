@@ -144,8 +144,10 @@ class FrozenXLSRExtractor(FeatureExtractor):
             ) from exc
         if self._model is None or self._processor is None:
             model_id = self._config.xlsr_model_id
-            processor = AutoFeatureExtractor.from_pretrained(model_id)
-            model = Wav2Vec2Model.from_pretrained(model_id)
+            load_fe: Any = AutoFeatureExtractor.from_pretrained
+            load_model: Any = Wav2Vec2Model.from_pretrained
+            processor = load_fe(model_id)
+            model = load_model(model_id)
             model.eval()
             for param in model.parameters():
                 param.requires_grad_(False)

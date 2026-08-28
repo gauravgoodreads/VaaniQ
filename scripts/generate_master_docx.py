@@ -22,7 +22,7 @@ from playwright.sync_api import sync_playwright
 
 REPO = Path(__file__).resolve().parents[1]
 OUT_DIR = REPO / "docs" / "assets" / "screenshots"
-DOCX_OUT = REPO / "docs" / "VaaniQ_Master_Presentation_FINAL.docx"
+DOCX_OUT = REPO / "docs" / "VaaniQ_Master_Presentation_FINAL_v2.docx"
 TRAIN_REPORT = REPO / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
 FIG_DIR = REPO / "docs" / "assets" / "figures"
 VERIFIED_FIG_DIR = REPO / "docs" / "assets" / "verified_figures"
@@ -1335,7 +1335,7 @@ def build_doc(
             ["Data validity", "Licenced real/fake corpora, speaker IDs, checksums, consent"],
             ["External validity", "Multiple TTS/voice-cloning attacks and recording channels"],
             ["Compression study", "Real ffmpeg Opus twins and paired significance tests"],
-            ["Model comparison", "LFCC-GMM, RawNet2, English-only and multilingual checkpoints"],
+            ["Model comparison", "LFCC-GMM, RawNet2-style approximate baseline, English-only and multilingual checkpoints"],
             ["Uncertainty", "Bootstrap confidence intervals and pre/post calibration tests"],
             ["Human baseline", "At least 12–15 eligible listeners on identical stimuli"],
             ["Paper claims", "Numbers only from frozen, versioned result CSVs"],

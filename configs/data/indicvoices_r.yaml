@@ -2,7 +2,7 @@
 # ASSUMPTION: OQ-002, OQ-003
 
 source_id: indicvoices_r
-hf_dataset_id: ai4bharat/IndicVoices-R
+hf_dataset_id: ai4bharat/indicvoices_r
 gated: true
 languages:
   - hi

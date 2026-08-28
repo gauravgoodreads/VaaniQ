@@ -90,7 +90,7 @@ def _transcribe_local(
     language_hint: str | None,
 ) -> TranscriptResult:
     try:
-        from faster_whisper import WhisperModel  # type: ignore[import-untyped]
+        from faster_whisper import WhisperModel  # type: ignore[import-not-found]
     except ImportError as exc:
         raise RuntimeError(
             "faster-whisper is not installed. Run: uv pip install faster-whisper"

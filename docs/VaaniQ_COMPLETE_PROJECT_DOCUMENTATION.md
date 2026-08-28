@@ -53,7 +53,7 @@
 
 | Layer | Status (2026-08-28) |
 |-------|---------------------|
-| **Software stack** (API + UI + streaming + explain + human study) | **Complete and working** |
+| **Software stack** (API + UI + streaming + explain + human-study protocol) | **Complete and working** (N=0 responses) |
 | **Demo model training** | **450 clips**, hi/mr/ta, **1.5 h**, val acc **92.2%**, EER **8.9%** |
 | **Curated research corpus** (Kathbath, IndicSynth, etc.) | **Not ingested** (HF gated; 0 research hours) |
 | **RQ1–RQ5 measured results** | **PENDING** on curated data |
@@ -103,7 +103,7 @@ No published work combines, in one open benchmark:
 |-----|-------------|---------|
 | O1 | Assemble labelled real + AI-generated speech across 3 languages | Dataset |
 | O2 | Simulate WhatsApp-style Opus delivery; evaluate under compression | RQ1 |
-| O3 | Train/benchmark XLS-R + AASIST vs LFCC-GMM, RawNet2, English-only | RQ2 |
+| O3 | Train/benchmark XLS-R + AASIST-compatible head vs LFCC-GMM, RawNet2-style approximate baseline, English-only | RQ2 |
 | O4 | Cross-lingual and cross-condition generalisation | RQ3 |
 | O5 | Measure/improve calibration (ECE, Brier, reliability, temperature scaling) | RQ4 |
 | O6 | Bounded listening-test study: human vs model | RQ5 |
@@ -116,7 +116,7 @@ No published work combines, in one open benchmark:
 |-----------|-----------------|---------------------------|
 | Cross-language detection matrix | Yes | **No** |
 | Clean + Opus for every language/baseline | Yes | **No** |
-| Calibration improves post-scaling | Yes | **No** |
+| Post-scaling calibration vs pre-scaling (val-selected strategy) | Mixed | **Val-selected per-language×condition TS on V1** |
 | Human study ≥12–15 responses | Yes (UI) | **No** (N=0) |
 | Demo E2E with explainability | **Yes** | N/A |
 
@@ -272,7 +272,7 @@ flowchart LR
 | Embedding | `FrozenXLSRExtractor` → `facebook/wav2vec2-xls-r-300m` |
 | Training | `Trainer` on cached embeddings, speaker-disjoint splits |
 | Compression | `ffmpeg_opus.py` WhatsApp-style simulation (OQ-007) |
-| Baselines | LFCC-GMM, RawNet2, English-only ASVspoof control |
+| Baselines | LFCC-GMM, RawNet2-style approximate baseline, English-only ASVspoof control |
 
 ---
 

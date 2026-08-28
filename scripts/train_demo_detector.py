@@ -171,6 +171,12 @@ def main() -> None:
         help="Feature extractor: acoustic (Baseline V1) or cached frozen XLS-R.",
     )
     parser.add_argument(
+        "--embedding-cache",
+        type=Path,
+        default=None,
+        help="XLS-R embedding cache root (required when --front-end=xlsr).",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=None,

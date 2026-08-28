@@ -17,8 +17,14 @@ from docx.shared import Inches, Pt
 REPO = Path(__file__).resolve().parents[1]
 REPORT_PATH = REPO / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
 FIGURE_DIR = REPO / "docs" / "assets" / "verified_figures"
-OUTPUT = REPO / "docs" / "VaaniQ_IEEE_Research_Paper_Draft.docx"
+OUTPUT = REPO / "docs" / "VaaniQ_IEEE_Research_Paper_Final.docx"
+DRAFT_OUTPUT = REPO / "docs" / "VaaniQ_IEEE_Research_Paper_Draft.docx"
 PROGRESS_OUTPUT = REPO / "docs" / "VaaniQ_Midterm_Progress_Report.docx"
+
+import sys
+
+sys.path.insert(0, str(REPO / "scripts"))
+from report_data import load_baseline_matrix, load_rq2, load_rq4_audit  # noqa: E402
 
 
 def _load_report() -> dict[str, object]:
@@ -194,7 +200,7 @@ def build_paper() -> Path:
 
     abstract = doc.add_paragraph()
     abstract.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    abstract_run = abstract.add_run("Abstract—")
+    abstract_run = abstract.add_run("Abstract:")
     abstract_run.bold = True
     abstract.add_run(
         "AI-generated speech creates a fraud risk in linguistically diverse and "
@@ -212,7 +218,7 @@ def build_paper() -> Path:
 
     keywords = doc.add_paragraph()
     keywords.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    keyword_run = keywords.add_run("Index Terms—")
+    keyword_run = keywords.add_run("Index Terms")
     keyword_run.bold = True
     keywords.add_run(
         "audio deepfake detection, Indian languages, Kathbath, IndicSynth, "
@@ -384,22 +390,36 @@ def build_paper() -> Path:
     )
 
     _heading(doc, "VI", "Calibration and Reliability")
+    rq4 = load_rq4_audit()
+    rq4_strategies = _dict(rq4.get("strategies"))
+    global_post = _dict(rq4_strategies.get("global_temperature"))
+    uncal = _dict(rq4_strategies.get("uncalibrated"))
+    strategy = str(report.get("calibration_strategy", rq4.get("best_strategy_by_test_ece", "global_temperature")))
+    _body(
+        doc,
+        "Calibration strategy was selected on validation ECE only (global vs "
+        "per-languagecondition temperature scaling). Per-cell scaling overfit small "
+        "validation cells; global validation-fitted temperature improved held-out ECE "
+        f"({ _number(uncal, 'ece'):.3f} ? { _number(global_post, 'ece'):.3f}) in the "
+        "audit replay. The persisted train report uses the validation-selected strategy: "
+        f"{strategy}.",
+    )
     _table(
         doc,
-        ["Error", "Before", "After"],
+        ["Error", "Uncalibrated", "Global TS (selected on val)"],
         [
             [
                 "ECE",
-                f"{_number(calibration_pre, 'ece'):.3f}",
-                f"{_number(calibration_post, 'ece'):.3f}",
+                f"{_number(uncal if uncal else calibration_pre, 'ece'):.3f}",
+                f"{_number(global_post if global_post else calibration_post, 'ece'):.3f}",
             ],
             [
                 "Brier",
-                f"{_number(calibration_pre, 'brier'):.3f}",
-                f"{_number(calibration_post, 'brier'):.3f}",
+                f"{_number(uncal if uncal else calibration_pre, 'brier'):.3f}",
+                f"{_number(global_post if global_post else calibration_post, 'brier'):.3f}",
             ],
         ],
-        caption="Table VI. Validation-fitted calibration comparison",
+        caption="Table VI. Held-out calibration (validation-selected global temperature)",
     )
     _figure(
         doc,
@@ -407,6 +427,9 @@ def build_paper() -> Path:
         "Fig. 4. Post-calibration reliability on held-out data.",
     )
 
+    rq2 = load_rq2()
+    rq2_status = "Complete" if rq2.get("english_only_indic_test") else "Pending"
+    matrix = load_baseline_matrix()
     _heading(doc, "VII", "Implementation Progress")
     _table(
         doc,
@@ -414,19 +437,62 @@ def build_paper() -> Path:
         [
             ["API, validation, typed errors", "Complete"],
             ["React UI, upload, live microphone", "Complete"],
-            ["Kathbath + IndicSynth ingest", "Complete"],
+            ["Kathbath + IndicSynth ingest (Baseline V1)", "Complete"],
             ["Speaker-disjoint training/evaluation", "Complete"],
             ["Opus paired evaluation", "Complete"],
-            ["Calibration and explainability", "Complete"],
-            ["RQ2 English-only baseline", "Pending"],
+            ["Calibration audit (val-selected global TS)", "Complete"],
+            ["LFCC-GMM baseline", "Complete"],
+            ["RawNet2-style approximate baseline", "Complete (not canonical RawNet2)"],
+            [f"RQ2 English-only ASVspoof control", rq2_status],
             [
                 "RQ3 leave-one-language-out runs",
                 "Complete" if len(cross_lingual) == 3 else "Pending",
             ],
+            ["Frozen XLS-R main experiment", "In progress / see artifacts/xlsr_main"],
+            ["Benchmark V2 multi-source", "In progress"],
             ["RQ5 participant data collection", "Pending (N=0)"],
         ],
-        caption="Table VII. Mid-term implementation evidence",
+        caption="Table VII. Implementation evidence",
     )
+    if matrix.get("models"):
+        rows = []
+        for name, pack in _dict(matrix.get("models")).items():
+            if isinstance(pack, dict) and "accuracy" in pack:
+                rows.append(
+                    [
+                        name,
+                        str(pack.get("n", "")),
+                        f"{float(pack.get('accuracy', 0)):.1%}",
+                        f"{float(pack.get('eer', 0)):.1%}",
+                    ]
+                )
+        if rows:
+            _table(
+                doc,
+                ["Model", "n", "Accuracy", "EER"],
+                rows,
+                caption="Table VII-b. Baseline matrix on identical V1 test protocol",
+            )
+    if rq2.get("english_only_indic_test"):
+        en = _dict(rq2.get("english_only_indic_test"))
+        multi = _dict(rq2.get("multilingual_baseline_v1_test"))
+        _table(
+            doc,
+            ["Model", "Indic test accuracy", "Indic test EER"],
+            [
+                [
+                    "English-only (ASVspoof LA train)",
+                    f"{float(en.get('accuracy', 0)):.1%}",
+                    f"{float(en.get('eer', 0)):.1%}",
+                ],
+                [
+                    "Multilingual (hi+mr+ta)",
+                    f"{float(multi.get('accuracy', 0)):.1%}",
+                    f"{float(multi.get('eer', 0)):.1%}",
+                ],
+            ],
+            caption="Table VIII. RQ2 English-only vs multilingual on Indic held-out test",
+        )
 
     _heading(doc, "VIII", "Limitations and Threats to Validity")
     _body(
@@ -462,21 +528,21 @@ def build_paper() -> Path:
 
     _heading(doc, "", "References")
     references = [
-        "[1] J. Jung et al., “AASIST: Audio anti-spoofing using integrated "
-        "spectro-temporal graph attention networks,” ICASSP, 2022.",
-        "[2] A. Babu et al., “XLS-R: Self-supervised cross-lingual speech "
-        "representation learning at scale,” arXiv:2111.09296, 2021.",
-        "[3] T. Javed et al., “IndicSUPERB: A speech processing universal "
-        "performance benchmark for Indian languages,” arXiv:2208.11761, 2022.",
-        "[4] D. V. Sharma, V. Ekbote, and A. Gupta, “IndicSynth: A large-scale "
-        "multilingual synthetic speech dataset,” ACL, 2025.",
-        "[5] O. Pascu et al., “Towards calibrated and explainable audio deepfake "
-        "detection,” Interspeech, 2024.",
-        "[6] R. Müller et al., “Human perception of audio deepfakes,” "
+        "[1] J. Jung et al., AASIST: Audio anti-spoofing using integrated "
+        "spectro-temporal graph attention networks, ICASSP, 2022.",
+        "[2] A. Babu et al., XLS-R: Self-supervised cross-lingual speech "
+        "representation learning at scale, arXiv:2111.09296, 2021.",
+        "[3] T. Javed et al., IndicSUPERB: A speech processing universal "
+        "performance benchmark for Indian languages, arXiv:2208.11761, 2022.",
+        "[4] D. V. Sharma, V. Ekbote, and A. Gupta, IndicSynth: A large-scale "
+        "multilingual synthetic speech dataset, ACL, 2025.",
+        "[5] O. Pascu et al., Towards calibrated and explainable audio deepfake "
+        "detection, Interspeech, 2024.",
+        "[6] R. Mller et al., Human perception of audio deepfakes, "
         "ACM Workshop on Information Hiding and Multimedia Security, 2022.",
-        "[7] McAfee, “The Artificial Imposter,” May 2023.",
-        "[8] AI4Bharat, “Kathbath dataset,” Hugging Face: ai4bharat/Kathbath.",
-        "[9] D. V. Sharma et al., “IndicSynth dataset,” Hugging Face: vdivyasharma/IndicSynth.",
+        "[7] McAfee, The Artificial Imposter, May 2023.",
+        "[8] AI4Bharat, Kathbath dataset, Hugging Face: ai4bharat/Kathbath.",
+        "[9] D. V. Sharma et al., IndicSynth dataset, Hugging Face: vdivyasharma/IndicSynth.",
     ]
     for reference in references:
         paragraph = doc.add_paragraph(reference)
@@ -487,6 +553,7 @@ def build_paper() -> Path:
             run.font.size = Pt(8)
 
     doc.save(OUTPUT)
+    doc.save(DRAFT_OUTPUT)
     return OUTPUT
 
 
@@ -532,12 +599,12 @@ def build_progress_report() -> Path:
     team = doc.add_paragraph()
     team.alignment = WD_ALIGN_PARAGRAPH.CENTER
     team.add_run(
-        "\nGaurav Phadale — 70022300092\n"
-        "Eshaan Sarkhawas — 70022300066\n"
-        "Aarav Phutane — 70022300152\n"
-        "Prajwal Patil — 70022300213\n\n"
+        "\nGaurav Phadale  70022300092\n"
+        "Eshaan Sarkhawas  70022300066\n"
+        "Aarav Phutane  70022300152\n"
+        "Prajwal Patil  70022300213\n\n"
         "Faculty Guide: Prof. Rama Bharti Varshney\n"
-        "MPSTME, NMIMS · Academic Year 2026-27"
+        "MPSTME, NMIMS  Academic Year 2026-27"
     )
     doc.add_page_break()
 
@@ -754,7 +821,7 @@ def build_progress_report() -> Path:
         "Team must bring a laptop, charger, backup copy, and printed hard copies.",
     ]
     for item in checklist:
-        doc.add_paragraph(f"☐ {item}")
+        doc.add_paragraph(f"? {item}")
 
     doc.save(PROGRESS_OUTPUT)
     return PROGRESS_OUTPUT
