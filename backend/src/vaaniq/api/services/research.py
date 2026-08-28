@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -28,6 +29,7 @@ from vaaniq.research.store import ExperimentStore, collect_hardware
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 _DEMO_CORPUS_ROOT = _REPO_ROOT / "data" / "demo_corpus"
+_PUBLICATION_CORPUS_ROOT = _REPO_ROOT / "data" / "publication_corpus"
 
 
 def _parse_language(raw: str) -> Language:
@@ -58,6 +60,13 @@ def _parse_split(raw: str) -> Split:
         return Split.TEST
 
 
+def _parse_source(raw: str) -> DatasetSource:
+    try:
+        return DatasetSource(raw)
+    except ValueError:
+        return DatasetSource.TEAM_RECORDING
+
+
 def _fallback_demo_clips() -> list[ClipMetadata]:
     clips: list[ClipMetadata] = []
     for lang in Language:
@@ -81,10 +90,17 @@ def _fallback_demo_clips() -> list[ClipMetadata]:
 
 
 def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
-    """Load generated corpus if present; else short metadata-only fallback."""
-    manifest = _DEMO_CORPUS_ROOT / "manifest.jsonl"
+    """Load publication corpus first, then generated demo, then metadata fallback."""
+    publication_manifest = _PUBLICATION_CORPUS_ROOT / "manifest.jsonl"
+    using_publication = publication_manifest.is_file()
+    root = _PUBLICATION_CORPUS_ROOT if using_publication else _DEMO_CORPUS_ROOT
+    manifest = root / "manifest.jsonl"
     if not manifest.is_file():
-        return _fallback_demo_clips(), {}, "Metadata demo pool — run scripts/generate_demo_corpus.py for playable audio (OQ-002)."
+        note = (
+            "Metadata demo pool - run scripts/generate_demo_corpus.py "
+            "for playable audio (OQ-002)."
+        )
+        return _fallback_demo_clips(), {}, note
 
     clips: list[ClipMetadata] = []
     audio_map: dict[str, Path] = {}
@@ -96,12 +112,12 @@ def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
             row = json.loads(line)
             clip_id = str(row["clip_id"])
             uri = str(row.get("uri", f"audio/{clip_id}.wav"))
-            path = _DEMO_CORPUS_ROOT / uri
+            path = root / uri
             clips.append(
                 ClipMetadata(
                     clip_id=clip_id,
                     language=_parse_language(str(row.get("language", "hi"))),
-                    source=DatasetSource.TEAM_RECORDING,
+                    source=_parse_source(str(row.get("source", "team_recording"))),
                     label=_parse_label(str(row.get("label", "real"))),
                     compression_status=_parse_compression(
                         str(row.get("compression_status", "clean"))
@@ -110,15 +126,32 @@ def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
                     duration_sec=float(row.get("duration_sec", 20.0)),
                     split=_parse_split(str(row.get("split", "test"))),
                     dataset_source=str(row.get("dataset_source", "demo_corpus")),
+                    speaker_id=(
+                        str(row["speaker_id"]) if row.get("speaker_id") is not None else None
+                    ),
+                    pair_id=str(row["pair_id"]) if row.get("pair_id") is not None else None,
+                    gender=str(row["gender"]) if row.get("gender") is not None else None,
+                    checksum_sha256=(
+                        str(row["checksum_sha256"])
+                        if row.get("checksum_sha256") is not None
+                        else None
+                    ),
+                    uri=uri,
                 )
             )
             if path.is_file():
                 audio_map[clip_id] = path
 
-    note = (
-        f"Local demo corpus ({len(clips)} playable clips under data/demo_corpus). "
-        "Synthetic audio for UI / human-study — not curated dissertation hours (OQ-002)."
-    )
+    if using_publication:
+        note = (
+            f"Speaker-disjoint Kathbath + IndicSynth subset "
+            f"({len(clips)} playable clean/Opus evaluation instances)."
+        )
+    else:
+        note = (
+            f"Local demo corpus ({len(clips)} playable clips under data/demo_corpus). "
+            "Synthetic audio for UI / human-study — not curated dissertation hours (OQ-002)."
+        )
     return clips, audio_map, note
 
 
@@ -252,7 +285,8 @@ class ResearchApiService:
         path = _STATE.audio_map.get(clip_id)
         if path is None or not path.is_file():
             raise HTTPException(status_code=404, detail=f"audio not found for clip_id={clip_id}")
-        return FileResponse(path, media_type="audio/wav", filename=f"{clip_id}.wav")
+        media_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        return FileResponse(path, media_type=media_type, filename=path.name)
 
     def clip_meta(self, clip_id: str) -> dict[str, object]:
         """Metadata for one study / explorer clip."""

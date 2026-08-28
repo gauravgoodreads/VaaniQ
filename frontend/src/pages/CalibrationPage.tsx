@@ -5,6 +5,7 @@ import type { CalibrationResponse } from "@/api/types";
 import { QueryStatus } from "@/components/QueryStatus";
 import { HonestyBanner, PageHeader, StatTile, Surface } from "@/components/layout/PageChrome";
 import { LineChart } from "@/components/viz/LineChart";
+import { reliabilityChartPoints } from "@/lib/charts/reliability";
 
 /** Calibration / reliability page (RQ4). */
 export function CalibrationPage() {
@@ -12,10 +13,7 @@ export function CalibrationPage() {
     queryKey: ["calibration"],
     queryFn: () => getJson<CalibrationResponse>("/api/v1/calibration"),
   });
-  const reliability = (q.data?.reliability_diagram ?? []).map((d) => ({
-    x: Number(d["confidence"] ?? 0),
-    y: Number(d["accuracy"] ?? 0),
-  }));
+  const reliability = reliabilityChartPoints(q.data?.reliability_diagram);
   const coverage = (q.data?.coverage_curve ?? []).map((d) => ({
     x: Number(d["coverage"] ?? 0),
     y: Number(d["accuracy"] ?? 0),

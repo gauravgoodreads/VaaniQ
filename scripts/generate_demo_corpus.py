@@ -185,7 +185,7 @@ def main() -> None:
         type=Path,
         default=Path(__file__).resolve().parents[1] / "data" / "demo_corpus",
     )
-    parser.add_argument("--clips-per-lang", type=int, default=150)
+    parser.add_argument("--clips-per-lang", type=int, default=300)
     parser.add_argument("--duration-sec", type=float, default=12.0)
     parser.add_argument("--sample-rate", type=int, default=16000)
     args = parser.parse_args()

@@ -5,6 +5,7 @@ import { getJson } from "@/api/client";
 import type { CalibrationResponse, HistoryResponse } from "@/api/types";
 import { QueryStatus } from "@/components/QueryStatus";
 import { HonestyBanner, PageHeader, Surface } from "@/components/layout/PageChrome";
+import { reliabilityChartPoints } from "@/lib/charts/reliability";
 import { ConfidenceGauge } from "@/components/viz/ConfidenceGauge";
 import { LineChart } from "@/components/viz/LineChart";
 import { ReliabilityBadge } from "@/components/viz/ReliabilityBadge";
@@ -21,8 +22,12 @@ type Pipeline = {
   checkpoint_loaded: boolean;
   calibrated: boolean;
   val_accuracy?: number;
+  test_accuracy?: number;
   n_train?: number;
   n_val?: number;
+  n_test?: number;
+  data_provenance?: string;
+  speaker_disjoint_verified?: boolean;
   languages?: string[];
   gpu?: string;
   cuda_available?: boolean;
@@ -54,20 +59,18 @@ export function DashboardPage() {
   const loading =
     history.isPending || calib.isPending || explorer.isPending || pipeline.isPending;
   const error = history.error ?? calib.error ?? explorer.error ?? pipeline.error;
-  const reliability = (calib.data?.reliability_diagram ?? []).map((d) => ({
-    x: Number(d["confidence"] ?? 0),
-    y: Number(d["accuracy"] ?? 0),
-  }));
+  const reliability = reliabilityChartPoints(calib.data?.reliability_diagram);
 
   return (
     <section className="vaaniq-enter space-y-8">
       <PageHeader
         title="Dashboard"
-        subtitle="Calibrated detection overview for Hindi, Marathi, and Tamil. Live pulse of the demo stack."
+        subtitle="Calibrated detection overview for Hindi, Marathi, and Tamil. Live pulse of the research stack."
       />
       <HonestyBanner>
-        Dataset hours and ECE shown here are from the local demo corpus / session, not curated
-        dissertation RQ tables until research data is ingested and trained.
+        {pipeline.data?.data_provenance?.includes("kathbath")
+          ? "Metrics use the persisted speaker-disjoint Kathbath + IndicSynth subset and apply only to that declared benchmark."
+          : "Metrics currently use the local demonstration corpus; publication claims require the persisted research subset."}
       </HonestyBanner>
       <QueryStatus isPending={loading} isError={Boolean(error)} error={error ?? undefined}>
         <div className="grid gap-5 md:grid-cols-3">
@@ -136,14 +139,15 @@ export function DashboardPage() {
               {pipeline.data?.status ?? "-"}
             </p>
             <p className="text-sm">
-              <span className="text-[var(--fg-muted)]">Val acc:</span>{" "}
-              {pipeline.data?.val_accuracy != null
-                ? Number(pipeline.data.val_accuracy).toFixed(3)
+              <span className="text-[var(--fg-muted)]">Test acc:</span>{" "}
+              {pipeline.data?.test_accuracy != null
+                ? Number(pipeline.data.test_accuracy).toFixed(3)
                 : "-"}
             </p>
             <p className="text-sm">
-              <span className="text-[var(--fg-muted)]">Train / val:</span>{" "}
-              {pipeline.data?.n_train ?? "-"} / {pipeline.data?.n_val ?? "-"}
+              <span className="text-[var(--fg-muted)]">Train / val / test:</span>{" "}
+              {pipeline.data?.n_train ?? "-"} / {pipeline.data?.n_val ?? "-"} /{" "}
+              {pipeline.data?.n_test ?? "-"}
             </p>
             <p className="text-sm">
               <span className="text-[var(--fg-muted)]">GPU:</span>{" "}

@@ -54,7 +54,7 @@ export function DatasetPage() {
     <section className="vaaniq-enter space-y-8">
       <PageHeader
         title="Dataset explorer"
-        subtitle="Hindi, Marathi, and Tamil clip inventory for the VaaniQ demo corpus - browse, filter, and listen."
+        subtitle="Hindi, Marathi, and Tamil inventory for the active VaaniQ corpus - browse, filter, and listen."
       />
       <HonestyBanner>{data?.note ?? "Loading corpus note…"}</HonestyBanner>
       <QueryStatus isPending={q.isPending} isError={q.isError} error={q.error ?? undefined}>
@@ -63,10 +63,10 @@ export function DatasetPage() {
           <StatTile
             label="Total hours"
             value={(data?.total_hours ?? 0).toFixed(3)}
-            hint="Demo corpus duration"
+            hint="Active corpus duration"
           />
           <StatTile
-            label="Playable WAV"
+            label="Playable audio"
             value={String(data?.playable_clips ?? 0)}
             hint="On-disk audio files"
           />

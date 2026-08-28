@@ -5,6 +5,7 @@
 - Python 3.11 + `uv`
 - Backend: `cd backend && uv sync --extra dev`
 - Optional GPU/real XLS-R: `uv sync --extra ml`
+- Hugging Face streaming ingest: `uv sync --extra data`
 - Curated speaker-disjoint manifests under `data/` (gitignored)
 - Embedding cache populated via `FrozenXLSRExtractor.extract_batch`
 
@@ -44,6 +45,39 @@ exp_id = trainer.fit({
     "val_labels": val_y,
 })
 ```
+
+## Kathbath + IndicSynth publication subset
+
+Kathbath is gated. Accept its Hugging Face terms, create a read token, and set
+`HF_TOKEN` in the gitignored project `.env`. Never paste or commit the token.
+
+The complete Hindi/Marathi/Tamil cells exceed 303 GB across both repositories.
+The default command therefore creates a deterministic balanced subset: 300
+Kathbath real and 300 IndicSynth fake clips per language (1,800 source clips).
+
+```powershell
+cd backend
+$env:PYTHONPATH = "src"
+$env:HF_TOKEN = "<load from the project .env>"
+
+uv run --extra data python ..\scripts\prepare_publication_corpus.py
+uv run --extra data python ..\scripts\prepare_publication_corpus.py --augment-existing-opus
+uv run python ..\scripts\train_demo_detector.py `
+  --corpus ..\data\publication_corpus `
+  --output ..\models\checkpoints\xlsr_aasist\aasist-v1.npz
+```
+
+The importer:
+
+- streams only Hindi, Marathi, and Tamil;
+- normalizes audio to mono 16 kHz FLAC;
+- preserves source, licence, model, speaker, gender, and checksum provenance;
+- assigns shared Kathbath/IndicSynth speaker IDs to deterministic 70/15/15 splits;
+- creates actual 16 kbps libopus twins for validation and test;
+- writes `data/publication_corpus/provenance.json` and `manifest.jsonl`.
+
+All paper and DOCX values must be read from the resulting persisted
+`train_report.json`; never copy values from console output or fixtures.
 
 ## Baselines
 

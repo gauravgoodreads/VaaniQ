@@ -40,10 +40,12 @@ class IntegrationSettings:
 
     @property
     def groq_enabled(self) -> bool:
+        """Return whether Groq credentials are configured."""
         return bool(self.groq_api_key)
 
     @property
     def hf_enabled(self) -> bool:
+        """Return whether Hugging Face credentials are configured."""
         return bool(self.hf_token)
 
 

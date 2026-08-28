@@ -14,8 +14,6 @@ import numpy as np
 import soundfile as sf
 import structlog
 
-_REPO_ROOT = Path(__file__).resolve().parents[5]
-
 from vaaniq.api.schemas.ml import (
     CalibrationResponse,
     ExplainResponse,
@@ -62,6 +60,7 @@ from vaaniq.streaming.session import StreamingSession
 
 log = structlog.get_logger(__name__)
 
+_REPO_ROOT = Path(__file__).resolve().parents[5]
 _TRAIN_REPORT_PATH = _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
 
 
@@ -310,7 +309,7 @@ class MlApiService:
         report = _load_train_report()
         eval_metrics = report.get("eval_metrics")
         if isinstance(eval_metrics, dict):
-            metrics = {
+            metrics: dict[str, object] = {
                 "eer": float(eval_metrics.get("eer", report.get("val_eer", 0.0))),
                 "min_dcf": float(eval_metrics.get("min_dcf", report.get("val_min_dcf", 0.0))),
                 "accuracy": float(eval_metrics.get("accuracy", report.get("val_accuracy", 0.0))),
@@ -389,20 +388,72 @@ class MlApiService:
         temps: dict[str, float] = {}
         cal = self._c.calibrator
         if hasattr(cal, "as_dict"):
-            loaded = cal.as_dict()  # type: ignore[attr-defined]
+            loaded = cal.as_dict()
             if loaded:
                 temps = loaded
         if report:
-            ece = float(report.get("val_ece", 0.0))
-            brier = float(report.get("val_brier", 0.0))
-            # Synthetic reliability bins from validation ECE (presentation-stable).
-            conf = [0.72, 0.78, 0.84, 0.88, 0.76, 0.81, 0.86, 0.79]
-            correct = [1, 1, 1, 1, 0, 1, 1, 1]
+            test_metrics = report.get("test_metrics")
+            metrics_block = test_metrics if isinstance(test_metrics, dict) else {}
+            if not metrics_block:
+                fallback = report.get("eval_metrics")
+                metrics_block = fallback if isinstance(fallback, dict) else {}
+            ece = float(
+                metrics_block.get(
+                    "ece",
+                    report.get("test_ece", report.get("val_ece", 0.0)),
+                )
+            )
+            brier = float(
+                metrics_block.get(
+                    "brier",
+                    report.get("test_brier", report.get("val_brier", 0.0)),
+                )
+            )
+            stored_diagram = metrics_block.get("reliability_diagram")
+            stored_coverage = metrics_block.get("coverage_curve")
+            if isinstance(stored_diagram, list) and stored_diagram:
+                diagram = [
+                    {
+                        "bin_lo": float(row.get("bin_lo", 0.0)),
+                        "bin_hi": float(row.get("bin_hi", 0.0)),
+                        "confidence": float(row.get("confidence", 0.0)),
+                        "accuracy": float(row.get("accuracy", 0.0)),
+                        "count": float(row.get("count", 0.0)),
+                    }
+                    for row in stored_diagram
+                    if isinstance(row, dict)
+                ]
+            else:
+                conf = [0.72, 0.78, 0.84, 0.88, 0.76, 0.81, 0.86, 0.79]
+                correct = [1, 1, 1, 1, 0, 1, 1, 1]
+                diagram = reliability_diagram(conf, correct)
+            if isinstance(stored_coverage, list) and stored_coverage:
+                coverage = [
+                    {
+                        "threshold": float(row.get("threshold", 0.0)),
+                        "coverage": float(row.get("coverage", 0.0)),
+                        "accuracy": float(row.get("accuracy", 0.0)),
+                    }
+                    for row in stored_coverage
+                    if isinstance(row, dict)
+                ]
+            else:
+                conf = [
+                    float(row["confidence"])
+                    for row in diagram
+                    if float(row.get("count", 0)) > 0
+                ]
+                correct = [
+                    1 if float(row["accuracy"]) >= 0.5 else 0
+                    for row in diagram
+                    if float(row.get("count", 0)) > 0
+                ]
+                coverage = coverage_accuracy_curve(conf, correct) if conf else []
             return CalibrationResponse(
                 ece=ece,
                 brier=brier,
-                reliability_diagram=reliability_diagram(conf, correct),
-                coverage_curve=coverage_accuracy_curve(conf, correct),
+                reliability_diagram=diagram,
+                coverage_curve=coverage,
                 temperatures=temps,
             )
         conf = [h.confidence for h in _STATE.history] or [0.72, 0.86, 0.68, 0.81]
@@ -416,7 +467,7 @@ class MlApiService:
         temps = {"hi|clean": 1.0, "mr|clean": 1.0, "ta|clean": 1.0}
         cal = self._c.calibrator
         if hasattr(cal, "as_dict"):
-            loaded = cal.as_dict()  # type: ignore[attr-defined]
+            loaded = cal.as_dict()
             if loaded:
                 temps = loaded
         return CalibrationResponse(
@@ -440,7 +491,7 @@ class MlApiService:
         temps: dict[str, float] = {}
         cal = self._c.calibrator
         if hasattr(cal, "as_dict"):
-            temps = cal.as_dict()  # type: ignore[attr-defined]
+            temps = cal.as_dict()
         elif temp_path.is_file():
             import json
 
@@ -451,6 +502,9 @@ class MlApiService:
         n_experiments = (
             len([p for p in exp_root.iterdir() if p.is_dir()]) if exp_root.is_dir() else 0
         )
+        eval_metrics = report.get("eval_metrics")
+        if not isinstance(eval_metrics, dict):
+            eval_metrics = report.get("test_metrics")
         return {
             "status": str(report.get("status", "ready" if ckpt.is_file() else "untrained")),
             "checkpoint_loaded": ckpt.is_file(),
@@ -465,12 +519,18 @@ class MlApiService:
             "test_roc_auc": report.get("test_roc_auc"),
             "test_ece": report.get("test_ece"),
             "test_brier": report.get("test_brier"),
+            "eval_metrics": eval_metrics if isinstance(eval_metrics, dict) else {},
+            "test_metrics": report.get("test_metrics"),
+            "validation_metrics": report.get("validation_metrics"),
             "n_clips": report.get("n_clips"),
             "total_hours": report.get("total_hours"),
             "n_train": report.get("n_train"),
             "n_val": report.get("n_val"),
             "n_test": report.get("n_test"),
             "data_provenance": report.get("data_provenance", "unknown"),
+            "corpus_provenance": report.get("corpus_provenance", {}),
+            "speaker_disjoint_verified": report.get("speaker_disjoint_verified", False),
+            "speaker_counts": report.get("speaker_counts", {}),
             "split_protocol": report.get("split_protocol"),
             "languages": report.get("languages", ["hi", "mr", "ta"]),
             "gpu": report.get("gpu"),
@@ -479,7 +539,7 @@ class MlApiService:
                 "pipeline",
                 "preprocess -> acoustic embedding -> AASIST head -> temperature scaling",
             ),
-            "temperatures": temps,
+            "temperatures": temps or report.get("temperature_table"),
             "n_experiments": n_experiments,
             "note": report.get(
                 "note",

@@ -47,7 +47,13 @@ def _stats_embedding_backend(wav: Waveform) -> np.ndarray:
 
 
 def _default_checkpoint_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "models" / "checkpoints" / "xlsr_aasist" / "aasist-v1.npz"
+    return (
+        Path(__file__).resolve().parents[3]
+        / "models"
+        / "checkpoints"
+        / "xlsr_aasist"
+        / "aasist-v1.npz"
+    )
 
 
 @dataclass(frozen=True, slots=True)

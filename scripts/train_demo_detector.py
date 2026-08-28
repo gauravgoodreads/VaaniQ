@@ -11,7 +11,12 @@ import numpy as np
 import soundfile as sf
 
 from vaaniq.audio.transforms.preprocessor import DefaultPreprocessor
-from vaaniq.calibration.ece import brier_score, expected_calibration_error
+from vaaniq.calibration.ece import (
+    brier_score,
+    coverage_accuracy_curve,
+    expected_calibration_error,
+    reliability_diagram,
+)
 from vaaniq.core.domain.entities import Waveform
 from vaaniq.evaluation.metrics.core import (
     bootstrap_metric_ci,
@@ -144,12 +149,42 @@ def main() -> None:
         type=Path,
         default=Path(__file__).resolve().parents[1] / "data" / "demo_corpus",
     )
-    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--epochs", type=int, default=120)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--lr", type=float, default=0.04)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--noise-std", type=float, default=0.06)
+    parser.add_argument(
+        "--train-languages",
+        default="hi,mr,ta",
+        help="Comma-separated languages used for train/validation.",
+    )
+    parser.add_argument(
+        "--test-languages",
+        default="hi,mr,ta",
+        help="Comma-separated languages evaluated on the test split.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Checkpoint path; defaults to models/checkpoints/xlsr_aasist/aasist-v1.npz.",
+    )
     args = parser.parse_args()
+    supported_languages = {"hi", "mr", "ta"}
+    train_languages = {
+        item.strip() for item in args.train_languages.split(",") if item.strip()
+    }
+    test_languages = {
+        item.strip() for item in args.test_languages.split(",") if item.strip()
+    }
+    if (
+        not train_languages
+        or not test_languages
+        or not train_languages <= supported_languages
+        or not test_languages <= supported_languages
+    ):
+        raise SystemExit("train/test languages must be non-empty subsets of hi,mr,ta")
 
     rows = _load_manifest(args.corpus)
     if not rows:
@@ -161,6 +196,7 @@ def main() -> None:
     langs: list[str] = []
     conditions: list[str] = []
     splits: list[str] = []
+    speakers: list[str] = []
     for row in rows:
         uri = str(row.get("uri", ""))
         path = args.corpus / uri
@@ -177,17 +213,31 @@ def main() -> None:
         langs.append(str(row.get("language", "hi")))
         conditions.append(str(row.get("compression_status", "clean")))
         splits.append(str(row.get("split", "train")))
+        speakers.append(str(row.get("speaker_id", row.get("clip_id", path.stem))))
 
     X = np.stack(feats).astype(np.float32)
     y = np.asarray(labels, dtype=np.int64)
     lang_arr = np.asarray(langs)
     condition_arr = np.asarray(conditions)
     split_arr = np.asarray(splits)
+    speaker_arr = np.asarray(speakers)
 
     # Respect the versioned manifest. Test rows never enter training or checkpoint selection.
-    train_mask = split_arr == "train"
-    val_mask = split_arr == "val"
-    test_mask = split_arr == "test"
+    train_mask = (split_arr == "train") & np.isin(lang_arr, sorted(train_languages))
+    val_mask = (split_arr == "val") & np.isin(lang_arr, sorted(train_languages))
+    test_mask = (split_arr == "test") & np.isin(lang_arr, sorted(test_languages))
+    speaker_sets = {
+        "train": set(speaker_arr[train_mask].tolist()),
+        "val": set(speaker_arr[val_mask].tolist()),
+        "test": set(speaker_arr[test_mask].tolist()),
+    }
+    overlaps = {
+        "train_val": sorted(speaker_sets["train"] & speaker_sets["val"]),
+        "train_test": sorted(speaker_sets["train"] & speaker_sets["test"]),
+        "val_test": sorted(speaker_sets["val"] & speaker_sets["test"]),
+    }
+    if any(overlaps.values()):
+        raise SystemExit(f"Speaker leakage detected: {overlaps}")
     X_val, y_val = X[val_mask], y[val_mask]
     lang_val = lang_arr[val_mask]
     condition_val = condition_arr[val_mask]
@@ -224,7 +274,9 @@ def main() -> None:
     test_metrics = _eval_pack(clf, X_test, y_test, langs=lang_test, conditions=condition_test)
 
     repo = Path(__file__).resolve().parents[1]
-    out = repo / "models" / "checkpoints" / "xlsr_aasist" / "aasist-v1.npz"
+    out = args.output or (
+        repo / "models" / "checkpoints" / "xlsr_aasist" / "aasist-v1.npz"
+    )
     clf.save(out)
 
     from vaaniq.calibration.temperature import TemperatureScaler
@@ -256,7 +308,9 @@ def main() -> None:
         labels: np.ndarray,
         languages: np.ndarray,
         compression_conditions: np.ndarray,
-    ) -> dict[str, float]:
+        *,
+        include_diagrams: bool = False,
+    ) -> dict[str, object]:
         calibrated: list[np.ndarray] = []
         for row, lang_raw, condition_raw in zip(
             logits,
@@ -277,7 +331,7 @@ def main() -> None:
         predictions = np.argmax(probabilities, axis=1)
         confidences = np.max(probabilities, axis=1)
         correct = (predictions == labels).astype(int)
-        return {
+        pack: dict[str, object] = {
             "ece": round(
                 expected_calibration_error(confidences.tolist(), correct.tolist()),
                 4,
@@ -287,6 +341,16 @@ def main() -> None:
                 4,
             ),
         }
+        if include_diagrams:
+            pack["reliability_diagram"] = reliability_diagram(
+                confidences.tolist(),
+                correct.tolist(),
+            )
+            pack["coverage_curve"] = coverage_accuracy_curve(
+                confidences.tolist(),
+                correct.tolist(),
+            )
+        return pack
 
     val_post_calibration = apply_calibration(
         val_logits,
@@ -299,6 +363,7 @@ def main() -> None:
         y_test,
         lang_test,
         condition_test,
+        include_diagrams=True,
     )
     val_metrics["calibration_pre"] = {
         "ece": val_metrics["ece"],
@@ -309,15 +374,31 @@ def main() -> None:
         "ece": test_metrics["ece"],
         "brier": test_metrics["brier"],
     }
-    test_metrics["calibration_post"] = test_post_calibration
-    val_metrics["ece"] = val_post_calibration["ece"]
-    val_metrics["brier"] = val_post_calibration["brier"]
-    test_metrics["ece"] = test_post_calibration["ece"]
-    test_metrics["brier"] = test_post_calibration["brier"]
+    test_metrics["calibration_post"] = {
+        "ece": test_post_calibration["ece"],
+        "brier": test_post_calibration["brier"],
+    }
+    val_metrics["ece"] = float(val_post_calibration["ece"])
+    val_metrics["brier"] = float(val_post_calibration["brier"])
+    test_metrics["ece"] = float(test_post_calibration["ece"])
+    test_metrics["brier"] = float(test_post_calibration["brier"])
+    reliability_bins = test_post_calibration.get("reliability_diagram")
+    if isinstance(reliability_bins, list):
+        test_metrics["reliability_diagram"] = reliability_bins
+    coverage_bins = test_post_calibration.get("coverage_curve")
+    if isinstance(coverage_bins, list):
+        test_metrics["coverage_curve"] = coverage_bins
     temp_path = out.with_name("temperatures.json")
     scaler.save(temp_path)
 
     total_hours = sum(float(r.get("duration_sec", 12.0)) for r in rows) / 3600.0
+    provenance_path = args.corpus / "provenance.json"
+    corpus_provenance: dict[str, object] = {}
+    if provenance_path.is_file():
+        raw_provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        if isinstance(raw_provenance, dict):
+            corpus_provenance = raw_provenance
+    is_publication_subset = bool(corpus_provenance)
     meta = {
         "n_train": len(y_tr),
         "n_val": len(y_val),
@@ -341,13 +422,33 @@ def main() -> None:
         "checkpoint": str(out),
         "temperatures": str(temp_path),
         "temperature_table": scaler.as_dict(),
-        "languages": ["hi", "mr", "ta"],
+        "languages": sorted(train_languages | test_languages),
+        "train_languages": sorted(train_languages),
+        "test_languages": sorted(test_languages),
         "cuda_available": False,
-        "data_provenance": "synthetic_demo_only",
-        "split_protocol": "manifest train/val/test; test excluded from training and selection",
+        "data_provenance": (
+            "kathbath_real_plus_indicsynth_fake_publication_subset"
+            if is_publication_subset
+            else "synthetic_demo_only"
+        ),
+        "corpus_provenance": corpus_provenance,
+        "speaker_disjoint_verified": True,
+        "speaker_counts": {
+            split: len(speaker_sets[split]) for split in ("train", "val", "test")
+        },
+        "split_protocol": (
+            str(corpus_provenance.get("split_protocol"))
+            if is_publication_subset
+            else "manifest train/val/test; test excluded from training and selection"
+        ),
         "note": (
-            "Measured on an expanded synthetic hi/mr/ta demo corpus with "
-            "legitimate difficult examples; not a publication result."
+            "Measured on a persisted, speaker-disjoint Kathbath bonafide plus "
+            "IndicSynth generated-speech subset; claims are limited to this subset."
+            if is_publication_subset
+            else (
+                "Measured on an expanded synthetic hi/mr/ta demo corpus with "
+                "legitimate difficult examples; not a publication result."
+            )
         ),
         "pipeline": "preprocess -> acoustic embedding -> AASIST head -> temperature scaling",
         "status": "trained_calibrated",

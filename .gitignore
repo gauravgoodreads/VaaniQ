@@ -64,6 +64,8 @@ backend/data/
 research/experiments/**
 !research/experiments/.gitkeep
 !research/experiments/README.md
+backend/research/explain/**
+docs/rendered/
 notebooks/**/.ipynb_checkpoints/
 
 # --- OS / IDE ---
@@ -75,6 +77,7 @@ Desktop.ini
 !.vscode/extensions.json
 *.swp
 *~
+~$*.docx
 
 # --- Docker / local DB ---
 *.db

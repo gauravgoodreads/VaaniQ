@@ -73,7 +73,7 @@ def _transcribe_groq(
         payload = res.json()
     text = str(payload.get("text", "")).strip()
     lang = payload.get("language")
-    mapped = _WHISPER_TO_VAANIQ.get(str(lang), None) if lang else None
+    mapped = _WHISPER_TO_VAANIQ.get(str(lang)) if lang else None
     return TranscriptResult(
         text=text,
         language=mapped or (str(lang) if lang else None),
@@ -90,7 +90,7 @@ def _transcribe_local(
     language_hint: str | None,
 ) -> TranscriptResult:
     try:
-        from faster_whisper import WhisperModel  # type: ignore[import-not-found]
+        from faster_whisper import WhisperModel  # type: ignore[import-untyped]
     except ImportError as exc:
         raise RuntimeError(
             "faster-whisper is not installed. Run: uv pip install faster-whisper"
@@ -117,7 +117,7 @@ def _transcribe_local(
     )
     text = " ".join(seg.text.strip() for seg in segments).strip()
     detected = getattr(info, "language", None)
-    mapped = _WHISPER_TO_VAANIQ.get(str(detected), None) if detected else None
+    mapped = _WHISPER_TO_VAANIQ.get(str(detected)) if detected else None
     return TranscriptResult(
         text=text,
         language=mapped or (str(detected) if detected else None),
@@ -181,4 +181,8 @@ def transcribe_file(
     data, sr = sf.read(str(path), always_2d=False, dtype="float32")
     if getattr(data, "ndim", 1) > 1:
         data = np.mean(data, axis=1)
-    return transcribe_waveform(np.asarray(data, dtype=np.float32), int(sr), language_hint=language_hint)
+    return transcribe_waveform(
+        np.asarray(data, dtype=np.float32),
+        int(sr),
+        language_hint=language_hint,
+    )

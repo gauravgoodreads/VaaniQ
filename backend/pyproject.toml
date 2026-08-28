@@ -50,6 +50,17 @@ postgres = [
   # Compose / prod profile (ASSUMPTION: OQ-021).
   "psycopg[binary]>=3.1,<4",
 ]
+data = [
+    "datasets>=5.0.1",
+    "imageio-ffmpeg>=0.6.0",
+]
+docs = [
+    "matplotlib>=3.11.1",
+    "pillow>=12.3.0",
+    "playwright>=1.62.0",
+    "pymupdf>=1.28.2",
+    "python-docx>=1.2.0",
+]
 
 [project.urls]
 Documentation = "https://github.com/local/vaaniq/tree/main/docs"

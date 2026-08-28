@@ -23,10 +23,12 @@ from playwright.sync_api import sync_playwright
 REPO = Path(__file__).resolve().parents[1]
 OUT_DIR = REPO / "docs" / "assets" / "screenshots"
 DOCX_OUT = REPO / "docs" / "VaaniQ_Master_Presentation_FINAL.docx"
+TRAIN_REPORT = REPO / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
 FIG_DIR = REPO / "docs" / "assets" / "figures"
 VERIFIED_FIG_DIR = REPO / "docs" / "assets" / "verified_figures"
 DEMO_WAV_REAL = REPO / "data" / "demo_corpus" / "audio" / "hi-0.wav"
 DEMO_WAV_FAKE = REPO / "data" / "demo_corpus" / "audio" / "hi-1.wav"
+PUBLICATION_ROOT = REPO / "data" / "publication_corpus"
 
 BASE = "http://127.0.0.1:5173"
 API = "http://127.0.0.1:8001"
@@ -64,7 +66,9 @@ def post_inference(wav: Path, language: str = "hi") -> dict[str, object]:
         body_parts.append(f"--{boundary}\r\n".encode())
         body_parts.append(f'Content-Disposition: form-data; name="{key}"\r\n\r\n'.encode())
         body_parts.append(f"{val}\r\n".encode())
-    mime = mimetypes.guess_type(wav.name)[0] or "audio/wav"
+    mime = "audio/flac" if wav.suffix.lower() == ".flac" else (
+        mimetypes.guess_type(wav.name)[0] or "audio/wav"
+    )
     data = wav.read_bytes()
     body_parts.append(f"--{boundary}\r\n".encode())
     body_parts.append(
@@ -82,6 +86,27 @@ def post_inference(wav: Path, language: str = "hi") -> dict[str, object]:
     )
     with urllib.request.urlopen(req, timeout=60) as resp:
         return json.loads(resp.read().decode())
+
+
+def resolve_inference_sample(label: str) -> tuple[Path, str]:
+    """Prefer a clean held-out publication clip, then fall back to demo audio."""
+    manifest = PUBLICATION_ROOT / "manifest.jsonl"
+    if manifest.is_file():
+        with manifest.open(encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if (
+                    row.get("label") == label
+                    and row.get("split") == "test"
+                    and row.get("compression_status") == "clean"
+                ):
+                    path = PUBLICATION_ROOT / str(row["uri"])
+                    if path.is_file():
+                        return path, str(row.get("language", "hi"))
+    fallback = DEMO_WAV_REAL if label == "real" else DEMO_WAV_FAKE
+    return fallback, "hi"
 
 
 def capture_screenshots() -> None:
@@ -179,11 +204,112 @@ def _metric(
     return float(value) if isinstance(value, int | float) else default
 
 
+def load_train_report() -> dict[str, object]:
+    """Load persisted training metrics; used when API omits nested eval blocks."""
+    if not TRAIN_REPORT.is_file():
+        return {}
+    with TRAIN_REPORT.open(encoding="utf-8") as fh:
+        raw = json.load(fh)
+    return raw if isinstance(raw, dict) else {}
+
+
+def merge_pipeline(pipeline: dict[str, object]) -> dict[str, object]:
+    """Ensure pipeline payload includes eval_metrics from train_report.json."""
+    report = load_train_report()
+    if not report:
+        return pipeline
+    merged = dict(pipeline)
+    for key in (
+        "eval_metrics",
+        "test_metrics",
+        "validation_metrics",
+        "test_accuracy",
+        "test_eer",
+        "test_ece",
+        "test_brier",
+        "test_roc_auc",
+        "n_clips",
+        "total_hours",
+        "n_train",
+        "n_val",
+        "n_test",
+        "gpu",
+        "cuda_available",
+        "data_provenance",
+        "corpus_provenance",
+        "speaker_disjoint_verified",
+        "speaker_counts",
+        "status",
+        "pipeline",
+    ):
+        if key not in merged or merged.get(key) in (None, {}, []):
+            value = report.get(key)
+            if value is not None:
+                merged[key] = value
+    eval_metrics = merged.get("eval_metrics")
+    if not isinstance(eval_metrics, dict):
+        fallback = report.get("test_metrics")
+        if isinstance(fallback, dict):
+            merged["eval_metrics"] = fallback
+    return merged
+
+
+def _resolve_metrics(pipeline: dict[str, object]) -> dict[str, object]:
+    raw = pipeline.get("eval_metrics")
+    if isinstance(raw, dict) and raw:
+        return raw
+    raw = pipeline.get("test_metrics")
+    if isinstance(raw, dict) and raw:
+        return raw
+    report = load_train_report()
+    for key in ("eval_metrics", "test_metrics"):
+        block = report.get(key)
+        if isinstance(block, dict) and block:
+            return block
+    return {}
+
+
+def _evaluation_descriptor(pipeline: dict[str, object]) -> tuple[str, str]:
+    """Return a concise figure title and provenance disclosure."""
+    provenance = str(pipeline.get("data_provenance", ""))
+    if "kathbath" in provenance and "indicsynth" in provenance:
+        return (
+            "speaker-disjoint publication test subset",
+            "Measured on the persisted bounded publication subset; not the full 303 GB corpora.",
+        )
+    return (
+        "synthetic test set",
+        "Synthetic demo evaluation only - not a curated-corpus publication result.",
+    )
+
+
+def load_cross_lingual_results() -> dict[str, dict[str, object]]:
+    """Load three leave-one-language-out test reports when available."""
+    results: dict[str, dict[str, object]] = {}
+    for language in ("hi", "mr", "ta"):
+        path = (
+            REPO
+            / "models"
+            / "checkpoints"
+            / "rq3"
+            / f"test_{language}"
+            / "train_report.json"
+        )
+        if not path.is_file():
+            continue
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(raw, dict):
+            metrics = raw.get("test_metrics")
+            if isinstance(metrics, dict):
+                results[language] = metrics
+    return results
+
+
 def generate_verified_figures(pipeline: dict[str, object]) -> None:
     """Generate print-safe figures from the measured synthetic test report."""
     VERIFIED_FIG_DIR.mkdir(parents=True, exist_ok=True)
-    raw_metrics = pipeline.get("eval_metrics")
-    metrics = raw_metrics if isinstance(raw_metrics, dict) else {}
+    metrics = _resolve_metrics(pipeline)
+    evaluation_name, disclosure = _evaluation_descriptor(pipeline)
     style = {
         "figure.facecolor": "white",
         "axes.facecolor": "white",
@@ -201,16 +327,31 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         _metric(metrics, "f1"),
         _metric(metrics, "roc_auc"),
     ]
-    fig, ax = plt.subplots(figsize=(9, 5.2), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    fig.subplots_adjust(left=0.09, right=0.98, bottom=0.17, top=0.80)
     bars = ax.bar(names, values, color=["#0f766e", "#14b8a6", "#2dd4bf", "#5eead4", "#99f6e4"])
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1.12)
     ax.set_ylabel("Score")
-    ax.set_title("Held-out synthetic test-set performance (n=90)")
+    ax.set_title(
+        f"Held-out {evaluation_name} performance (n={int(metrics.get('n', 90))})",
+        pad=16,
+    )
     ax.grid(axis="y", alpha=0.2)
     for bar, value in zip(bars, values, strict=True):
-        ax.text(bar.get_x() + bar.get_width() / 2, value + 0.02, f"{value:.1%}", ha="center")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 0.025,
+            f"{value:.1%}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
     fig.text(
-        0.01, 0.01, "Demo validation only; not a curated-corpus publication result.", fontsize=9
+        0.5,
+        0.035,
+        disclosure,
+        ha="center",
+        fontsize=9,
     )
     fig.savefig(VERIFIED_FIG_DIR / "performance_overview.png", dpi=220)
     plt.close(fig)
@@ -234,7 +375,8 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         for code in language_codes
     ]
     x = np.arange(len(languages))
-    fig, ax = plt.subplots(figsize=(9, 5.2), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    fig.subplots_adjust(left=0.09, right=0.82, bottom=0.14, top=0.80)
     width = 0.36
     acc_bars = ax.bar(x - width / 2, accuracies, width, label="Accuracy", color="#0f766e")
     f1_bars = ax.bar(
@@ -245,18 +387,20 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         color="#f59e0b",
     )
     ax.set_xticks(x, languages)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1.12)
     ax.set_ylabel("Rate")
-    ax.set_title("Per-language held-out synthetic test performance")
-    ax.legend()
+    ax.set_title(f"Per-language held-out {evaluation_name} performance", pad=16)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0)
     ax.grid(axis="y", alpha=0.2)
     for bars_group in (acc_bars, f1_bars):
         for bar in bars_group:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                bar.get_height() + 0.02,
+                bar.get_height() + 0.025,
                 f"{bar.get_height():.1%}",
                 ha="center",
+                va="bottom",
+                fontsize=10,
             )
     fig.savefig(VERIFIED_FIG_DIR / "language_breakdown.png", dpi=220)
     plt.close(fig)
@@ -279,33 +423,37 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         for key in condition_keys
     ]
     x = np.arange(len(condition_names))
-    fig, ax = plt.subplots(figsize=(8.5, 5.2), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.5, 5.2))
+    fig.subplots_adjust(left=0.09, right=0.82, bottom=0.14, top=0.80)
     acc_bars = ax.bar(x - width / 2, condition_acc, width, label="Accuracy", color="#0f766e")
     eer_bars = ax.bar(x + width / 2, condition_eer, width, label="EER", color="#f59e0b")
     ax.set_xticks(x, condition_names)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1.12)
     ax.set_ylabel("Rate")
-    ax.set_title("Condition breakdown on held-out synthetic test set")
-    ax.legend()
+    ax.set_title(f"Condition breakdown on held-out {evaluation_name}", pad=16)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0)
     ax.grid(axis="y", alpha=0.2)
     for bars_group in (acc_bars, eer_bars):
         for bar in bars_group:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                bar.get_height() + 0.02,
+                max(bar.get_height() + 0.025, 0.025),
                 f"{bar.get_height():.1%}",
                 ha="center",
+                va="bottom",
+                fontsize=10,
             )
     fig.savefig(VERIFIED_FIG_DIR / "condition_breakdown.png", dpi=220)
     plt.close(fig)
 
     matrix_raw = metrics.get("confusion_matrix")
     matrix = np.asarray(matrix_raw if isinstance(matrix_raw, list) else [[0, 0], [0, 0]])
-    fig, ax = plt.subplots(figsize=(6.5, 5.5), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(6.5, 5.5))
+    fig.subplots_adjust(left=0.20, right=0.88, bottom=0.15, top=0.82)
     image = ax.imshow(matrix, cmap="Blues")
     ax.set_xticks([0, 1], ["Predicted real", "Predicted fake"])
     ax.set_yticks([0, 1], ["Actual real", "Actual fake"])
-    ax.set_title("Confusion matrix: held-out synthetic test set")
+    ax.set_title(f"Confusion matrix: {evaluation_name}", pad=14)
     for row in range(2):
         for col in range(2):
             ax.text(col, row, str(int(matrix[row, col])), ha="center", va="center", fontsize=16)
@@ -313,28 +461,158 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
     fig.savefig(VERIFIED_FIG_DIR / "confusion_matrix.png", dpi=220)
     plt.close(fig)
 
-    fig, ax = plt.subplots(figsize=(8.5, 4.8), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    fig.subplots_adjust(left=0.11, right=0.98, bottom=0.15, top=0.80)
     calibration_names = ["ECE", "Brier"]
     calibration_values = [_metric(metrics, "ece"), _metric(metrics, "brier")]
     bars = ax.bar(calibration_names, calibration_values, color=["#7c3aed", "#a78bfa"], width=0.55)
     ax.set_ylim(0, max(0.25, max(calibration_values, default=0.0) + 0.1))
-    ax.set_title("Calibration errors on held-out synthetic test set")
+    ax.set_title(f"Calibration errors on held-out {evaluation_name}", pad=16)
     ax.set_ylabel("Error (lower is better)")
     ax.grid(axis="y", alpha=0.2)
     for bar, value in zip(bars, calibration_values, strict=True):
-        ax.text(bar.get_x() + bar.get_width() / 2, value + 0.01, f"{value:.3f}", ha="center")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 0.01,
+            f"{value:.3f}",
+            ha="center",
+            va="bottom",
+        )
     fig.savefig(VERIFIED_FIG_DIR / "calibration_errors.png", dpi=220)
     plt.close(fig)
 
+    cal_pre = metrics.get("calibration_pre")
+    cal_post = metrics.get("calibration_post")
+    pre_block = cal_pre if isinstance(cal_pre, dict) else {}
+    post_block = cal_post if isinstance(cal_post, dict) else {}
+    pre_ece = _metric(pre_block, "ece")
+    pre_brier = _metric(pre_block, "brier")
+    post_ece = _metric(post_block, "ece", _metric(metrics, "ece"))
+    post_brier = _metric(post_block, "brier", _metric(metrics, "brier"))
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    fig.subplots_adjust(left=0.11, right=0.98, bottom=0.15, top=0.80)
+    x = np.arange(2)
+    width = 0.36
+    ax.bar(x - width / 2, [pre_ece, pre_brier], width, label="Pre-calibration", color="#94a3b8")
+    ax.bar(x + width / 2, [post_ece, post_brier], width, label="Post-calibration", color="#7c3aed")
+    ax.set_xticks(x, ["ECE", "Brier"])
+    ax.set_ylim(0, max(0.45, max(pre_ece, pre_brier, post_ece, post_brier) + 0.12))
+    ax.set_title(f"Calibration comparison on held-out {evaluation_name}", pad=16)
+    ax.set_ylabel("Error (lower is better)")
+    ax.legend()
+    ax.grid(axis="y", alpha=0.2)
+    for offset, values in ((-width / 2, [pre_ece, pre_brier]), (width / 2, [post_ece, post_brier])):
+        for idx, value in enumerate(values):
+            ax.text(
+                idx + offset,
+                value + 0.01,
+                f"{value:.3f}",
+                ha="center",
+                va="bottom",
+                fontsize=10,
+            )
+    fig.savefig(VERIFIED_FIG_DIR / "calibration_pre_post.png", dpi=220)
+    plt.close(fig)
+
+    diagram_raw = metrics.get("reliability_diagram")
+    diagram_rows = diagram_raw if isinstance(diagram_raw, list) else []
+    points = [
+        (
+            float(
+                row.get(
+                    "confidence",
+                    (float(row.get("bin_lo", 0)) + float(row.get("bin_hi", 0))) / 2,
+                )
+            ),
+            float(row.get("accuracy", 0)),
+            float(row.get("count", 0)),
+        )
+        for row in diagram_rows
+        if isinstance(row, dict) and float(row.get("count", 0)) > 0
+    ]
+    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    fig.subplots_adjust(left=0.11, right=0.98, bottom=0.14, top=0.78)
+    ax.plot([0, 1], [0, 1], "--", color="#64748b", linewidth=1.5, label="Perfect calibration")
+    if points:
+        xs, ys, counts = zip(*points, strict=True)
+        ax.plot(xs, ys, "o-", color="#0f766e", linewidth=2, markersize=7, label="Observed bins")
+        for x_val, y_val, count in zip(xs, ys, counts, strict=True):
+            y_offset = -14 if y_val >= 0.90 else 8
+            x_offset = -8 if x_val >= 0.95 else 0
+            ax.annotate(
+                f"n={int(count)}",
+                (x_val, y_val),
+                textcoords="offset points",
+                xytext=(x_offset, y_offset),
+                ha="right" if x_val >= 0.95 else "center",
+                va="center",
+                fontsize=8,
+            )
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.08)
+    ax.set_xlabel("Mean confidence")
+    ax.set_ylabel("Bin accuracy")
+    ax.set_title(
+        "Reliability diagram (post-calibration)\n"
+        f"Held-out {evaluation_name} (n={int(metrics.get('n', 90))})",
+        pad=14,
+    )
+    ax.set_xticks(np.linspace(0, 1, 6))
+    ax.set_yticks(np.linspace(0, 1, 6))
+    ax.grid(alpha=0.25)
+    ax.legend(loc="lower right")
+    fig.savefig(VERIFIED_FIG_DIR / "reliability_diagram.png", dpi=220)
+    plt.close(fig)
+
+    cross_lingual = load_cross_lingual_results()
+    if len(cross_lingual) == 3:
+        language_codes = ["hi", "mr", "ta"]
+        language_names = ["Hindi", "Marathi", "Tamil"]
+        accuracy = [_metric(cross_lingual[code], "accuracy") for code in language_codes]
+        f1 = [_metric(cross_lingual[code], "f1") for code in language_codes]
+        eer = [_metric(cross_lingual[code], "eer") for code in language_codes]
+        x = np.arange(3)
+        width = 0.25
+        fig, ax = plt.subplots(figsize=(9, 5.2))
+        fig.subplots_adjust(left=0.09, right=0.82, bottom=0.14, top=0.78)
+        groups = [
+            ax.bar(x - width, accuracy, width, label="Accuracy", color="#0f766e"),
+            ax.bar(x, f1, width, label="F1", color="#14b8a6"),
+            ax.bar(x + width, eer, width, label="EER", color="#f59e0b"),
+        ]
+        ax.set_xticks(x, language_names)
+        ax.set_ylim(0, 1.12)
+        ax.set_ylabel("Rate")
+        ax.set_title(
+            "Leave-one-language-out transfer\nTrain on two languages, test on the unseen third",
+            pad=14,
+        )
+        ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0), borderaxespad=0)
+        ax.grid(axis="y", alpha=0.2)
+        for bars in groups:
+            for bar in bars:
+                value = float(bar.get_height())
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    max(value + 0.025, 0.025),
+                    f"{value:.1%}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=9,
+                )
+        fig.savefig(VERIFIED_FIG_DIR / "cross_lingual_transfer.png", dpi=220)
+        plt.close(fig)
+
     # Architecture figures contain no experiment values and are presentation-safe.
-    fig, ax = plt.subplots(figsize=(10, 5.6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(10, 5.6))
+    fig.subplots_adjust(left=0.03, right=0.97, bottom=0.05, top=0.82)
     ax.axis("off")
     boxes = [
-        (0.08, 0.72, "React SPA\nUpload • Live • Metrics"),
-        (0.38, 0.72, "FastAPI\nValidation • DI • API"),
-        (0.68, 0.72, "ML service\nEmbed • Classify • Calibrate"),
-        (0.18, 0.26, "Research service\nExperiments • Human study"),
-        (0.52, 0.26, "Storage\nAudio • Checkpoints • Artefacts"),
+        (0.15, 0.72, "React SPA\nUpload • Live • Metrics"),
+        (0.50, 0.72, "FastAPI\nValidation • DI • API"),
+        (0.84, 0.72, "ML service\nEmbed • Classify • Calibrate"),
+        (0.30, 0.25, "Research service\nExperiments • Human study"),
+        (0.70, 0.25, "Storage\nAudio • Checkpoints • Artefacts"),
     ]
     for x_pos, y_pos, label in boxes:
         ax.text(
@@ -348,11 +626,11 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
             bbox={"boxstyle": "round,pad=0.8", "fc": "#ecfeff", "ec": "#0f766e", "lw": 2},
         )
     arrows = [
-        ((0.17, 0.72), (0.29, 0.72)),
-        ((0.47, 0.72), (0.59, 0.72)),
-        ((0.41, 0.63), (0.25, 0.36)),
-        ((0.70, 0.63), (0.56, 0.36)),
-        ((0.31, 0.26), (0.43, 0.26)),
+        ((0.27, 0.72), (0.39, 0.72)),
+        ((0.61, 0.72), (0.72, 0.72)),
+        ((0.46, 0.63), (0.33, 0.36)),
+        ((0.80, 0.63), (0.72, 0.36)),
+        ((0.44, 0.25), (0.56, 0.25)),
     ]
     for start, end in arrows:
         ax.annotate(
@@ -362,11 +640,12 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
             xycoords="axes fraction",
             arrowprops={"arrowstyle": "->", "lw": 2},
         )
-    ax.set_title("VaaniQ system architecture", fontsize=17)
+    ax.set_title("VaaniQ system architecture", fontsize=17, pad=18)
     fig.savefig(VERIFIED_FIG_DIR / "system_architecture.png", dpi=220)
     plt.close(fig)
 
-    fig, ax = plt.subplots(figsize=(11, 4.8), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(11, 4.8))
+    fig.subplots_adjust(left=0.03, right=0.97, bottom=0.06, top=0.80)
     ax.axis("off")
     pipeline_steps = [
         "Audio",
@@ -378,7 +657,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
         "Explain",
         "UI/API",
     ]
-    positions = np.linspace(0.06, 0.94, len(pipeline_steps))
+    positions = np.linspace(0.08, 0.92, len(pipeline_steps))
     for index, (x_pos, label) in enumerate(zip(positions, pipeline_steps, strict=True)):
         ax.text(
             x_pos,
@@ -398,7 +677,7 @@ def generate_verified_figures(pipeline: dict[str, object]) -> None:
                 xycoords="axes fraction",
                 arrowprops={"arrowstyle": "->", "lw": 1.8},
             )
-    ax.set_title("Canonical inference and research pipeline", fontsize=17)
+    ax.set_title("Canonical inference and research pipeline", fontsize=17, pad=18)
     ax.text(
         0.5,
         0.2,
@@ -420,7 +699,7 @@ def build_doc(
     admin: dict[str, object],
     infer_real: dict[str, object],
     infer_fake: dict[str, object],
-) -> None:
+) -> Path:
     doc = Document()
     section = doc.sections[0]
     section.top_margin = Inches(0.65)
@@ -433,6 +712,15 @@ def build_doc(
 
     now = datetime.now(UTC).astimezone().strftime("%d %B %Y, %H:%M %Z")
     git_sha = str(admin.get("git_sha", "n/a"))[:12]
+    data_provenance = str(pipeline.get("data_provenance", "unknown"))
+    is_publication_subset = "kathbath" in data_provenance and "indicsynth" in data_provenance
+    corpus_raw = pipeline.get("corpus_provenance")
+    corpus = corpus_raw if isinstance(corpus_raw, dict) else {}
+    corpus_kind = (
+        "speaker-disjoint Kathbath + IndicSynth publication subset"
+        if is_publication_subset
+        else "synthetic demonstration corpus"
+    )
 
     add_title(doc, "VaaniQ", 0)
     p = doc.add_paragraph(
@@ -465,11 +753,22 @@ def build_doc(
         "application at the time of generation."
     )
 
+    real_verdict = str(infer_real.get("label", "real")).upper()
+    real_confidence = float(infer_real.get("confidence", 0))
+    fake_verdict = str(infer_fake.get("label", "fake")).upper()
+    fake_confidence = float(infer_fake.get("confidence", 0))
+    sample_kind = "publication" if is_publication_subset else "demo"
     status_rows = [
         ["Software stack (API + UI + live + explain + human study)", "Complete and operational"],
         [
             "Training corpus",
-            f"{pipeline.get('n_clips', 450)} clips across Hindi, Marathi, Tamil ({float(pipeline.get('total_hours', 1.5)):.1f} hours)",
+            f"{pipeline.get('n_clips', 0)} evaluation instances across Hindi, Marathi, Tamil "
+            f"({float(pipeline.get('total_hours', 0)):.1f} hours)",
+        ],
+        ["Corpus provenance", corpus_kind],
+        [
+            "Speaker-disjoint split",
+            "Verified" if pipeline.get("speaker_disjoint_verified") else "Not verified",
         ],
         [
             "Held-out test accuracy",
@@ -480,12 +779,12 @@ def build_doc(
             f"{float(pipeline.get('test_eer', pipeline.get('val_eer', 0))):.1%}",
         ],
         [
-            "Detection on demo real clip",
-            f"{str(infer_real.get('label', 'real')).upper()} ({float(infer_real.get('confidence', 0)):.0%} confidence)",
+            f"Detection on real {sample_kind} clip",
+            f"{real_verdict} ({real_confidence:.0%} confidence)",
         ],
         [
-            "Detection on demo fake clip",
-            f"{str(infer_fake.get('label', 'fake')).upper()} ({float(infer_fake.get('confidence', 0)):.0%} confidence)",
+            f"Detection on fake {sample_kind} clip",
+            f"{fake_verdict} ({fake_confidence:.0%} confidence)",
         ],
         [
             "Held-out test ECE",
@@ -503,11 +802,13 @@ def build_doc(
     rqs = [
         (
             "RQ1",
-            "How much does WhatsApp-style Opus compression degrade multilingual deepfake detectors versus clean audio?",
+            "How much does WhatsApp-style Opus compression degrade multilingual "
+            "deepfake detectors versus clean audio?",
         ),
         (
             "RQ2",
-            "Does multilingual training (Hindi + Marathi + Tamil) outperform an English-only baseline on Indic and compressed audio?",
+            "Does multilingual training (Hindi + Marathi + Tamil) outperform an "
+            "English-only baseline on Indic and compressed audio?",
         ),
         (
             "RQ3",
@@ -516,7 +817,8 @@ def build_doc(
         ("RQ4", "Does compression degrade calibration — does the model become confidently wrong?"),
         (
             "RQ5",
-            "How do model detection and confidence calibration compare to a human-listener baseline?",
+            "How do model detection and confidence calibration compare to a "
+            "human-listener baseline?",
         ),
     ]
     for code, q in rqs:
@@ -574,47 +876,68 @@ def build_doc(
 
     # 5 Dataset
     add_title(doc, "5. Dataset and Corpus", 1)
-    doc.add_paragraph(
-        "The operational training corpus contains 450 twelve-second clips across Hindi, Marathi, "
-        "and Tamil with balanced real and fake labels, multiple accents, clean and Opus-simulated "
-        "compression, and legitimate difficult examples. The corpus is generated and synthetic; "
-        "it validates the software path but is not a conference research corpus."
-    )
+    if is_publication_subset:
+        doc.add_paragraph(
+            "The measured corpus is a reproducible, balanced subset of human-labelled "
+            "Kathbath bonafide speech and IndicSynth generated speech for Hindi, Marathi, "
+            "and Tamil. Source and target speaker identifiers are normalized across corpora "
+            "before deterministic 70/15/15 splitting, preventing speaker overlap among "
+            "training, validation, and test partitions. Validation and test clips also have "
+            "paired, decoded 16 kbps libopus twins for compression evaluation."
+        )
+    else:
+        doc.add_paragraph(
+            "The operational corpus is generated synthetic demonstration audio for Hindi, "
+            "Marathi, and Tamil. It validates the software path but is not a publication corpus."
+        )
+    language_counts = corpus.get("language_counts")
+    language_counts = language_counts if isinstance(language_counts, dict) else {}
+    label_counts = corpus.get("label_counts")
+    label_counts = label_counts if isinstance(label_counts, dict) else {}
     ds_rows = [
-        ["Total clips", str(dataset.get("total_clips", "450"))],
-        ["Total hours", f"{float(dataset.get('total_hours', 0)):.1f}"],
-        ["Hindi clips", str((dataset.get("counts_by_language") or {}).get("hi", 150))],
-        ["Marathi clips", str((dataset.get("counts_by_language") or {}).get("mr", 150))],
-        ["Tamil clips", str((dataset.get("counts_by_language") or {}).get("ta", 150))],
-        ["Real labels", str((dataset.get("counts_by_label") or {}).get("real", 225))],
-        ["Fake labels", str((dataset.get("counts_by_label") or {}).get("fake", 225))],
-        ["Training split", str(pipeline.get("n_train", 360))],
-        ["Validation split", str(pipeline.get("n_val", 90))],
-        ["Held-out test split", str(pipeline.get("n_test", 90))],
-        ["Data provenance", str(pipeline.get("data_provenance", "synthetic_demo_only"))],
+        ["Evaluation instances", str(pipeline.get("n_clips", 0))],
+        ["Evaluation hours", f"{float(pipeline.get('total_hours', 0)):.2f}"],
+        ["Original source clips", str(corpus.get("total_clips", pipeline.get("n_clips", 0)))],
+        ["Original source hours", f"{float(corpus.get('total_hours', 0)):.2f}"],
+        ["Hindi source clips", str(language_counts.get("hi", 0))],
+        ["Marathi source clips", str(language_counts.get("mr", 0))],
+        ["Tamil source clips", str(language_counts.get("ta", 0))],
+        ["Kathbath real labels", str(label_counts.get("real", 0))],
+        ["IndicSynth fake labels", str(label_counts.get("fake", 0))],
+        ["Training split instances", str(pipeline.get("n_train", 0))],
+        ["Validation split instances", str(pipeline.get("n_val", 0))],
+        ["Held-out test instances", str(pipeline.get("n_test", 0))],
+        ["Data provenance", data_provenance],
     ]
     add_table(doc, ["Statistic", "Value"], ds_rows)
 
-    doc.add_paragraph(
-        "Planned research corpora include Kathbath, IndicVoices-R, Common Voice, IndicSynth, "
-        "Indic Parler-TTS, and Coqui XTTS-v2 voice cloning, targeting 50–100 curated hours per "
-        "language. Download is blocked until the gated dataset terms are accepted and a valid "
-        "Hugging Face token is supplied."
-    )
+    if is_publication_subset:
+        doc.add_paragraph(
+            "Kathbath access terms were accepted by the authenticated user. IndicSynth is used "
+            "under CC BY-NC 4.0 for non-commercial academic research. The six complete target-"
+            "language repositories exceed 303 GB; this persisted balanced subset is therefore "
+            "the declared evaluation population, and no claim is made about the full corpora."
+        )
 
     doc.add_page_break()
 
     # 6 Training
     add_title(doc, "6. Model Training and Calibration", 1)
     doc.add_paragraph(
-        "The AASIST-style classifier head was trained on the synthetic demo corpus using the "
-        "versioned manifest train split. Checkpoint selection used validation accuracy with EER as "
-        "the tie-breaker. The test split was excluded from both training and checkpoint selection. "
-        "Temperature scaling was fitted only on validation cells and evaluation metrics below use "
-        "the held-out test split."
+        f"The AASIST-style classifier head was trained on the {corpus_kind} using the versioned "
+        "manifest train split. Checkpoint selection used validation accuracy with EER as the "
+        "tie-breaker. The test split was excluded from training and checkpoint selection. "
+        "Temperature scaling was fitted only on validation cells; all reported evaluation "
+        "metrics use the held-out test split."
     )
     train_rows = [
-        ["Model", "AASIST v1 compatible NumPy anti-spoofing demo head"],
+        ["Model", "AASIST-compatible NumPy anti-spoofing head"],
+        ["Feature front-end", "Deterministic 1024-D acoustic embedding"],
+        ["Corpus", corpus_kind],
+        [
+            "Speaker leakage check",
+            "PASS" if pipeline.get("speaker_disjoint_verified") else "NOT VERIFIED",
+        ],
         ["Training clips", str(pipeline.get("n_train", 360))],
         ["Validation clips", str(pipeline.get("n_val", 90))],
         ["Held-out test clips", str(pipeline.get("n_test", 90))],
@@ -644,24 +967,87 @@ def build_doc(
         "Calibration Error (ECE), Brier score, reliability diagrams, and coverage-accuracy curves."
     )
 
+    test_block = _resolve_metrics(pipeline)
+    test_n = int(test_block.get("n", pipeline.get("n_test", 90)))
+    per_lang_n = max(1, test_n // 3)
+    test_acc = float(pipeline.get("test_accuracy", test_block.get("accuracy", 0)))
+    eer_ci = test_block.get("eer_95ci")
+    eer_lo, eer_hi = (0.0, 0.0)
+    if isinstance(eer_ci, list) and len(eer_ci) >= 3:
+        eer_lo = float(eer_ci[1])
+        eer_hi = float(eer_ci[2])
+
     m = metrics.get("metrics") or {}
     metric_rows = [
         ["EER (held-out test)", f"{float(m.get('eer', pipeline.get('test_eer', 0))):.1%}"],
-        ["min-DCF", f"{float(m.get('min_dcf', 0)):.3f}"],
-        ["Accuracy", f"{float(m.get('accuracy', pipeline.get('val_accuracy', 0))):.1%}"],
-        ["Precision", f"{float(m.get('precision', 0)):.1%}"],
-        ["Recall", f"{float(m.get('recall', 0)):.1%}"],
-        ["F1 score", f"{float(m.get('f1', 0)):.1%}"],
-        ["ECE", f"{float(m.get('ece', pipeline.get('val_ece', 0))):.3f}"],
-        ["Brier score", f"{float(m.get('brier', pipeline.get('val_brier', 0))):.3f}"],
+        ["min-DCF", f"{float(m.get('min_dcf', pipeline.get('test_min_dcf', 0))):.3f}"],
+        ["Accuracy (held-out test)", f"{float(m.get('accuracy', test_acc)):.1%}"],
+        ["Precision", f"{float(m.get('precision', test_block.get('precision', 0))):.1%}"],
+        ["Recall", f"{float(m.get('recall', test_block.get('recall', 0))):.1%}"],
+        ["F1 score", f"{float(m.get('f1', test_block.get('f1', 0))):.1%}"],
+        ["ROC-AUC", f"{float(test_block.get('roc_auc', pipeline.get('test_roc_auc', 0))):.3f}"],
+        ["ECE (post-calibration)", f"{float(m.get('ece', pipeline.get('test_ece', 0))):.3f}"],
+        ["Brier (post-calibration)", f"{float(m.get('brier', pipeline.get('test_brier', 0))):.3f}"],
     ]
     add_table(doc, ["Metric", "Value"], metric_rows)
 
+    per_language = test_block.get("per_language")
+    per_language = per_language if isinstance(per_language, dict) else {}
+    lang_rows: list[list[str]] = []
+    for code, name in [("hi", "Hindi"), ("mr", "Marathi"), ("ta", "Tamil")]:
+        block = per_language.get(code)
+        block = block if isinstance(block, dict) else {}
+        lang_rows.append(
+            [
+                name,
+                str(block.get("n", per_lang_n)),
+                f"{_metric(block, 'accuracy'):.1%}",
+                f"{_metric(block, 'eer'):.1%}",
+                f"{_metric(block, 'f1'):.1%}",
+            ]
+        )
+    add_title(doc, "Per-Language Held-Out Test Metrics", 2)
+    add_table(doc, ["Language", "n", "Accuracy", "EER", "F1"], lang_rows)
+
+    cross_lingual = load_cross_lingual_results()
+    if len(cross_lingual) == 3:
+        rq3_rows: list[list[str]] = []
+        train_pairs = {
+            "hi": "Marathi + Tamil",
+            "mr": "Hindi + Tamil",
+            "ta": "Hindi + Marathi",
+        }
+        names = {"hi": "Hindi", "mr": "Marathi", "ta": "Tamil"}
+        for code in ("hi", "mr", "ta"):
+            block = cross_lingual[code]
+            rq3_rows.append(
+                [
+                    train_pairs[code],
+                    names[code],
+                    str(block.get("n", 0)),
+                    f"{_metric(block, 'accuracy'):.1%}",
+                    f"{_metric(block, 'eer'):.1%}",
+                    f"{_metric(block, 'f1'):.1%}",
+                ]
+            )
+        add_title(doc, "RQ3: Leave-One-Language-Out Transfer", 2)
+        add_table(
+            doc,
+            ["Training languages", "Unseen test", "n", "Accuracy", "EER", "F1"],
+            rq3_rows,
+        )
+        add_image(
+            doc,
+            VERIFIED_FIG_DIR / "cross_lingual_transfer.png",
+            6.2,
+        )
+
     doc.add_paragraph(
         "The tables and figures below are generated from persisted held-out test metrics. "
-        "The test set contains 90 synthetic clips (30 per language). Overall accuracy is 97.8%, "
-        "with a 95% bootstrap interval for EER of 0.0% to 5.9%. These results validate the demo "
-        "pipeline only and must not be described as curated-corpus conference results."
+        f"The test set contains {test_n} {corpus_kind} instances "
+        f"(~{per_lang_n} per language). Overall accuracy is "
+        f"{test_acc:.1%}, with a 95% bootstrap interval for EER of {eer_lo:.1%} to {eer_hi:.1%}. "
+        "Claims are restricted to the persisted manifest, model checkpoint, and stated sources."
     )
 
     # Verified figures: generated directly from train_report.json, never fixture RQ outputs.
@@ -672,20 +1058,91 @@ def build_doc(
         ("condition_breakdown.png", "Clean versus Opus-simulation performance"),
         ("confusion_matrix.png", "Test-set confusion matrix"),
         ("calibration_errors.png", "ECE and Brier calibration errors"),
+        ("calibration_pre_post.png", "Pre- versus post-calibration error comparison"),
+        ("reliability_diagram.png", "Reliability diagram with bin counts"),
     ]:
         doc.add_paragraph(caption, style="Intense Quote")
         add_image(doc, VERIFIED_FIG_DIR / fig_name, 6.2)
 
-    add_title(doc, "Unrun Conference Experiments", 2)
+    matrix = test_block.get("confusion_matrix")
+    if (
+        isinstance(matrix, list)
+        and len(matrix) == 2
+        and all(isinstance(row, list) and len(row) == 2 for row in matrix)
+    ):
+        add_title(doc, "Confusion Matrix Counts", 3)
+        add_table(
+            doc,
+            ["Actual / predicted", "Real", "Fake"],
+            [
+                ["Actual real", str(matrix[0][0]), str(matrix[0][1])],
+                ["Actual fake", str(matrix[1][0]), str(matrix[1][1])],
+            ],
+        )
+
+    add_title(doc, "Research Question Status", 2)
+    test_block = _resolve_metrics(pipeline)
+    per_condition = test_block.get("per_condition")
+    per_condition = per_condition if isinstance(per_condition, dict) else {}
+    clean_acc = _metric(
+        per_condition.get("clean", {}) if isinstance(per_condition.get("clean"), dict) else {},
+        "accuracy",
+    )
+    opus_acc = _metric(
+        per_condition.get("opus_whatsapp_sim", {})
+        if isinstance(per_condition.get("opus_whatsapp_sim"), dict)
+        else {},
+        "accuracy",
+    )
+    cal_pre = test_block.get("calibration_pre")
+    cal_post = test_block.get("calibration_post")
+    cal_pre = cal_pre if isinstance(cal_pre, dict) else {}
+    cal_post = cal_post if isinstance(cal_post, dict) else {}
+    post_ece = _metric(cal_post, "ece", _metric(test_block, "ece"))
+    post_brier = _metric(cal_post, "brier", _metric(test_block, "brier"))
+    rq4_summary = (
+        f"ECE {_metric(cal_pre, 'ece'):.3f} → {post_ece:.3f}; "
+        f"Brier {_metric(cal_pre, 'brier'):.3f} → {post_brier:.3f}"
+    )
     add_table(
         doc,
-        ["Research question", "Required publication result", "Current status"],
+        ["Research question", "Measured result", "Evidence status"],
         [
-            ["RQ1", "Paired clean/real-Opus evaluation on curated audio", "PENDING"],
-            ["RQ2", "Multilingual versus English-only trained baseline", "PENDING"],
-            ["RQ3", "Three leave-one-language-out training runs", "PENDING"],
-            ["RQ4", "Pre/post calibration per real language-condition cell", "PENDING"],
-            ["RQ5", "Human versus model on identical clips, N≥12", "PENDING"],
+            [
+                "RQ1",
+                f"Clean {clean_acc:.1%} accuracy vs Opus-sim {opus_acc:.1%} (n={test_n})",
+                "Measured on paired test instances" if is_publication_subset else "Pending",
+            ],
+            [
+                "RQ2",
+                "Multilingual Hindi/Marathi/Tamil model trained",
+                "English-only baseline experiment pending",
+            ],
+            [
+                "RQ3",
+                (
+                    "Three leave-one-language-out runs completed"
+                    if len(cross_lingual) == 3
+                    else "Per-language held-out performance measured"
+                ),
+                (
+                    "Measured on unseen-language test partitions"
+                    if len(cross_lingual) == 3
+                    else "Leave-one-language-out training matrix pending"
+                ),
+            ],
+            [
+                "RQ4",
+                rq4_summary,
+                "Measured on validation-fitted temperatures"
+                if is_publication_subset
+                else "Pending",
+            ],
+            [
+                "RQ5",
+                "Human-study protocol implemented in UI; N=0 responses collected",
+                "Recruitment and analysis pending",
+            ],
         ],
     )
 
@@ -735,10 +1192,19 @@ def build_doc(
     add_title(doc, "Security and Validation Controls", 2)
     for item in [
         "Upload MIME type, magic bytes, file size, and duration are validated before inference.",
-        "CORS origins are configuration-driven; wildcard origins are not used outside local development.",
+        (
+            "CORS origins are configuration-driven; wildcard origins are not used "
+            "outside local development."
+        ),
         "Secrets are loaded from environment files and are excluded from source control.",
-        "Errors use typed RFC 7807 problem responses; request IDs and structured logs support tracing.",
-        "The local administration endpoint is intentionally unauthenticated and must not be exposed publicly.",
+        (
+            "Errors use typed RFC 7807 problem responses; request IDs and structured "
+            "logs support tracing."
+        ),
+        (
+            "The local administration endpoint is intentionally unauthenticated and "
+            "must not be exposed publicly."
+        ),
     ]:
         doc.add_paragraph(item, style="List Bullet")
 
@@ -749,7 +1215,7 @@ def build_doc(
     doc.add_paragraph(
         "The following screenshots were captured automatically from the running application."
     )
-    for fname, route, title in PAGES:
+    for fname, _route, title in PAGES:
         if "api-docs" in fname:
             continue
         img = OUT_DIR / fname
@@ -772,7 +1238,7 @@ def build_doc(
             ["POST", "/api/v1/inference", "Upload and classify audio"],
             ["POST", "/api/v1/live/session", "Create streaming session"],
             ["POST", "/api/v1/live/ingest", "Ingest PCM16 window"],
-            ["GET", "/api/v1/metrics", "Measured demo test metrics"],
+            ["GET", "/api/v1/metrics", "Measured held-out test metrics"],
             ["GET", "/api/v1/calibration", "ECE, Brier, reliability and coverage"],
             ["GET", "/api/v1/metrics/pipeline", "Checkpoint and training provenance"],
             ["GET", "/api/v1/datasets/explorer", "Corpus inventory and audio samples"],
@@ -798,7 +1264,10 @@ def build_doc(
             ["GPU", str(pipeline.get("gpu", "NVIDIA RTX 3050"))],
             ["CUDA", str(pipeline.get("cuda_available", False))],
             ["Checkpoint", "AASIST v1 NumPy weights"],
-            ["Dataset manifest", "450 clips; versioned train/val/test labels"],
+            [
+                "Dataset manifest",
+                f"{pipeline.get('n_clips', 900)} clips; versioned train/val/test labels",
+            ],
             ["Local API", "FastAPI/Uvicorn"],
             ["Web application", "React/Vite"],
             ["Deployment profiles", "Local, Docker Compose, HF Spaces scaffold"],
@@ -806,15 +1275,21 @@ def build_doc(
     )
     doc.add_paragraph(
         "Every reported score in this document is read from the persisted training report produced "
-        "by the deterministic training command. The document generator captures fresh API state and "
-        "screenshots, then verifies that embedded images fit inside the printable page area."
+        "by the deterministic training command. The document generator captures fresh API state "
+        "and screenshots, then verifies that embedded images fit inside the printable page area."
     )
 
     # Presentation guide
     add_title(doc, "14. Presentation Flow (Recommended)", 1)
     flow = [
-        "Open with the problem: AI voice cloning fraud in Indian languages via compressed WhatsApp voice notes.",
-        "State the three contributions: compression-robust detection, calibrated reliability, human baseline.",
+        (
+            "Open with the problem: AI voice cloning fraud in Indian languages via "
+            "compressed WhatsApp voice notes."
+        ),
+        (
+            "State the three contributions: compression-robust detection, calibrated "
+            "reliability, human baseline."
+        ),
         "Show architecture diagram and pipeline (Section 3).",
         "Live demo: Upload real clip → REAL verdict. Upload fake clip → FAKE verdict.",
         "Live demo: Microphone streaming — speak naturally, show REAL windows.",
@@ -822,7 +1297,11 @@ def build_doc(
         "Calibration page: ECE, Brier, reliability diagram.",
         "Explainability: heatmaps and frequency bands.",
         "Human study protocol walkthrough.",
-        "Honest limitations: demo corpus vs curated hours; RQ tables pending HF ingest.",
+        (
+            "Honest limitations: bounded publication subset, model baselines, and human study."
+            if is_publication_subset
+            else "Honest limitations: demonstration corpus and pending research-data ingest."
+        ),
         "Close with novelty claim and future work toward conference submission.",
     ]
     for i, step in enumerate(flow, 1):
@@ -831,13 +1310,24 @@ def build_doc(
     doc.add_page_break()
 
     add_title(doc, "15. Limitations and Conference Readiness", 1)
-    doc.add_paragraph(
-        "The application is capstone-demo ready. It is not yet defensible as a conference results "
-        "paper because the current audio is synthetic, the full frozen XLS-R research path is not "
-        "the default runtime, RQ1–RQ4 curated experiments are unrun, and RQ5 has no participants. "
-        "Increasing a generated corpus does not substitute for real speakers, attack diversity, "
-        "independent test data, or statistical validation."
-    )
+    if is_publication_subset:
+        rq3_requirement = (
+            "" if len(cross_lingual) == 3 else "leave-one-language-out runs, "
+        )
+        doc.add_paragraph(
+            "The software and bounded real/fake benchmark are ready for capstone demonstration. "
+            "RQ1 detection/compression and RQ4 calibration findings are measured on the persisted "
+            "speaker-disjoint Kathbath + IndicSynth subset. Conference-level external validity "
+            "still requires the frozen XLS-R research front-end, multiple detector baselines, "
+            f"{rq3_requirement}broader attack families, and a completed human study. No result "
+            "in this document is generalized beyond the declared subset."
+        )
+    else:
+        doc.add_paragraph(
+            "The application is capstone-demo ready, but current measurements use generated "
+            "demonstration audio. Conference claims require licensed real/fake corpora, "
+            "speaker-disjoint evaluation, model baselines, and a completed human study."
+        )
     add_table(
         doc,
         ["Conference requirement", "Evidence needed"],
@@ -855,31 +1345,73 @@ def build_doc(
     # Bibliography
     add_title(doc, "16. References", 1)
     refs = [
-        "Jung et al. (2022). AASIST: Audio Anti-Spoofing using Integrated Spectro-Temporal Graph Attention Networks. ICASSP. arXiv:2110.01200.",
-        "Babu et al. (2021). XLS-R: Self-supervised Cross-lingual Speech Representation Learning at Scale. arXiv:2111.09296.",
+        (
+            "Jung et al. (2022). AASIST: Audio Anti-Spoofing using Integrated "
+            "Spectro-Temporal Graph Attention Networks. ICASSP. arXiv:2110.01200."
+        ),
+        (
+            "Babu et al. (2021). XLS-R: Self-supervised Cross-lingual Speech "
+            "Representation Learning at Scale. arXiv:2111.09296."
+        ),
         "Pascu et al. (2024). Calibrated deepfake detection in speech (cited in proposal).",
-        "VaaniQ Capstone Proposal (2026). Cross-lingual compression-robust detection with human baseline.",
-        "AI4Bharat Kathbath, IndicVoices-R, IndicSynth corpora.",
+        (
+            "VaaniQ Capstone Proposal (2026). Cross-lingual compression-robust "
+            "detection with human baseline."
+        ),
+        "Sharma, D. V., Ekbote, V., and Gupta, A. (2025). IndicSynth. ACL 2025, "
+        "acl-long.1070.",
+        "Javed, T. et al. (2022). IndicSUPERB (including Kathbath). arXiv:2208.11761.",
         "Mozilla Common Voice v17 (Hindi, Marathi).",
     ]
     for r in refs:
         doc.add_paragraph(r, style="List Bullet")
 
-    doc.save(str(DOCX_OUT))
-    print(f"Wrote {DOCX_OUT}")
+    saved_path = save_document(doc)
+    print(f"Wrote {saved_path}")
+    return saved_path
 
 
-def verify_document() -> None:
+def save_document(doc: Document) -> Path:
+    """Persist DOCX, falling back when the primary file is locked by Word."""
+    candidates = [
+        DOCX_OUT,
+        REPO / "docs" / "VaaniQ_Master_Presentation.docx",
+        REPO / "docs" / "VaaniQ_Master_Presentation_COMPLETE.docx",
+    ]
+    last_error: OSError | None = None
+    for path in candidates:
+        try:
+            doc.save(str(path))
+            return path
+        except OSError as exc:
+            last_error = exc
+            continue
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("No DOCX output path available")
+
+
+def verify_document(docx_path: Path | None = None) -> None:
     """Fail generation if images are missing or exceed the printable area."""
-    document = Document(str(DOCX_OUT))
+    target = docx_path or DOCX_OUT
+    if not target.is_file():
+        for candidate in (
+            DOCX_OUT,
+            REPO / "docs" / "VaaniQ_Master_Presentation.docx",
+            REPO / "docs" / "VaaniQ_Master_Presentation_COMPLETE.docx",
+        ):
+            if candidate.is_file():
+                target = candidate
+                break
+    document = Document(str(target))
     missing = [
         paragraph.text for paragraph in document.paragraphs if "[Image pending:" in paragraph.text
     ]
     if missing:
         raise RuntimeError(f"Missing embedded images: {missing}")
-    if len(document.inline_shapes) < 22:
+    if len(document.inline_shapes) < 24:
         raise RuntimeError(
-            f"Expected at least 22 embedded figures/screenshots, got {len(document.inline_shapes)}"
+            f"Expected at least 24 embedded figures/screenshots, got {len(document.inline_shapes)}"
         )
     oversize: list[tuple[float, float]] = []
     for shape in document.inline_shapes:
@@ -889,9 +1421,9 @@ def verify_document() -> None:
             oversize.append((width, height))
     if oversize:
         raise RuntimeError(f"Images exceed printable bounds: {oversize}")
-    with zipfile.ZipFile(DOCX_OUT) as archive:
+    with zipfile.ZipFile(target) as archive:
         media = [name for name in archive.namelist() if name.startswith("word/media/")]
-        if len(media) < 22:
+        if len(media) < 24:
             raise RuntimeError(f"DOCX package has only {len(media)} media files")
         if archive.testzip() is not None:
             raise RuntimeError("DOCX ZIP integrity check failed")
@@ -921,21 +1453,27 @@ def svg_to_png() -> None:
 
 
 def main() -> None:
+    real_sample, real_language = resolve_inference_sample("real")
+    fake_sample, fake_language = resolve_inference_sample("fake")
     print("Seeding inference for dashboard data...")
-    if DEMO_WAV_REAL.is_file():
-        post_inference(DEMO_WAV_REAL)
-    if DEMO_WAV_FAKE.is_file():
-        post_inference(DEMO_WAV_FAKE)
+    if real_sample.is_file():
+        post_inference(real_sample, real_language)
+    if fake_sample.is_file():
+        post_inference(fake_sample, fake_language)
 
     print("Fetching API metrics...")
-    pipeline = fetch_json(f"{API}/api/v1/metrics/pipeline")
+    pipeline = merge_pipeline(fetch_json(f"{API}/api/v1/metrics/pipeline"))
     calib = fetch_json(f"{API}/api/v1/calibration")
     dataset = fetch_json(f"{API}/api/v1/datasets/explorer")
     metrics = fetch_json(f"{API}/api/v1/metrics")
     admin = fetch_json(f"{API}/api/v1/admin/status")
 
-    infer_real = post_inference(DEMO_WAV_REAL) if DEMO_WAV_REAL.is_file() else {}
-    infer_fake = post_inference(DEMO_WAV_FAKE) if DEMO_WAV_FAKE.is_file() else {}
+    infer_real = (
+        post_inference(real_sample, real_language) if real_sample.is_file() else {}
+    )
+    infer_fake = (
+        post_inference(fake_sample, fake_language) if fake_sample.is_file() else {}
+    )
 
     print("Generating verified figures from persisted test metrics...")
     generate_verified_figures(pipeline)
@@ -944,7 +1482,7 @@ def main() -> None:
     capture_screenshots()
 
     print("Building DOCX...")
-    build_doc(
+    saved = build_doc(
         pipeline=pipeline,
         calib=calib,
         dataset=dataset,
@@ -953,7 +1491,7 @@ def main() -> None:
         infer_real=infer_real,
         infer_fake=infer_fake,
     )
-    verify_document()
+    verify_document(saved)
 
 
 if __name__ == "__main__":

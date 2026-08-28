@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Protocol, cast
 
 import structlog
 
@@ -14,6 +14,13 @@ from vaaniq.core.domain.entities import ExperimentManifest
 from vaaniq.core.ports.experiment_tracker import ExperimentTracker
 
 log = structlog.get_logger(__name__)
+
+
+class _ScalarWriter(Protocol):
+    """Typed subset of TensorBoard SummaryWriter used by the tracker."""
+
+    def add_scalar(self, name: str, value: float, *, global_step: int) -> None:
+        """Write one scalar event."""
 
 
 class FileExperimentTracker(ExperimentTracker):
@@ -29,7 +36,7 @@ class FileExperimentTracker(ExperimentTracker):
         self._root = Path(root) if root is not None else Path("./research/experiments")
         self._experiment_id = experiment_id
         self._metrics_path: Path | None = None
-        self._tb_writer: object | None = None
+        self._tb_writer: _ScalarWriter | None = None
 
     @property
     def experiment_id(self) -> str:
@@ -89,7 +96,7 @@ class FileExperimentTracker(ExperimentTracker):
     def _tb_scalar(self, name: str, value: float) -> None:
         """Best-effort TensorBoard scalar (optional ``[ml]``)."""
         try:
-            from torch.utils.tensorboard import SummaryWriter  # type: ignore[import-not-found]
+            from torch.utils.tensorboard.writer import SummaryWriter
         except Exception:
             # Fallback: write TB-compatible CSV
             tb_csv = self._dir() / "tensorboard_scalars.csv"
@@ -99,9 +106,9 @@ class FileExperimentTracker(ExperimentTracker):
                 fh.write(f"{name},{value}\n")
             return
         if self._tb_writer is None:
-            self._tb_writer = SummaryWriter(log_dir=str(self._dir() / "tb"))
+            writer_factory = cast("Callable[..., _ScalarWriter]", SummaryWriter)
+            self._tb_writer = writer_factory(log_dir=str(self._dir() / "tb"))
         writer = self._tb_writer
         assert writer is not None
         step = sum(1 for _ in (self._dir() / "metrics.jsonl").open(encoding="utf-8"))
-        cast_writer = cast("Any", writer)
-        cast_writer.add_scalar(name, value, global_step=step)
+        writer.add_scalar(name, value, global_step=step)
