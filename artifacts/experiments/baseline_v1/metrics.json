@@ -309,7 +309,7 @@
   "n_val": 508,
   "source_artifact": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_aasist\\train_report.json",
   "speaker_disjoint_verified": true,
-  "synced_at": "2026-08-28T15:24:07.228497+00:00",
+  "synced_at": "2026-08-28T15:35:32.870413+00:00",
   "test_metrics": {
     "accuracy": 0.9161,
     "brier": 0.069,

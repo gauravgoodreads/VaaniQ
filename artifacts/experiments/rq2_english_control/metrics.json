@@ -1,27 +1,67 @@
 {
   "experiment_id": "rq2_english_control",
-  "english_train_n": 127,
-  "english_val_n": 23,
+  "english_train_n": 340,
+  "english_val_n": 60,
   "indic_test_n": 584,
+  "score_contract": {
+    "label_fake": 1,
+    "threshold": 0.5,
+    "higher_score_means": "more_fake"
+  },
   "english_only_indic_test": {
     "accuracy": 0.547945205479452,
     "precision": 0.0,
     "recall": 0.0,
     "f1": 0.0,
-    "eer": 0.7875,
+    "eer": 0.7656,
     "eer_95ci": [
-      0.7875,
-      0.7555,
-      0.8217
+      0.7656,
+      0.7323,
+      0.8008
     ],
     "min_dcf": 1.0594,
-    "roc_auc": 0.1418
+    "roc_auc": 0.162,
+    "confusion_matrix": [
+      [
+        320,
+        0
+      ],
+      [
+        264,
+        0
+      ]
+    ],
+    "score_means_by_label": {
+      "mean_score_real": 0.3094,
+      "mean_score_fake": 0.2866
+    },
+    "polarity_audit": {
+      "roc_auc_raw": 0.162,
+      "roc_auc_negated": 0.838,
+      "eer_raw": 0.7656,
+      "eer_negated": 0.2344,
+      "likely_score_inversion": true
+    }
   },
   "multilingual_baseline_v1_test": {
-    "accuracy": 0.9366,
+    "accuracy": 0.9161,
     "eer": 0.0656,
-    "f1": 0.9326
+    "f1": 0.9136,
+    "roc_auc": 0.9729
   },
-  "conclusion": "English-only ASVspoof LA-trained control evaluated on Indic test protocol. Domain shift between English training and Indic evaluation is expected.",
-  "dataset": "Bisher/ASVspoof_2019_LA train (streaming subset, ODC-By)"
+  "polarity_interpretation": "If likely_score_inversion is True, scores may be reversed relative to the canonical contract; do not flip without verifying ASVspoof label mapping. If False and ROC-AUC << 0.5, catastrophic English-to-Indic domain shift is likely.",
+  "conclusion": "RQ2 reflects catastrophic English-to-Indic transfer with inverted ranking on Indic clips. Do NOT flip global score polarity; VaaniQ contract is validated by multilingual model.",
+  "dataset": "Bisher/ASVspoof_2019_LA train (streaming subset, ODC-By)",
+  "status": "COMPLETE",
+  "interpretation": {
+    "score_contract_bug": false,
+    "evidence": [
+      "Multilingual baseline_v1 on same Indic test: ROC-AUC=0.9729 with canonical contract.",
+      "English-only model assigns all scores below 0.5 (predicts all REAL).",
+      "mean_score_real=0.3094 > mean_score_fake=0.2866 on Indic test.",
+      "Negated-score diagnostic ROC-AUC=0.838 indicates anti-correlated ranking under domain shift."
+    ],
+    "conclusion": "RQ2 reflects catastrophic English-to-Indic transfer with inverted ranking on Indic clips. Do NOT flip global score polarity; VaaniQ contract is validated by multilingual model.",
+    "do_not_flip_scores": true
+  }
 }

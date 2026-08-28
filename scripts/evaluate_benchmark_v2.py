@@ -109,18 +109,29 @@ def main() -> int:
 
     shortcut_v2 = run_source_shortcut_analysis(_REPO, manifest_path=manifest)
 
+    independent = eval_mask("independent_real_test", cv_test_real)
+    independent["status"] = "PILOT"
+    independent["minimum_n_for_claim"] = 30
+    independent["note"] = "No statistically useful unseen-source estimate yet; pipeline validation only."
+
+    gen_held = eval_mask("generator_held_out_test", test & (gen_buckets == "test"))
+    gen_held["status"] = "PENDING" if gen_held.get("n", 0) == 0 else "PILOT"
+
     payload = {
         "experiment_id": "benchmark_v2",
+        "status": "PARTIAL",
+        "scope": "partial_external_source_pilot",
         "source_x_label": _contingency(rows, "source"),
         "generator_x_label": _contingency(rows, "generation_model"),
+        "v2_source_shortcut_warning": (
+            "High source-probe accuracy means domain identity is easy to predict; "
+            "this does NOT demonstrate reduced shortcut risk versus V1."
+        ),
         "evaluations": {
             "full_test": eval_mask("full_test", test),
             "kathbath_test": eval_mask("kathbath_test", kathbath_test),
-            "common_voice_real_test": eval_mask("independent_real_test", cv_test_real),
-            "generator_held_out_test": eval_mask(
-                "generator_held_out_test",
-                test & (gen_buckets == "test"),
-            ),
+            "independent_real_test": independent,
+            "generator_held_out_test": gen_held,
         },
         "source_shortcut_v2": shortcut_v2,
         "v1_vs_v2_shortcut_comparison_note": (

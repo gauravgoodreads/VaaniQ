@@ -84,9 +84,15 @@ def main() -> int:
     from vaaniq.evaluation.metrics.core import (
         bootstrap_metric_ci,
         classification_report_scores,
+        confusion_matrix,
         equal_error_rate,
         min_dcf,
         roc_curve,
+    )
+    from vaaniq.evaluation.score_contract import (
+        logits_to_fake_scores,
+        mean_scores_by_label,
+        score_polarity_audit,
     )
     from vaaniq.features.acoustic import acoustic_embedding
     from vaaniq.models.aasist.classifier import AASISTClassifier
@@ -157,41 +163,63 @@ def main() -> int:
     y_te_arr = np.asarray(y_te, dtype=np.int64)
 
     logits = clf_en.predict_batch(X_te_arr)
-    z = logits - np.max(logits, axis=1, keepdims=True)
-    ex = np.exp(z)
-    probs = ex / np.sum(ex, axis=1, keepdims=True)
-    scores = probs[:, 1].tolist()
+    scores_arr = logits_to_fake_scores(logits)
+    scores = scores_arr.tolist()
     labels = y_te_arr.astype(int).tolist()
     rep = classification_report_scores(scores, labels)
     eer = equal_error_rate(scores, labels)
     eer_pt, eer_lo, eer_hi = bootstrap_metric_ci(scores, labels, metric="eer", seed=args.seed)
     _, _, auc = roc_curve(scores, labels)
+    polarity = score_polarity_audit(scores, labels)
+    score_means = mean_scores_by_label(scores, labels)
+    cm = confusion_matrix(scores, labels)
 
-    multilingual = json.loads(
-        (_REPO / "artifacts/experiments/baseline_v1/metrics.json").read_text(encoding="utf-8")
-    )
-    multi_test = multilingual.get("test_metrics") or {}
+    manifest_path = _REPO / "artifacts" / "final_results_manifest.json"
+    if manifest_path.is_file():
+        multi_test = (
+            json.loads(manifest_path.read_text(encoding="utf-8"))
+            .get("baseline_v1", {})
+            .get("metrics", {})
+        )
+    else:
+        multilingual = json.loads(
+            (_REPO / "artifacts/experiments/baseline_v1/metrics.json").read_text(encoding="utf-8")
+        )
+        multi_test = multilingual.get("test_metrics") or {}
 
     result = {
         "experiment_id": "rq2_english_control",
         "english_train_n": int(X_tr.shape[0]),
         "english_val_n": int(X_val.shape[0]),
         "indic_test_n": int(X_te_arr.shape[0]),
+        "score_contract": {
+            "label_fake": 1,
+            "threshold": 0.5,
+            "higher_score_means": "more_fake",
+        },
         "english_only_indic_test": {
             **rep,
             "eer": round(eer, 4),
             "eer_95ci": [round(eer_pt, 4), round(eer_lo, 4), round(eer_hi, 4)],
             "min_dcf": round(min_dcf(scores, labels), 4),
             "roc_auc": round(auc, 4),
+            "confusion_matrix": cm,
+            "score_means_by_label": score_means,
+            "polarity_audit": polarity,
         },
         "multilingual_baseline_v1_test": {
             "accuracy": multi_test.get("accuracy"),
             "eer": multi_test.get("eer"),
             "f1": multi_test.get("f1"),
+            "roc_auc": multi_test.get("roc_auc"),
         },
+        "polarity_interpretation": (
+            "If likely_score_inversion is True, scores may be reversed relative to "
+            "the canonical contract; do not flip without verifying ASVspoof label mapping. "
+            "If False and ROC-AUC << 0.5, catastrophic English-to-Indic domain shift is likely."
+        ),
         "conclusion": (
-            "English-only ASVspoof LA-trained control evaluated on Indic test protocol. "
-            "Domain shift between English training and Indic evaluation is expected."
+            "English-only ASVspoof LA-trained control evaluated on Indic test protocol."
         ),
         "dataset": "Bisher/ASVspoof_2019_LA train (streaming subset, ODC-By)",
     }

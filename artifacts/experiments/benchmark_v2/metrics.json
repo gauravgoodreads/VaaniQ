@@ -1,5 +1,7 @@
 {
   "experiment_id": "benchmark_v2",
+  "status": "PARTIAL",
+  "scope": "partial_external_source_pilot",
   "source_x_label": {
     "indicsynth": {
       "fake": 1169
@@ -22,6 +24,7 @@
       "real": 1227
     }
   },
+  "v2_source_shortcut_warning": "High source-probe accuracy means domain identity is easy to predict; this does NOT demonstrate reduced shortcut risk versus V1.",
   "evaluations": {
     "full_test": {
       "n": 593,
@@ -41,17 +44,21 @@
       "roc_auc": 0.0,
       "eval_name": "kathbath_test"
     },
-    "common_voice_real_test": {
+    "independent_real_test": {
       "n": 9,
       "accuracy": 0.5556,
       "f1": 0.0,
       "eer": 0.1111,
       "min_dcf": 2.1111,
       "roc_auc": 0.0,
-      "eval_name": "independent_real_test"
+      "eval_name": "independent_real_test",
+      "status": "PILOT",
+      "minimum_n_for_claim": 30,
+      "note": "No statistically useful unseen-source estimate yet; pipeline validation only."
     },
     "generator_held_out_test": {
-      "n": 0
+      "n": 0,
+      "status": "PENDING"
     }
   },
   "source_shortcut_v2": {

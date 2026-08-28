@@ -136,5 +136,13 @@
   },
   "best_strategy_by_test_ece": "global_temperature",
   "calibration_improved_on_test": true,
-  "conclusion": "Strategy 'global_temperature' lowered test ECE vs uncalibrated."
+  "conclusion": "Strategy 'global_temperature' lowered test ECE vs uncalibrated.",
+  "methodology": {
+    "strategy_selection_split": "validation_only_for_production_models",
+    "this_artifact_scope": "exploratory_test_set_comparison",
+    "production_baseline_v1_selected": "per_language_and_condition (val ECE 0.0487)",
+    "production_xlsr_selected": "global_temperature (val ECE 0.0686)",
+    "warning": "best_strategy_by_test_ece in this file is exploratory; do not use test ECE to select production calibration."
+  },
+  "status": "COMPLETE"
 }

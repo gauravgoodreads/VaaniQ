@@ -1,0 +1,1649 @@
+{
+  "generated_at": "2026-08-28T15:35:07.645870+00:00",
+  "score_contract": {
+    "label_real": 0,
+    "label_fake": 1,
+    "positive_class": 1,
+    "higher_score_means": "more_fake",
+    "threshold": 0.5
+  },
+  "baseline_v1": {
+    "status": "COMPLETE",
+    "model": "acoustic_aasist_v1",
+    "front_end": "acoustic_embedding_1024d",
+    "dataset_version": "publication_corpus_v1",
+    "checkpoint_sha256": "0f9e8479994cd2c694edd9019e1604832e22ffa86d6fef45cea134151800898e",
+    "predictions_sha256": "826cd46a4a176dab96ddc1fb96c75298fe21a6f752d38b4d9768d7e14fbd2ac6",
+    "metrics": {
+      "accuracy": 0.9161,
+      "brier": 0.069,
+      "calibration_post": {
+        "brier": 0.069,
+        "ece": 0.026
+      },
+      "calibration_pre": {
+        "brier": 0.0659,
+        "ece": 0.0245
+      },
+      "confusion_matrix": [
+        [
+          276,
+          44
+        ],
+        [
+          5,
+          259
+        ]
+      ],
+      "coverage_curve": [
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.0
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.05263157894736842
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.10526315789473684
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.15789473684210525
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.21052631578947367
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.2631578947368421
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.3157894736842105
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.3684210526315789
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.42105263157894735
+        },
+        {
+          "accuracy": 0.916095890410959,
+          "coverage": 1.0,
+          "threshold": 0.47368421052631576
+        },
+        {
+          "accuracy": 0.9248251748251748,
+          "coverage": 0.9794520547945206,
+          "threshold": 0.5263157894736842
+        },
+        {
+          "accuracy": 0.9353680430879713,
+          "coverage": 0.9537671232876712,
+          "threshold": 0.5789473684210527
+        },
+        {
+          "accuracy": 0.9375,
+          "coverage": 0.9315068493150684,
+          "threshold": 0.631578947368421
+        },
+        {
+          "accuracy": 0.9397363465160076,
+          "coverage": 0.9092465753424658,
+          "threshold": 0.6842105263157894
+        },
+        {
+          "accuracy": 0.94140625,
+          "coverage": 0.8767123287671232,
+          "threshold": 0.7368421052631579
+        },
+        {
+          "accuracy": 0.9532520325203252,
+          "coverage": 0.8424657534246576,
+          "threshold": 0.7894736842105263
+        },
+        {
+          "accuracy": 0.9580573951434879,
+          "coverage": 0.7756849315068494,
+          "threshold": 0.8421052631578947
+        },
+        {
+          "accuracy": 0.9617346938775511,
+          "coverage": 0.6712328767123288,
+          "threshold": 0.894736842105263
+        },
+        {
+          "accuracy": 0.975609756097561,
+          "coverage": 0.4914383561643836,
+          "threshold": 0.9473684210526315
+        },
+        {
+          "accuracy": 0.0,
+          "coverage": 0.0,
+          "threshold": 1.0
+        }
+      ],
+      "ece": 0.026,
+      "eer": 0.0656,
+      "eer_95ci": [
+        0.0656,
+        0.046,
+        0.092
+      ],
+      "f1": 0.9136,
+      "min_dcf": 0.7841,
+      "min_dcf_95ci": [
+        0.7841,
+        0.462,
+        0.8172
+      ],
+      "n": 584,
+      "per_condition": {
+        "clean": {
+          "accuracy": 0.9384,
+          "eer": 0.0563,
+          "f1": 0.9353,
+          "min_dcf": 0.735,
+          "n": 292
+        },
+        "opus_whatsapp_sim": {
+          "accuracy": 0.8938,
+          "eer": 0.0758,
+          "f1": 0.8927,
+          "min_dcf": 0.7652,
+          "n": 292
+        }
+      },
+      "per_language": {
+        "hi": {
+          "accuracy": 0.9099,
+          "eer": 0.0704,
+          "f1": 0.8876,
+          "min_dcf": 0.625,
+          "n": 222
+        },
+        "mr": {
+          "accuracy": 0.9329,
+          "eer": 0.0625,
+          "f1": 0.952,
+          "min_dcf": 0.0893,
+          "n": 164
+        },
+        "ta": {
+          "accuracy": 0.9091,
+          "eer": 0.0714,
+          "f1": 0.8875,
+          "min_dcf": 0.5655,
+          "n": 198
+        }
+      },
+      "precision": 0.8548,
+      "recall": 0.9811,
+      "reliability_diagram": [
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.06666666666666667,
+          "bin_lo": 0.0,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.13333333333333333,
+          "bin_lo": 0.06666666666666667,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.2,
+          "bin_lo": 0.13333333333333333,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.26666666666666666,
+          "bin_lo": 0.2,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.3333333333333333,
+          "bin_lo": 0.26666666666666666,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.4,
+          "bin_lo": 0.3333333333333333,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.0,
+          "bin_hi": 0.4666666666666667,
+          "bin_lo": 0.4,
+          "confidence": 0.0,
+          "count": 0.0
+        },
+        {
+          "accuracy": 0.5,
+          "bin_hi": 0.5333333333333333,
+          "bin_lo": 0.4666666666666667,
+          "confidence": 0.516604695469141,
+          "count": 16.0
+        },
+        {
+          "accuracy": 0.6875,
+          "bin_hi": 0.6,
+          "bin_lo": 0.5333333333333333,
+          "confidence": 0.5671447701752186,
+          "count": 16.0
+        },
+        {
+          "accuracy": 0.7777777777777778,
+          "bin_hi": 0.6666666666666666,
+          "bin_lo": 0.6,
+          "confidence": 0.6378388967778947,
+          "count": 18.0
+        },
+        {
+          "accuracy": 0.8947368421052632,
+          "bin_hi": 0.7333333333333333,
+          "bin_lo": 0.6666666666666666,
+          "confidence": 0.7014921338934648,
+          "count": 19.0
+        },
+        {
+          "accuracy": 0.7419354838709677,
+          "bin_hi": 0.8,
+          "bin_lo": 0.7333333333333333,
+          "confidence": 0.7695120649953042,
+          "count": 31.0
+        },
+        {
+          "accuracy": 0.9074074074074074,
+          "bin_hi": 0.8666666666666667,
+          "bin_lo": 0.8,
+          "confidence": 0.835439532995224,
+          "count": 54.0
+        },
+        {
+          "accuracy": 0.912621359223301,
+          "bin_hi": 0.9333333333333333,
+          "bin_lo": 0.8666666666666667,
+          "confidence": 0.901691306563257,
+          "count": 103.0
+        },
+        {
+          "accuracy": 0.9755351681957186,
+          "bin_hi": 1.0,
+          "bin_lo": 0.9333333333333333,
+          "confidence": 0.9784305429239886,
+          "count": 327.0
+        }
+      ],
+      "roc_auc": 0.9729
+    },
+    "validation_metrics": {
+      "n": 508,
+      "accuracy": 0.874,
+      "eer": 0.1241,
+      "min_dcf": 0.4069,
+      "roc_auc": 0.9598,
+      "ece": 0.0487,
+      "brier": 0.0771,
+      "confusion_matrix": [
+        [
+          200,
+          34
+        ],
+        [
+          30,
+          244
+        ]
+      ],
+      "eer_95ci": [
+        0.1241,
+        0.1007,
+        0.159
+      ],
+      "min_dcf_95ci": [
+        0.4069,
+        0.2198,
+        0.6156
+      ],
+      "precision": 0.8777,
+      "recall": 0.8905,
+      "f1": 0.8841,
+      "per_language": {
+        "hi": {
+          "n": 100,
+          "accuracy": 0.85,
+          "eer": 0.0375,
+          "min_dcf": 0.525,
+          "f1": 0.7273
+        },
+        "mr": {
+          "n": 250,
+          "accuracy": 0.984,
+          "eer": 0.0057,
+          "min_dcf": 0.0057,
+          "f1": 0.9886
+        },
+        "ta": {
+          "n": 158,
+          "accuracy": 0.7152,
+          "eer": 0.2308,
+          "min_dcf": 0.625,
+          "f1": 0.6897
+        }
+      },
+      "per_condition": {
+        "clean": {
+          "n": 254,
+          "accuracy": 0.8937,
+          "eer": 0.1111,
+          "min_dcf": 0.396,
+          "f1": 0.9018
+        },
+        "opus_whatsapp_sim": {
+          "n": 254,
+          "accuracy": 0.8543,
+          "eer": 0.1453,
+          "min_dcf": 0.396,
+          "f1": 0.8664
+        }
+      },
+      "calibration_pre": {
+        "ece": 0.0578,
+        "brier": 0.0832
+      },
+      "calibration_post": {
+        "ece": 0.0487,
+        "brier": 0.0771
+      },
+      "calibration_strategy_comparison": {
+        "global_temperature_val_ece": 0.0513,
+        "per_language_and_condition_val_ece": 0.0487,
+        "selected_strategy": "per_language_and_condition",
+        "selection_criterion": "lowest_validation_ece"
+      }
+    },
+    "superseded_metrics": {
+      "accuracy_93_66": {
+        "value": 0.9366,
+        "explanation": "Prior checkpoint before retrain; same n=584 threshold=0.5; EER unchanged at 6.56% because ranking stable."
+      }
+    },
+    "reconciliation_note": "Canonical: acc=91.61%, EER=6.56%, ROC-AUC=0.9729, F1=91.36%, min-DCF=0.7841, n=584, threshold=0.5."
+  },
+  "xlsr_main": {
+    "status": "COMPLETE",
+    "model_id": "facebook/wav2vec2-xls-r-300m",
+    "pooling": "mean",
+    "frozen": true,
+    "experiment_id": "xlsr_main",
+    "front_end": "frozen_xlsr_300m_mean_pool",
+    "n_train": 1254,
+    "n_val": 508,
+    "n_test": 584,
+    "n_clips": 2346,
+    "total_hours": 4.11,
+    "val_accuracy": 0.9094,
+    "val_eer": 0.0876,
+    "val_min_dcf": 0.3285,
+    "val_ece": 0.0686,
+    "val_brier": 0.0647,
+    "test_accuracy": 0.9212,
+    "test_eer": 0.0688,
+    "test_min_dcf": 0.3144,
+    "test_roc_auc": 0.9828,
+    "test_ece": 0.0891,
+    "test_brier": 0.0675,
+    "validation_metrics": {
+      "n": 508,
+      "accuracy": 0.9094,
+      "eer": 0.0876,
+      "min_dcf": 0.3285,
+      "roc_auc": 0.9788,
+      "ece": 0.0686,
+      "brier": 0.0647,
+      "confusion_matrix": [
+        [
+          215,
+          19
+        ],
+        [
+          27,
+          247
+        ]
+      ],
+      "eer_95ci": [
+        0.0876,
+        0.0664,
+        0.1156
+      ],
+      "min_dcf_95ci": [
+        0.3285,
+        0.2537,
+        0.3778
+      ],
+      "precision": 0.9286,
+      "recall": 0.9015,
+      "f1": 0.9148,
+      "per_language": {
+        "hi": {
+          "n": 100,
+          "accuracy": 0.9,
+          "eer": 0.0125,
+          "min_dcf": 0.05,
+          "f1": 0.8
+        },
+        "mr": {
+          "n": 250,
+          "accuracy": 0.964,
+          "eer": 0.0263,
+          "min_dcf": 0.069,
+          "f1": 0.9748
+        },
+        "ta": {
+          "n": 158,
+          "accuracy": 0.8291,
+          "eer": 0.0641,
+          "min_dcf": 0.25,
+          "f1": 0.797
+        }
+      },
+      "per_condition": {
+        "clean": {
+          "n": 254,
+          "accuracy": 0.8898,
+          "eer": 0.1026,
+          "min_dcf": 0.3285,
+          "f1": 0.8963
+        },
+        "opus_whatsapp_sim": {
+          "n": 254,
+          "accuracy": 0.9291,
+          "eer": 0.0684,
+          "min_dcf": 0.3066,
+          "f1": 0.9333
+        }
+      },
+      "calibration_pre": {
+        "ece": 0.1677,
+        "brier": 0.0937
+      },
+      "calibration_post": {
+        "ece": 0.0686,
+        "brier": 0.0647
+      },
+      "calibration_strategy_comparison": {
+        "global_temperature_val_ece": 0.0686,
+        "per_language_and_condition_val_ece": 0.0686,
+        "selected_strategy": "global_temperature",
+        "selection_criterion": "lowest_validation_ece"
+      }
+    },
+    "test_metrics": {
+      "n": 584,
+      "accuracy": 0.9212,
+      "eer": 0.0688,
+      "min_dcf": 0.3144,
+      "roc_auc": 0.9828,
+      "ece": 0.0891,
+      "brier": 0.0675,
+      "confusion_matrix": [
+        [
+          287,
+          33
+        ],
+        [
+          13,
+          251
+        ]
+      ],
+      "eer_95ci": [
+        0.0688,
+        0.0475,
+        0.0942
+      ],
+      "min_dcf_95ci": [
+        0.3144,
+        0.2248,
+        0.3623
+      ],
+      "precision": 0.8838,
+      "recall": 0.9508,
+      "f1": 0.9161,
+      "per_language": {
+        "hi": {
+          "n": 222,
+          "accuracy": 0.8739,
+          "eer": 0.125,
+          "min_dcf": 0.7,
+          "f1": 0.8272
+        },
+        "mr": {
+          "n": 164,
+          "accuracy": 0.9329,
+          "eer": 0.0385,
+          "min_dcf": 0.1696,
+          "f1": 0.9532
+        },
+        "ta": {
+          "n": 198,
+          "accuracy": 0.9646,
+          "eer": 0.0159,
+          "min_dcf": 0.0556,
+          "f1": 0.9536
+        }
+      },
+      "per_condition": {
+        "clean": {
+          "n": 292,
+          "accuracy": 0.9144,
+          "eer": 0.0813,
+          "min_dcf": 0.2803,
+          "f1": 0.9104
+        },
+        "opus_whatsapp_sim": {
+          "n": 292,
+          "accuracy": 0.9281,
+          "eer": 0.0606,
+          "min_dcf": 0.3106,
+          "f1": 0.9219
+        }
+      },
+      "calibration_pre": {
+        "ece": 0.2048,
+        "brier": 0.1034
+      },
+      "calibration_post": {
+        "ece": 0.0891,
+        "brier": 0.0675
+      },
+      "reliability_diagram": [
+        {
+          "bin_lo": 0.0,
+          "bin_hi": 0.06666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.06666666666666667,
+          "bin_hi": 0.13333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.13333333333333333,
+          "bin_hi": 0.2,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.2,
+          "bin_hi": 0.26666666666666666,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.26666666666666666,
+          "bin_hi": 0.3333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.3333333333333333,
+          "bin_hi": 0.4,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4,
+          "bin_hi": 0.4666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4666666666666667,
+          "bin_hi": 0.5333333333333333,
+          "confidence": 0.5181726046970913,
+          "accuracy": 0.5238095238095238,
+          "count": 21.0
+        },
+        {
+          "bin_lo": 0.5333333333333333,
+          "bin_hi": 0.6,
+          "confidence": 0.5684150143673545,
+          "accuracy": 0.6842105263157895,
+          "count": 38.0
+        },
+        {
+          "bin_lo": 0.6,
+          "bin_hi": 0.6666666666666666,
+          "confidence": 0.6346850633621216,
+          "accuracy": 0.7714285714285715,
+          "count": 35.0
+        },
+        {
+          "bin_lo": 0.6666666666666666,
+          "bin_hi": 0.7333333333333333,
+          "confidence": 0.6993887186050415,
+          "accuracy": 0.825,
+          "count": 40.0
+        },
+        {
+          "bin_lo": 0.7333333333333333,
+          "bin_hi": 0.8,
+          "confidence": 0.7692812321678041,
+          "accuracy": 0.9206349206349206,
+          "count": 63.0
+        },
+        {
+          "bin_lo": 0.8,
+          "bin_hi": 0.8666666666666667,
+          "confidence": 0.8361907086254637,
+          "accuracy": 0.9506172839506173,
+          "count": 81.0
+        },
+        {
+          "bin_lo": 0.8666666666666667,
+          "bin_hi": 0.9333333333333333,
+          "confidence": 0.9058379052263318,
+          "accuracy": 1.0,
+          "count": 132.0
+        },
+        {
+          "bin_lo": 0.9333333333333333,
+          "bin_hi": 1.0,
+          "confidence": 0.9628390690376019,
+          "accuracy": 1.0,
+          "count": 174.0
+        }
+      ],
+      "coverage_curve": [
+        {
+          "threshold": 0.0,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.05263157894736842,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.10526315789473684,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.15789473684210525,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.21052631578947367,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.2631578947368421,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.3157894736842105,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.3684210526315789,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.42105263157894735,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.47368421052631576,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.5263157894736842,
+          "coverage": 0.9726027397260274,
+          "accuracy": 0.9330985915492958
+        },
+        {
+          "threshold": 0.5789473684210527,
+          "coverage": 0.922945205479452,
+          "accuracy": 0.9517625231910947
+        },
+        {
+          "threshold": 0.631578947368421,
+          "coverage": 0.8715753424657534,
+          "accuracy": 0.9607072691552063
+        },
+        {
+          "threshold": 0.6842105263157894,
+          "coverage": 0.821917808219178,
+          "accuracy": 0.9708333333333333
+        },
+        {
+          "threshold": 0.7368421052631579,
+          "coverage": 0.7654109589041096,
+          "accuracy": 0.9798657718120806
+        },
+        {
+          "threshold": 0.7894736842105263,
+          "coverage": 0.6815068493150684,
+          "accuracy": 0.9874371859296482
+        },
+        {
+          "threshold": 0.8421052631578947,
+          "coverage": 0.5821917808219178,
+          "accuracy": 0.9970588235294118
+        },
+        {
+          "threshold": 0.894736842105263,
+          "coverage": 0.4537671232876712,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.9473684210526315,
+          "coverage": 0.2208904109589041,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 1.0,
+          "coverage": 0.0,
+          "accuracy": 0.0
+        }
+      ]
+    },
+    "eval_metrics": {
+      "n": 584,
+      "accuracy": 0.9212,
+      "eer": 0.0688,
+      "min_dcf": 0.3144,
+      "roc_auc": 0.9828,
+      "ece": 0.0891,
+      "brier": 0.0675,
+      "confusion_matrix": [
+        [
+          287,
+          33
+        ],
+        [
+          13,
+          251
+        ]
+      ],
+      "eer_95ci": [
+        0.0688,
+        0.0475,
+        0.0942
+      ],
+      "min_dcf_95ci": [
+        0.3144,
+        0.2248,
+        0.3623
+      ],
+      "precision": 0.8838,
+      "recall": 0.9508,
+      "f1": 0.9161,
+      "per_language": {
+        "hi": {
+          "n": 222,
+          "accuracy": 0.8739,
+          "eer": 0.125,
+          "min_dcf": 0.7,
+          "f1": 0.8272
+        },
+        "mr": {
+          "n": 164,
+          "accuracy": 0.9329,
+          "eer": 0.0385,
+          "min_dcf": 0.1696,
+          "f1": 0.9532
+        },
+        "ta": {
+          "n": 198,
+          "accuracy": 0.9646,
+          "eer": 0.0159,
+          "min_dcf": 0.0556,
+          "f1": 0.9536
+        }
+      },
+      "per_condition": {
+        "clean": {
+          "n": 292,
+          "accuracy": 0.9144,
+          "eer": 0.0813,
+          "min_dcf": 0.2803,
+          "f1": 0.9104
+        },
+        "opus_whatsapp_sim": {
+          "n": 292,
+          "accuracy": 0.9281,
+          "eer": 0.0606,
+          "min_dcf": 0.3106,
+          "f1": 0.9219
+        }
+      },
+      "calibration_pre": {
+        "ece": 0.2048,
+        "brier": 0.1034
+      },
+      "calibration_post": {
+        "ece": 0.0891,
+        "brier": 0.0675
+      },
+      "reliability_diagram": [
+        {
+          "bin_lo": 0.0,
+          "bin_hi": 0.06666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.06666666666666667,
+          "bin_hi": 0.13333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.13333333333333333,
+          "bin_hi": 0.2,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.2,
+          "bin_hi": 0.26666666666666666,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.26666666666666666,
+          "bin_hi": 0.3333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.3333333333333333,
+          "bin_hi": 0.4,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4,
+          "bin_hi": 0.4666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4666666666666667,
+          "bin_hi": 0.5333333333333333,
+          "confidence": 0.5181726046970913,
+          "accuracy": 0.5238095238095238,
+          "count": 21.0
+        },
+        {
+          "bin_lo": 0.5333333333333333,
+          "bin_hi": 0.6,
+          "confidence": 0.5684150143673545,
+          "accuracy": 0.6842105263157895,
+          "count": 38.0
+        },
+        {
+          "bin_lo": 0.6,
+          "bin_hi": 0.6666666666666666,
+          "confidence": 0.6346850633621216,
+          "accuracy": 0.7714285714285715,
+          "count": 35.0
+        },
+        {
+          "bin_lo": 0.6666666666666666,
+          "bin_hi": 0.7333333333333333,
+          "confidence": 0.6993887186050415,
+          "accuracy": 0.825,
+          "count": 40.0
+        },
+        {
+          "bin_lo": 0.7333333333333333,
+          "bin_hi": 0.8,
+          "confidence": 0.7692812321678041,
+          "accuracy": 0.9206349206349206,
+          "count": 63.0
+        },
+        {
+          "bin_lo": 0.8,
+          "bin_hi": 0.8666666666666667,
+          "confidence": 0.8361907086254637,
+          "accuracy": 0.9506172839506173,
+          "count": 81.0
+        },
+        {
+          "bin_lo": 0.8666666666666667,
+          "bin_hi": 0.9333333333333333,
+          "confidence": 0.9058379052263318,
+          "accuracy": 1.0,
+          "count": 132.0
+        },
+        {
+          "bin_lo": 0.9333333333333333,
+          "bin_hi": 1.0,
+          "confidence": 0.9628390690376019,
+          "accuracy": 1.0,
+          "count": 174.0
+        }
+      ],
+      "coverage_curve": [
+        {
+          "threshold": 0.0,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.05263157894736842,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.10526315789473684,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.15789473684210525,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.21052631578947367,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.2631578947368421,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.3157894736842105,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.3684210526315789,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.42105263157894735,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.47368421052631576,
+          "coverage": 1.0,
+          "accuracy": 0.9212328767123288
+        },
+        {
+          "threshold": 0.5263157894736842,
+          "coverage": 0.9726027397260274,
+          "accuracy": 0.9330985915492958
+        },
+        {
+          "threshold": 0.5789473684210527,
+          "coverage": 0.922945205479452,
+          "accuracy": 0.9517625231910947
+        },
+        {
+          "threshold": 0.631578947368421,
+          "coverage": 0.8715753424657534,
+          "accuracy": 0.9607072691552063
+        },
+        {
+          "threshold": 0.6842105263157894,
+          "coverage": 0.821917808219178,
+          "accuracy": 0.9708333333333333
+        },
+        {
+          "threshold": 0.7368421052631579,
+          "coverage": 0.7654109589041096,
+          "accuracy": 0.9798657718120806
+        },
+        {
+          "threshold": 0.7894736842105263,
+          "coverage": 0.6815068493150684,
+          "accuracy": 0.9874371859296482
+        },
+        {
+          "threshold": 0.8421052631578947,
+          "coverage": 0.5821917808219178,
+          "accuracy": 0.9970588235294118
+        },
+        {
+          "threshold": 0.894736842105263,
+          "coverage": 0.4537671232876712,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.9473684210526315,
+          "coverage": 0.2208904109589041,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 1.0,
+          "coverage": 0.0,
+          "accuracy": 0.0
+        }
+      ]
+    },
+    "checkpoint": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_main\\aasist-v1.npz",
+    "temperatures": "C:\\Users\\Gary\\Desktop\\capstone project\\models\\checkpoints\\xlsr_main\\temperatures.json",
+    "temperature_table": {
+      "hi|clean": 0.5
+    },
+    "calibration_strategy": "global_temperature",
+    "calibration_strategy_comparison": {
+      "global_temperature_val_ece": 0.0686,
+      "per_language_and_condition_val_ece": 0.0686,
+      "selected_strategy": "global_temperature",
+      "selection_criterion": "lowest_validation_ece"
+    },
+    "languages": [
+      "hi",
+      "mr",
+      "ta"
+    ],
+    "train_languages": [
+      "hi",
+      "mr",
+      "ta"
+    ],
+    "test_languages": [
+      "hi",
+      "mr",
+      "ta"
+    ],
+    "cuda_available": false,
+    "data_provenance": "kathbath_real_plus_indicsynth_fake_publication_subset",
+    "corpus_provenance": {
+      "clips_per_source_language": 300,
+      "created_at": "2026-08-28T08:38:28.796097+00:00",
+      "label_counts": {
+        "fake": 900,
+        "real": 900
+      },
+      "language_counts": {
+        "hi": 600,
+        "mr": 600,
+        "ta": 600
+      },
+      "languages": [
+        "hi",
+        "mr",
+        "ta"
+      ],
+      "max_duration_sec": 12.0,
+      "opus_evaluation": {
+        "bitrate": "16k",
+        "codec": "libopus",
+        "decoded_for_model_input": true,
+        "paired_validation_test_twins": 546
+      },
+      "sample_rate_hz": 16000,
+      "scope_note": "Reproducible bounded subset because the six full target-language cells exceed 300 GB; results apply only to this persisted subset.",
+      "seed": 42,
+      "sources": {
+        "fake": {
+          "license": "CC BY-NC 4.0; non-commercial academic research",
+          "repository": "vdivyasharma/IndicSynth"
+        },
+        "real": {
+          "license": "CC0 packaging; source terms accepted by the authenticated user",
+          "repository": "ai4bharat/Kathbath"
+        }
+      },
+      "split_counts": {
+        "test": 292,
+        "train": 1254,
+        "val": 254
+      },
+      "split_protocol": "SHA-256(seed:speaker_id), 70/15/15; shared IDs span neither source nor split",
+      "total_clips": 1800,
+      "total_clips_with_opus_twins": 2346,
+      "total_hours": 3.1506,
+      "unique_speakers_by_split": {
+        "test": 44,
+        "train": 178,
+        "val": 45
+      }
+    },
+    "speaker_disjoint_verified": true,
+    "speaker_counts": {
+      "train": 178,
+      "val": 45,
+      "test": 44
+    },
+    "split_protocol": "SHA-256(seed:speaker_id), 70/15/15; shared IDs span neither source nor split",
+    "note": "Measured on a persisted, speaker-disjoint Kathbath bonafide plus IndicSynth generated-speech subset; claims are limited to this subset.",
+    "pipeline": "preprocess -> frozen XLS-R embedding -> AASIST head -> temperature scaling"
+  },
+  "baseline_matrix": {
+    "experiment_id": "baseline_matrix",
+    "models": {
+      "lfcc_gmm": {
+        "model": "lfcc_gmm",
+        "n": 584,
+        "accuracy": 0.5479,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "eer": 0.2348,
+        "eer_95ci": [
+          0.2348,
+          0.1882,
+          0.2823
+        ],
+        "min_dcf": 0.4962,
+        "roc_auc": 0.8195
+      },
+      "rawnet2_style_approx": {
+        "model": "rawnet2_style_approx",
+        "n": 584,
+        "accuracy": 0.5479,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "eer": 0.4318,
+        "eer_95ci": [
+          0.4318,
+          0.3918,
+          0.4723
+        ],
+        "min_dcf": 0.9621,
+        "roc_auc": 0.5845
+      },
+      "acoustic_aasist_v1": {
+        "model": "acoustic_aasist_v1",
+        "n": 584,
+        "accuracy": 0.9161,
+        "precision": 0.8548,
+        "recall": 0.9811,
+        "f1": 0.9136,
+        "eer": 0.0656,
+        "eer_95ci": [
+          0.0656,
+          0.046,
+          0.092
+        ],
+        "min_dcf": 0.7841,
+        "roc_auc": 0.9729
+      }
+    },
+    "identical_accuracy_check": {
+      "lfcc_accuracy": 0.5479,
+      "rawnet_accuracy": 0.5479,
+      "accuracies_match": true,
+      "lfcc_roc_auc": 0.8195,
+      "rawnet_roc_auc": 0.5845,
+      "different_models_confirmed": true,
+      "note": "Matching 54.79% accuracy is coincidence at 0.5 threshold; EER and ROC-AUC differ materially."
+    }
+  },
+  "faithful_rawnet2": {
+    "status": "PENDING"
+  },
+  "rq1": {
+    "baseline_v1_acoustic": {
+      "model": "acoustic_aasist_v1",
+      "clean": {
+        "accuracy": 0.9384,
+        "eer": 0.0563,
+        "f1": 0.9353,
+        "min_dcf": 0.735,
+        "n": 292
+      },
+      "opus_whatsapp_sim": {
+        "accuracy": 0.8938,
+        "eer": 0.0758,
+        "f1": 0.8927,
+        "min_dcf": 0.7652,
+        "n": 292
+      }
+    },
+    "xlsr_main": {
+      "model": "frozen_xlsr_300m",
+      "clean": {
+        "n": 292,
+        "accuracy": 0.9144,
+        "eer": 0.0813,
+        "min_dcf": 0.2803,
+        "f1": 0.9104
+      },
+      "opus_whatsapp_sim": {
+        "n": 292,
+        "accuracy": 0.9281,
+        "eer": 0.0606,
+        "min_dcf": 0.3106,
+        "f1": 0.9219
+      }
+    }
+  },
+  "rq2": {
+    "experiment_id": "rq2_english_control",
+    "english_train_n": 340,
+    "english_val_n": 60,
+    "indic_test_n": 584,
+    "score_contract": {
+      "label_fake": 1,
+      "threshold": 0.5,
+      "higher_score_means": "more_fake"
+    },
+    "english_only_indic_test": {
+      "accuracy": 0.547945205479452,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "eer": 0.7656,
+      "eer_95ci": [
+        0.7656,
+        0.7323,
+        0.8008
+      ],
+      "min_dcf": 1.0594,
+      "roc_auc": 0.162,
+      "confusion_matrix": [
+        [
+          320,
+          0
+        ],
+        [
+          264,
+          0
+        ]
+      ],
+      "score_means_by_label": {
+        "mean_score_real": 0.3094,
+        "mean_score_fake": 0.2866
+      },
+      "polarity_audit": {
+        "roc_auc_raw": 0.162,
+        "roc_auc_negated": 0.838,
+        "eer_raw": 0.7656,
+        "eer_negated": 0.2344,
+        "likely_score_inversion": true
+      }
+    },
+    "multilingual_baseline_v1_test": {
+      "accuracy": 0.9161,
+      "eer": 0.0656,
+      "f1": 0.9136,
+      "roc_auc": 0.9729
+    },
+    "polarity_interpretation": "If likely_score_inversion is True, scores may be reversed relative to the canonical contract; do not flip without verifying ASVspoof label mapping. If False and ROC-AUC << 0.5, catastrophic English-to-Indic domain shift is likely.",
+    "conclusion": "RQ2 reflects catastrophic English-to-Indic transfer with inverted ranking on Indic clips. Do NOT flip global score polarity; VaaniQ contract is validated by multilingual model.",
+    "dataset": "Bisher/ASVspoof_2019_LA train (streaming subset, ODC-By)",
+    "status": "COMPLETE",
+    "interpretation": {
+      "score_contract_bug": false,
+      "evidence": [
+        "Multilingual baseline_v1 on same Indic test: ROC-AUC=0.9729 with canonical contract.",
+        "English-only model assigns all scores below 0.5 (predicts all REAL).",
+        "mean_score_real=0.3094 > mean_score_fake=0.2866 on Indic test.",
+        "Negated-score diagnostic ROC-AUC=0.838 indicates anti-correlated ranking under domain shift."
+      ],
+      "conclusion": "RQ2 reflects catastrophic English-to-Indic transfer with inverted ranking on Indic clips. Do NOT flip global score polarity; VaaniQ contract is validated by multilingual model.",
+      "do_not_flip_scores": true
+    }
+  },
+  "rq3": {
+    "status": "COMPLETE",
+    "folds": {
+      "held_out_hi": {
+        "accuracy": 0.7883,
+        "eer": 0.2183,
+        "n": 222
+      },
+      "held_out_mr": {
+        "accuracy": 0.9329,
+        "eer": 0.0714,
+        "n": 164
+      },
+      "held_out_ta": {
+        "accuracy": 0.9394,
+        "eer": 0.0635,
+        "n": 198
+      }
+    }
+  },
+  "rq4": {
+    "experiment_id": "rq4_calibration",
+    "strategies": {
+      "uncalibrated": {
+        "ece": 0.0378,
+        "brier": 0.0547,
+        "nll": 0.2007
+      },
+      "global_temperature": {
+        "ece": 0.0279,
+        "brier": 0.0536,
+        "nll": 0.1945
+      },
+      "per_language_temperature": {
+        "ece": 0.0421,
+        "brier": 0.0592,
+        "nll": 0.2189
+      },
+      "per_condition_temperature": {
+        "ece": 0.0279,
+        "brier": 0.0536,
+        "nll": 0.1945
+      },
+      "per_language_and_condition": {
+        "ece": 0.0424,
+        "brier": 0.0589,
+        "nll": 0.2163,
+        "reliability_diagram": [
+          {
+            "bin_lo": 0.0,
+            "bin_hi": 0.06666666666666667,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.06666666666666667,
+            "bin_hi": 0.13333333333333333,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.13333333333333333,
+            "bin_hi": 0.2,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.2,
+            "bin_hi": 0.26666666666666666,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.26666666666666666,
+            "bin_hi": 0.3333333333333333,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.3333333333333333,
+            "bin_hi": 0.4,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.4,
+            "bin_hi": 0.4666666666666667,
+            "confidence": 0.0,
+            "accuracy": 0.0,
+            "count": 0.0
+          },
+          {
+            "bin_lo": 0.4666666666666667,
+            "bin_hi": 0.5333333333333333,
+            "confidence": 0.5167418320973715,
+            "accuracy": 0.6666666666666666,
+            "count": 3.0
+          },
+          {
+            "bin_lo": 0.5333333333333333,
+            "bin_hi": 0.6,
+            "confidence": 0.5681773739702561,
+            "accuracy": 0.7647058823529411,
+            "count": 17.0
+          },
+          {
+            "bin_lo": 0.6,
+            "bin_hi": 0.6666666666666666,
+            "confidence": 0.6402027532458305,
+            "accuracy": 0.75,
+            "count": 16.0
+          },
+          {
+            "bin_lo": 0.6666666666666666,
+            "bin_hi": 0.7333333333333333,
+            "confidence": 0.7092428731195854,
+            "accuracy": 0.7878787878787878,
+            "count": 33.0
+          },
+          {
+            "bin_lo": 0.7333333333333333,
+            "bin_hi": 0.8,
+            "confidence": 0.7743089407682419,
+            "accuracy": 0.9,
+            "count": 40.0
+          },
+          {
+            "bin_lo": 0.8,
+            "bin_hi": 0.8666666666666667,
+            "confidence": 0.8360540963271085,
+            "accuracy": 0.9264705882352942,
+            "count": 68.0
+          },
+          {
+            "bin_lo": 0.8666666666666667,
+            "bin_hi": 0.9333333333333333,
+            "confidence": 0.9019533016464927,
+            "accuracy": 0.9393939393939394,
+            "count": 66.0
+          },
+          {
+            "bin_lo": 0.9333333333333333,
+            "bin_hi": 1.0,
+            "confidence": 0.9852225532280036,
+            "accuracy": 0.9765395894428153,
+            "count": 341.0
+          }
+        ]
+      }
+    },
+    "best_strategy_by_test_ece": "global_temperature",
+    "calibration_improved_on_test": true,
+    "conclusion": "Strategy 'global_temperature' lowered test ECE vs uncalibrated.",
+    "methodology": {
+      "strategy_selection_split": "validation_only_for_production_models",
+      "this_artifact_scope": "exploratory_test_set_comparison",
+      "production_baseline_v1_selected": "per_language_and_condition (val ECE 0.0487)",
+      "production_xlsr_selected": "global_temperature (val ECE 0.0686)",
+      "warning": "best_strategy_by_test_ece in this file is exploratory; do not use test ECE to select production calibration."
+    },
+    "status": "COMPLETE"
+  },
+  "rq5": {
+    "experiment_id": "rq5_human",
+    "status": "PENDING",
+    "n_participants": 0,
+    "note": "Human-study protocol ready; participant data collection pending (N=0)."
+  },
+  "benchmark_v2": {
+    "experiment_id": "benchmark_v2",
+    "status": "PARTIAL",
+    "scope": "partial_external_source_pilot",
+    "source_x_label": {
+      "indicsynth": {
+        "fake": 1169
+      },
+      "kathbath": {
+        "real": 1177
+      },
+      "fleurs": {
+        "real": 50
+      }
+    },
+    "generator_x_label": {
+      "freevc24": {
+        "fake": 805
+      },
+      "xtts_v2": {
+        "fake": 364
+      },
+      "None": {
+        "real": 1227
+      }
+    },
+    "v2_source_shortcut_warning": "High source-probe accuracy means domain identity is easy to predict; this does NOT demonstrate reduced shortcut risk versus V1.",
+    "evaluations": {
+      "full_test": {
+        "n": 593,
+        "accuracy": 0.9106,
+        "f1": 0.9072,
+        "eer": 0.076,
+        "min_dcf": 0.7841,
+        "roc_auc": 0.9667,
+        "eval_name": "full_test"
+      },
+      "kathbath_test": {
+        "n": 320,
+        "accuracy": 0.8625,
+        "f1": 0.0,
+        "eer": 0.0031,
+        "min_dcf": 0.0594,
+        "roc_auc": 0.0,
+        "eval_name": "kathbath_test"
+      },
+      "independent_real_test": {
+        "n": 9,
+        "accuracy": 0.5556,
+        "f1": 0.0,
+        "eer": 0.1111,
+        "min_dcf": 2.1111,
+        "roc_auc": 0.0,
+        "eval_name": "independent_real_test",
+        "status": "PILOT",
+        "minimum_n_for_claim": 30,
+        "note": "No statistically useful unseen-source estimate yet; pipeline validation only."
+      },
+      "generator_held_out_test": {
+        "n": 0,
+        "status": "PENDING"
+      }
+    },
+    "source_shortcut_v2": {
+      "experiment_id": "source_shortcut",
+      "sources": [
+        "fleurs",
+        "indicsynth",
+        "kathbath"
+      ],
+      "primary_source_baseline": "fleurs",
+      "test_n": 593,
+      "label_probe_test_accuracy": 0.8583,
+      "source_probe_test_accuracy": 0.9848,
+      "source_beats_label_by_pp": 12.65,
+      "duration_by_source": {
+        "fleurs": {
+          "mean_sec": 10.0056,
+          "std_sec": 2.2341,
+          "n": 50
+        },
+        "indicsynth": {
+          "mean_sec": 6.3983,
+          "std_sec": 1.9397,
+          "n": 1169
+        },
+        "kathbath": {
+          "mean_sec": 6.2273,
+          "std_sec": 1.9106,
+          "n": 1177
+        }
+      },
+      "interpretation": "If source classification accuracy on test exceeds label classification, the benchmark may be partially solvable via dataset fingerprints (Baseline V1 confound). Benchmark V2 with multi-source real/fake is intended to reduce this dependence. Observed: source probe test accuracy (0.985) > label probe (0.858) by >5pp.",
+      "benchmark_v1_confound": true
+    },
+    "v1_vs_v2_shortcut_comparison_note": "Compare label_probe_test_accuracy and source_probe_test_accuracy against artifacts/experiments/source_shortcut/metrics.json (V1)."
+  },
+  "paired_acoustic_vs_xlsr": {
+    "same_split": true,
+    "n_test": 584,
+    "threshold": 0.5,
+    "acoustic": {
+      "accuracy": 0.9161,
+      "eer": 0.0656,
+      "roc_auc": 0.9729,
+      "f1": 0.9136
+    },
+    "xlsr": {
+      "accuracy": 0.9212,
+      "eer": 0.0688,
+      "roc_auc": 0.9828,
+      "f1": 0.9161
+    },
+    "conclusion": "XLS-R improves ranking (ROC-AUC +1.0pp) and accuracy (+0.5pp) while EER is comparable; not a decisive win on classification alone."
+  },
+  "min_dcf_explanation": {
+    "p_target": 0.05,
+    "c_miss": 1.0,
+    "c_fa": 1.0,
+    "normalized": true,
+    "denominator": 0.05,
+    "viva": "With P_target=0.05, min-DCF penalizes false accepts heavily; ~0.78 is mathematically consistent with EER ~6.5%."
+  },
+  "validation_test_gap": {
+    "leakage_found": false,
+    "conclusion": "No split leakage evidence. Tamil val 71.5% vs test 90.9%; Marathi val 98.4% vs test 93.3%. Small heterogeneous val cells plus V1 source confound; unresolved but plausible."
+  },
+  "status_terminology": {
+    "benchmark_v2": "PARTIAL",
+    "fleurs_unseen_source_n9": "PILOT",
+    "generator_disjoint": "PENDING",
+    "faithful_rawnet2": "PENDING",
+    "rq5": "BLOCKED_ON_HUMAN_DATA"
+  }
+}

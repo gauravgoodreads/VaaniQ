@@ -36,18 +36,27 @@
     "acoustic_aasist_v1": {
       "model": "acoustic_aasist_v1",
       "n": 584,
-      "accuracy": 0.9366,
-      "precision": 0.8982,
-      "recall": 0.9697,
-      "f1": 0.9326,
+      "accuracy": 0.9161,
+      "precision": 0.8548,
+      "recall": 0.9811,
+      "f1": 0.9136,
       "eer": 0.0656,
       "eer_95ci": [
         0.0656,
-        0.0462,
-        0.0918
+        0.046,
+        0.092
       ],
-      "min_dcf": 0.7869,
-      "roc_auc": 0.9735
+      "min_dcf": 0.7841,
+      "roc_auc": 0.9729
     }
+  },
+  "identical_accuracy_check": {
+    "lfcc_accuracy": 0.5479,
+    "rawnet_accuracy": 0.5479,
+    "accuracies_match": true,
+    "lfcc_roc_auc": 0.8195,
+    "rawnet_roc_auc": 0.5845,
+    "different_models_confirmed": true,
+    "note": "Matching 54.79% accuracy is coincidence at 0.5 threshold; EER and ROC-AUC differ materially."
   }
 }
