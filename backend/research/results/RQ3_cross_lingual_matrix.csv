@@ -1,2 +1,4 @@
-status,reason,train_languages,test_language,eer,min_dcf,accuracy,f1
-PENDING,no_curated_audio_bytes_no_cached_xlsr_embeddings,,,,,,
+status,reason,model,language,condition,eer,min_dcf,accuracy,precision,recall,f1,roc_auc
+COMPLETE,leave_one_language_out,acoustic_aasist_v1,hi,all,0.2183,0.8125,0.7883,0.6813,0.775,0.7251,0.8948
+COMPLETE,leave_one_language_out,acoustic_aasist_v1,mr,all,0.0714,0.0714,0.9329,0.9316,0.9732,0.952,0.9885
+COMPLETE,leave_one_language_out,acoustic_aasist_v1,ta,all,0.0635,0.4444,0.9394,0.8659,0.9861,0.9221,0.9837

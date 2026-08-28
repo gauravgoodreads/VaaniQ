@@ -12,7 +12,37 @@ Languages in scope: **Hindi (`hi`)**, **Marathi (`mr`)**, **Tamil (`ta`)**.
 Telugu is **not** a project language (REQ-139).
 
 > Research-grade system (dataset → train → eval → calibrate → explain → web app).
-> Phase 1 is scaffold only — ML bodies are deferred behind `ROADMAP-###` stubs.
+> **Measured Baseline V1** exists on a speaker-disjoint Kathbath + IndicSynth subset (~4.11 h).
+> All headline metrics live in `artifacts/experiments/baseline_v1/metrics.json` (synced from `train_report.json`).
+
+## Research status (measured vs pending)
+
+| Item | Status | Artifact |
+|------|--------|----------|
+| Baseline V1 (acoustic + AASIST head) | **Measured** | `artifacts/experiments/baseline_v1/` |
+| RQ1 clean vs Opus | **Measured** | `baseline_v1` per-condition metrics |
+| RQ3 leave-one-language-out | **Measured** | `artifacts/experiments/rq3_crosslingual/` |
+| RQ4 calibration audit | **Measured** | `artifacts/experiments/rq4_calibration/` |
+| LFCC-GMM / RawNet2 baselines | **Measured** | `artifacts/experiments/baseline_matrix/` |
+| Source-shortcut analysis | **Measured** | `artifacts/experiments/source_shortcut/` |
+| Frozen XLS-R main model | **Pending** | run `extract_xlsr_embeddings.py` + `train_demo_detector.py --front-end xlsr` |
+| Benchmark V2 (multi-source) | **Pending** | `prepare_benchmark_v2.py` (needs HF_TOKEN) |
+| RQ2 English-only ASVspoof | **Pending** | OQ-015 |
+| RQ5 human study | **Protocol ready, N=0** | `/api/v1/human-study/*` |
+
+### Reproduce main results
+
+```bash
+cd backend
+uv pip install -e ".[dev,data,docs]"
+uv run python ../scripts/sync_experiment_artifacts.py
+uv run python ../scripts/export_predictions.py
+uv run python ../scripts/evaluate_baselines.py
+uv run python ../scripts/sync_research_results.py
+uv run python ../scripts/verify_research_integrity.py   # must exit 0
+```
+
+Regenerate documents from artifacts: `uv run python ../scripts/generate_master_docx.py` (see `docs/TRAINING_GUIDE.md`).
 
 ## Architecture (C4 container sketch)
 

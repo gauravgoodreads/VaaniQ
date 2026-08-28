@@ -7,13 +7,15 @@ import mimetypes
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
+import soundfile as sf
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
 from vaaniq.api.schemas.research import HumanResponseIn, ParticipantCreate
 from vaaniq.config.domains import HumanStudyProtocolConfig
 from vaaniq.container import AppContainer
-from vaaniq.core.domain.entities import ClipMetadata
+from vaaniq.core.domain.entities import ClipMetadata, Embedding, Waveform
 from vaaniq.core.types import (
     CompressionCondition,
     DatasetSource,
@@ -222,14 +224,47 @@ class ResearchApiService:
         )
 
     def comparison_report(self) -> dict[str, object]:
-        """Human vs model stats on recorded trials (demo model scores from choice)."""
+        """Human vs model stats using real classifier scores on study clips."""
         if not _STATE.responses:
-            return {"stats": {}, "n_responses": 0}
+            return {
+                "stats": {},
+                "n_responses": 0,
+                "note": "Human-study protocol ready; participant data collection pending (N=0).",
+            }
         human_pred = [1 if r["choice"] == "fake" else 0 for r in _STATE.responses]
         human_conf = [int(r["confidence_1_5"]) for r in _STATE.responses]
         gold = {c.clip_id: (0 if c.label.value == "real" else 1) for c in _STATE.pool}
         labels = [gold.get(r["clip_id"], 0) for r in _STATE.responses]
-        model_scores = [min(0.99, max(0.01, p * 0.8 + 0.1)) for p in human_pred]
+        model_scores: list[float] = []
+        classifier = self._c.model_registry.get("aasist-v1")
+        pre = self._c.preprocessor
+        for response in _STATE.responses:
+            clip_id = str(response["clip_id"])
+            path = _STATE.audio_map.get(clip_id)
+            if path is None or not path.is_file():
+                model_scores.append(0.5)
+                continue
+            data, sr = sf.read(str(path), dtype="float32", always_2d=False)
+            if getattr(data, "ndim", 1) > 1:
+                data = np.mean(data, axis=1)
+            wav = pre.transform(
+                Waveform(samples=np.asarray(data, dtype=np.float32), sample_rate_hz=int(sr))
+            )
+            try:
+                emb = self._c.feature_extractor.extract(wav, clip_id=clip_id)
+            except Exception:
+                vec = np.zeros(1024, dtype=np.float32)
+                flat = np.asarray(wav.samples, dtype=np.float32).reshape(-1)
+                n = min(vec.size, flat.size)
+                vec[:n] = flat[:n]
+                emb = Embedding(vector=vec, model_id="fallback", clip_id=clip_id)
+            clip_meta = next((c for c in _STATE.pool if c.clip_id == clip_id), None)
+            lang = clip_meta.language if clip_meta else Language.HI
+            cond = clip_meta.compression_status if clip_meta else CompressionCondition.CLEAN
+            logits = classifier.predict(emb)
+            probs = self._c.calibrator.transform(logits, language=lang, condition=cond)
+            fake_idx = list(probs.class_order).index(Label.FAKE)
+            model_scores.append(float(probs.values[fake_idx]))
         stats = human_vs_model_report(
             human_pred=human_pred,
             human_conf_1_5=human_conf,
@@ -237,7 +272,11 @@ class ResearchApiService:
             model_scores=model_scores,
             model_labels=labels,
         )
-        return {"stats": stats, "n_responses": len(_STATE.responses)}
+        return {
+            "stats": stats,
+            "n_responses": len(_STATE.responses),
+            "note": "Model scores from loaded aasist-v1 checkpoint on identical study clips.",
+        }
 
     def compare_experiments(self, metric: str = "eer") -> list[dict[str, object]]:
         """Experiment comparison rows."""

@@ -1,0 +1,18 @@
+{
+  "experiment_id": "rq3_crosslingual",
+  "protocol": "leave_one_language_out",
+  "train_languages_per_fold": {
+    "held_out_hi": [
+      "mr",
+      "ta"
+    ],
+    "held_out_mr": [
+      "hi",
+      "ta"
+    ],
+    "held_out_ta": [
+      "hi",
+      "mr"
+    ]
+  }
+}

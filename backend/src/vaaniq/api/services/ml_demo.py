@@ -73,11 +73,9 @@ def _load_train_report() -> dict[str, object]:
     return raw if isinstance(raw, dict) else {}
 
 
-def _realistic_confidence(raw_prob: float) -> float:
-    """Map model probability to a believable user-facing confidence."""
-    p = float(np.clip(raw_prob, 0.52, 0.97))
-    scaled = 0.67 + (p - 0.52) * (0.89 - 0.67) / (0.97 - 0.52)
-    return round(float(np.clip(scaled, 0.67, 0.89)), 3)
+def _display_confidence(raw_prob: float) -> float:
+    """Return calibrated max-class probability without cosmetic remapping."""
+    return round(float(np.clip(raw_prob, 0.0, 1.0)), 4)
 
 
 @dataclass
@@ -183,18 +181,8 @@ class MlApiService:
         probs = self._c.calibrator.transform(logits, language=language, condition=condition)
         fake_idx = list(probs.class_order).index(Label.FAKE)
         fake_p = float(probs.values[fake_idx])
-        # Mic / natural-speech prior: irregular energy dynamics are rare in TTS fakes.
-        samples = np.asarray(wav.samples, dtype=np.float32).reshape(-1)
-        hop = max(1, int(wav.sample_rate_hz * 0.02))
-        if samples.size >= hop * 16:
-            frames = samples[: samples.size - (samples.size % hop)].reshape(-1, hop)
-            energies = np.mean(np.square(frames), axis=1)
-            dyn = float(np.std(energies) / (np.mean(energies) + 1e-8))
-            if dyn > 0.35:
-                fake_p = max(0.0, fake_p - 0.1)
-        # Slightly conservative fake call on uploads (laptop mic is OOD vs studio).
-        label = Label.FAKE if fake_p >= 0.62 else Label.REAL
-        confidence = _realistic_confidence(max(fake_p, 1.0 - fake_p))
+        label = Label.FAKE if fake_p >= 0.5 else Label.REAL
+        confidence = _display_confidence(max(fake_p, 1.0 - fake_p))
         entropy = predictive_entropy(probs.values.tolist())
         badge = reliability_badge(confidence, entropy=entropy, condition=condition)
 
@@ -538,6 +526,11 @@ class MlApiService:
             "pipeline": report.get(
                 "pipeline",
                 "preprocess -> acoustic embedding -> AASIST head -> temperature scaling",
+            ),
+            "front_end": report.get("front_end", "acoustic_embedding_1024d"),
+            "benchmark_level": 1,
+            "inference_disclaimer": (
+                "Live upload inference is a demo prediction — not a held-out benchmark evaluation."
             ),
             "temperatures": temps or report.get("temperature_table"),
             "n_experiments": n_experiments,

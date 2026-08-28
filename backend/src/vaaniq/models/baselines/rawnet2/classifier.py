@@ -1,4 +1,4 @@
-"""RawNet2 baseline (ROADMAP-032 / REQ-043).
+"""RawNet2-style approximate baseline (ROADMAP-032 / REQ-043).
 
 Lightweight raw-waveform CNN approximating RawNet2 for CI without GPU.
 Accepts waveforms via ``predict_waveform``; ``predict`` treats
@@ -38,7 +38,7 @@ def _conv1d(x: Float32Array, kernel: Float32Array) -> Float32Array:
 
 
 class RawNet2Classifier(Classifier):
-    """Compact RawNet2-style waveform classifier (REQ-043)."""
+    """RawNet2-style approximate baseline (REQ-043)."""
 
     def __init__(
         self,

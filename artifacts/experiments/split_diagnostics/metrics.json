@@ -1,0 +1,112 @@
+{
+  "accuracy_gap_test_minus_val": 0.0547,
+  "conclusion": "If Tamil validation was weak while test Tamil was strong, inspect per-language speaker counts and val cell sizes before assuming leakage. Cause remains unresolved without per-clip error traces.",
+  "experiment_id": "split_diagnostics",
+  "hypotheses": [
+    "test_accuracy_exceeds_validation_by>4pp: may reflect small/heterogeneous val cells (not necessarily leakage)",
+    "large_val_test_gap_ta: val_acc=0.677 test_acc=0.934 (val_n=158 test_n=198)",
+    "source_label_confound: at least one dataset source maps to a single label on test"
+  ],
+  "test_metrics": {
+    "accuracy": 0.9366,
+    "eer": 0.0656,
+    "per_language": {
+      "hi": {
+        "accuracy": 0.9369,
+        "eer": 0.0563,
+        "f1": 0.9186,
+        "min_dcf": 0.65,
+        "n": 222
+      },
+      "mr": {
+        "accuracy": 0.939,
+        "eer": 0.0625,
+        "f1": 0.955,
+        "min_dcf": 0.0804,
+        "n": 164
+      },
+      "ta": {
+        "accuracy": 0.9343,
+        "eer": 0.0714,
+        "f1": 0.9161,
+        "min_dcf": 0.6627,
+        "n": 198
+      }
+    }
+  },
+  "test_profile": {
+    "conditions": {
+      "clean": 292,
+      "opus_whatsapp_sim": 292
+    },
+    "duration_sec_max": 12.0,
+    "duration_sec_mean": 6.0595,
+    "duration_sec_min": 2.72,
+    "labels": {
+      "fake": 264,
+      "real": 320
+    },
+    "languages": {
+      "hi": 222,
+      "mr": 164,
+      "ta": 198
+    },
+    "n": 584,
+    "n_speakers": 44,
+    "sources": {
+      "indicsynth": 264,
+      "kathbath": 320
+    }
+  },
+  "val_profile": {
+    "conditions": {
+      "clean": 254,
+      "opus_whatsapp_sim": 254
+    },
+    "duration_sec_max": 12.0,
+    "duration_sec_mean": 6.684,
+    "duration_sec_min": 2.5078,
+    "labels": {
+      "fake": 274,
+      "real": 234
+    },
+    "languages": {
+      "hi": 100,
+      "mr": 250,
+      "ta": 158
+    },
+    "n": 508,
+    "n_speakers": 45,
+    "sources": {
+      "indicsynth": 274,
+      "kathbath": 234
+    }
+  },
+  "validation_metrics": {
+    "accuracy": 0.8819,
+    "eer": 0.1197,
+    "per_language": {
+      "hi": {
+        "accuracy": 0.94,
+        "eer": 0.025,
+        "f1": 0.8696,
+        "min_dcf": 0.475,
+        "n": 100
+      },
+      "mr": {
+        "accuracy": 0.988,
+        "eer": 0.0057,
+        "f1": 0.9914,
+        "min_dcf": 0.0057,
+        "n": 250
+      },
+      "ta": {
+        "accuracy": 0.6772,
+        "eer": 0.225,
+        "f1": 0.6222,
+        "min_dcf": 0.6375,
+        "n": 158
+      }
+    }
+  }
+}

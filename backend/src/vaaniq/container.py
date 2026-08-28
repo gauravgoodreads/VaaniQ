@@ -108,7 +108,11 @@ def build_container(config: AppConfig) -> AppContainer:
         except Exception as exc:
             log.warning("temperature_autoload_failed", path=str(temp_path), error=str(exc))
     registry = ModelRegistry()
-    registry.register("aasist-v1", classifier, "Primary XLS-R + AASIST head (REQ-038)")
+    registry.register(
+        "aasist-v1",
+        classifier,
+        "Acoustic-embedding + AASIST-compatible head (Baseline V1; not frozen XLS-R)",
+    )
     return AppContainer(
         config=config,
         audio_loader=SoundFileLoader(),

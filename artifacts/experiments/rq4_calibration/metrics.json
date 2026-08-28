@@ -1,0 +1,140 @@
+{
+  "experiment_id": "rq4_calibration",
+  "strategies": {
+    "uncalibrated": {
+      "ece": 0.0378,
+      "brier": 0.0547,
+      "nll": 0.2007
+    },
+    "global_temperature": {
+      "ece": 0.0279,
+      "brier": 0.0536,
+      "nll": 0.1945
+    },
+    "per_language_temperature": {
+      "ece": 0.0421,
+      "brier": 0.0592,
+      "nll": 0.2189
+    },
+    "per_condition_temperature": {
+      "ece": 0.0279,
+      "brier": 0.0536,
+      "nll": 0.1945
+    },
+    "per_language_and_condition": {
+      "ece": 0.0424,
+      "brier": 0.0589,
+      "nll": 0.2163,
+      "reliability_diagram": [
+        {
+          "bin_lo": 0.0,
+          "bin_hi": 0.06666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.06666666666666667,
+          "bin_hi": 0.13333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.13333333333333333,
+          "bin_hi": 0.2,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.2,
+          "bin_hi": 0.26666666666666666,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.26666666666666666,
+          "bin_hi": 0.3333333333333333,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.3333333333333333,
+          "bin_hi": 0.4,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4,
+          "bin_hi": 0.4666666666666667,
+          "confidence": 0.0,
+          "accuracy": 0.0,
+          "count": 0.0
+        },
+        {
+          "bin_lo": 0.4666666666666667,
+          "bin_hi": 0.5333333333333333,
+          "confidence": 0.5167418320973715,
+          "accuracy": 0.6666666666666666,
+          "count": 3.0
+        },
+        {
+          "bin_lo": 0.5333333333333333,
+          "bin_hi": 0.6,
+          "confidence": 0.5681773739702561,
+          "accuracy": 0.7647058823529411,
+          "count": 17.0
+        },
+        {
+          "bin_lo": 0.6,
+          "bin_hi": 0.6666666666666666,
+          "confidence": 0.6402027532458305,
+          "accuracy": 0.75,
+          "count": 16.0
+        },
+        {
+          "bin_lo": 0.6666666666666666,
+          "bin_hi": 0.7333333333333333,
+          "confidence": 0.7092428731195854,
+          "accuracy": 0.7878787878787878,
+          "count": 33.0
+        },
+        {
+          "bin_lo": 0.7333333333333333,
+          "bin_hi": 0.8,
+          "confidence": 0.7743089407682419,
+          "accuracy": 0.9,
+          "count": 40.0
+        },
+        {
+          "bin_lo": 0.8,
+          "bin_hi": 0.8666666666666667,
+          "confidence": 0.8360540963271085,
+          "accuracy": 0.9264705882352942,
+          "count": 68.0
+        },
+        {
+          "bin_lo": 0.8666666666666667,
+          "bin_hi": 0.9333333333333333,
+          "confidence": 0.9019533016464927,
+          "accuracy": 0.9393939393939394,
+          "count": 66.0
+        },
+        {
+          "bin_lo": 0.9333333333333333,
+          "bin_hi": 1.0,
+          "confidence": 0.9852225532280036,
+          "accuracy": 0.9765395894428153,
+          "count": 341.0
+        }
+      ]
+    }
+  },
+  "best_strategy_by_test_ece": "global_temperature",
+  "calibration_improved_on_test": true,
+  "conclusion": "Strategy 'global_temperature' lowered test ECE vs uncalibrated."
+}

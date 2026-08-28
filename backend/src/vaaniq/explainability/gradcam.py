@@ -55,7 +55,7 @@ class GradCamExplainer(Explainer):
             ExplanationArtefact(
                 kind="gradcam_temporal",
                 uri=str(out),
-                summary="Temporal energy heatmap (spectrogram-aligned Grad-CAM proxy)",
+                summary="Temporal STFT energy proxy (not model Grad-CAM)",
                 extras={"model_id": model_id},
             ),
             ExplanationArtefact(

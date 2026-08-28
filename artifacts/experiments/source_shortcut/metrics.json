@@ -1,0 +1,26 @@
+{
+  "benchmark_v1_confound": true,
+  "duration_by_source": {
+    "indicsynth": {
+      "mean_sec": 6.3983,
+      "n": 1169,
+      "std_sec": 1.9397
+    },
+    "kathbath": {
+      "mean_sec": 6.2273,
+      "n": 1177,
+      "std_sec": 1.9106
+    }
+  },
+  "experiment_id": "source_shortcut",
+  "interpretation": "If source classification accuracy on test exceeds label classification, the benchmark may be partially solvable via dataset fingerprints (Baseline V1 confound). Benchmark V2 with multi-source real/fake is intended to reduce this dependence.",
+  "label_probe_test_accuracy": 0.8476,
+  "primary_source_baseline": "indicsynth",
+  "source_beats_label_by_pp": -0.17,
+  "source_probe_test_accuracy": 0.8459,
+  "sources": [
+    "indicsynth",
+    "kathbath"
+  ],
+  "test_n": 584
+}

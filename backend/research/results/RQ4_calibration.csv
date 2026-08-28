@@ -1,2 +1,6 @@
-status,reason,language,condition,calibration_state,ece,brier,mean_confidence,accuracy,entropy
-PENDING,no_curated_audio_bytes_no_cached_xlsr_embeddings,,,,,,,,
+status,note,model,language,strategy,eer,min_dcf,accuracy,precision,recall,f1,roc_auc
+COMPLETE,Strategy 'global_temperature' lowered test ECE vs uncalibrated.,acoustic_aasist_v1,all,uncalibrated,,,,,,,
+COMPLETE,Strategy 'global_temperature' lowered test ECE vs uncalibrated.,acoustic_aasist_v1,all,global_temperature,,,,,,,
+COMPLETE,Strategy 'global_temperature' lowered test ECE vs uncalibrated.,acoustic_aasist_v1,all,per_language_temperature,,,,,,,
+COMPLETE,Strategy 'global_temperature' lowered test ECE vs uncalibrated.,acoustic_aasist_v1,all,per_condition_temperature,,,,,,,
+COMPLETE,Strategy 'global_temperature' lowered test ECE vs uncalibrated.,acoustic_aasist_v1,all,per_language_and_condition,,,,,,,

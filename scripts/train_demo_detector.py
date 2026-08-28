@@ -165,6 +165,12 @@ def main() -> None:
         help="Comma-separated languages evaluated on the test split.",
     )
     parser.add_argument(
+        "--front-end",
+        choices=("acoustic", "xlsr"),
+        default="acoustic",
+        help="Feature extractor: acoustic (Baseline V1) or cached frozen XLS-R.",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=None,
@@ -191,6 +197,20 @@ def main() -> None:
         raise SystemExit("No manifest — run generate_demo_corpus.py first")
 
     pre = DefaultPreprocessor()
+    cache_root = args.embedding_cache or (
+        Path(__file__).resolve().parents[1] / "data" / "embedding_cache" / "xlsr_300m"
+    )
+    xlsr_extractor = None
+    if args.front_end == "xlsr":
+        from vaaniq.config.domains import XlsrAasistConfig
+        from vaaniq.features.cache.filesystem import FilesystemEmbeddingCache
+        from vaaniq.features.xlsr.extractor import FrozenXLSRExtractor
+
+        xlsr_extractor = FrozenXLSRExtractor(
+            config=XlsrAasistConfig(),
+            cache=FilesystemEmbeddingCache(cache_root),
+        )
+
     feats: list[np.ndarray] = []
     labels: list[int] = []
     langs: list[str] = []
@@ -208,7 +228,12 @@ def main() -> None:
         wav = pre.transform(
             Waveform(samples=np.asarray(data, dtype=np.float32), sample_rate_hz=int(sr))
         )
-        feats.append(acoustic_embedding(wav, dim=1024))
+        clip_id = str(row.get("clip_id", path.stem))
+        if xlsr_extractor is not None:
+            emb = xlsr_extractor.extract(wav, clip_id=clip_id)
+            feats.append(np.asarray(emb.vector, dtype=np.float32))
+        else:
+            feats.append(acoustic_embedding(wav, dim=1024))
         labels.append(1 if str(row.get("label")) == "fake" else 0)
         langs.append(str(row.get("language", "hi")))
         conditions.append(str(row.get("compression_status", "clean")))
@@ -284,33 +309,47 @@ def main() -> None:
     from vaaniq.core.types import CompressionCondition, Label, Language
 
     val_logits = clf.predict_batch(X_val)
-    scaler = TemperatureScaler()
-    logit_objs = [
-        Logits(values=row.astype(np.float32), class_order=(Label.REAL, Label.FAKE))
-        for row in val_logits
-    ]
-    for lang in (Language.HI, Language.MR, Language.TA):
-        for cond in (CompressionCondition.CLEAN, CompressionCondition.OPUS_WHATSAPP_SIM):
-            cell_mask = (lang_val == lang.value) & (condition_val == cond.value)
-            cell_logits = [item for item, keep in zip(logit_objs, cell_mask, strict=True) if keep]
-            cell_labels = y_val[cell_mask].astype(int).tolist()
-            if not cell_logits:
-                continue
-            scaler.fit(
-                cell_logits,
-                cell_labels,
-                language=lang,
-                condition=cond,
-            )
+    test_logits = clf.predict_batch(X_test)
 
-    def apply_calibration(
+    def _logit_objects(logits: np.ndarray) -> list[Logits]:
+        return [
+            Logits(values=row.astype(np.float32), class_order=(Label.REAL, Label.FAKE))
+            for row in logits
+        ]
+
+    def _fit_global_scaler() -> TemperatureScaler:
+        scaler = TemperatureScaler()
+        scaler.fit(
+            _logit_objects(val_logits),
+            y_val.astype(int).tolist(),
+            language=Language.HI,
+            condition=CompressionCondition.CLEAN,
+        )
+        return scaler
+
+    def _fit_per_cell_scaler() -> TemperatureScaler:
+        scaler = TemperatureScaler()
+        val_objs = _logit_objects(val_logits)
+        for lang in (Language.HI, Language.MR, Language.TA):
+            for cond in (CompressionCondition.CLEAN, CompressionCondition.OPUS_WHATSAPP_SIM):
+                cell_mask = (lang_val == lang.value) & (condition_val == cond.value)
+                cell_logits = [
+                    item for item, keep in zip(val_objs, cell_mask, strict=True) if keep
+                ]
+                cell_labels = y_val[cell_mask].astype(int).tolist()
+                if not cell_logits:
+                    continue
+                scaler.fit(cell_logits, cell_labels, language=lang, condition=cond)
+        return scaler
+
+    def _apply_scaler(
+        scaler: TemperatureScaler,
         logits: np.ndarray,
-        labels: np.ndarray,
         languages: np.ndarray,
         compression_conditions: np.ndarray,
         *,
-        include_diagrams: bool = False,
-    ) -> dict[str, object]:
+        strategy: str,
+    ) -> np.ndarray:
         calibrated: list[np.ndarray] = []
         for row, lang_raw, condition_raw in zip(
             logits,
@@ -318,16 +357,29 @@ def main() -> None:
             compression_conditions,
             strict=True,
         ):
+            lang = Language(str(lang_raw))
+            cond = CompressionCondition(str(condition_raw))
+            fit_lang = lang if strategy == "per_language_and_condition" else Language.HI
+            fit_cond = (
+                cond if strategy == "per_language_and_condition" else CompressionCondition.CLEAN
+            )
             probability = scaler.transform(
                 Logits(
                     values=row.astype(np.float32),
                     class_order=(Label.REAL, Label.FAKE),
                 ),
-                language=Language(str(lang_raw)),
-                condition=CompressionCondition(str(condition_raw)),
+                language=fit_lang,
+                condition=fit_cond,
             )
             calibrated.append(probability.values)
-        probabilities = np.stack(calibrated)
+        return np.stack(calibrated)
+
+    def _calibration_pack(
+        probabilities: np.ndarray,
+        labels: np.ndarray,
+        *,
+        include_diagrams: bool = False,
+    ) -> dict[str, object]:
         predictions = np.argmax(probabilities, axis=1)
         confidences = np.max(probabilities, axis=1)
         correct = (predictions == labels).astype(int)
@@ -352,17 +404,57 @@ def main() -> None:
             )
         return pack
 
-    val_post_calibration = apply_calibration(
+    global_scaler = _fit_global_scaler()
+    per_cell_scaler = _fit_per_cell_scaler()
+
+    global_val_probs = _apply_scaler(
+        global_scaler,
         val_logits,
-        y_val,
         lang_val,
         condition_val,
+        strategy="global_temperature",
     )
-    test_post_calibration = apply_calibration(
-        clf.predict_batch(X_test),
-        y_test,
+    per_cell_val_probs = _apply_scaler(
+        per_cell_scaler,
+        val_logits,
+        lang_val,
+        condition_val,
+        strategy="per_language_and_condition",
+    )
+
+    global_val_ece = float(
+        _calibration_pack(global_val_probs, y_val)["ece"]
+    )
+    per_cell_val_ece = float(
+        _calibration_pack(per_cell_val_probs, y_val)["ece"]
+    )
+
+    if global_val_ece <= per_cell_val_ece:
+        selected_strategy = "global_temperature"
+        scaler = global_scaler
+    else:
+        selected_strategy = "per_language_and_condition"
+        scaler = per_cell_scaler
+
+    selected_val_probs = _apply_scaler(
+        scaler,
+        val_logits,
+        lang_val,
+        condition_val,
+        strategy=selected_strategy,
+    )
+    selected_test_probs = _apply_scaler(
+        scaler,
+        test_logits,
         lang_test,
         condition_test,
+        strategy=selected_strategy,
+    )
+
+    val_post_calibration = _calibration_pack(selected_val_probs, y_val)
+    test_post_calibration = _calibration_pack(
+        selected_test_probs,
+        y_test,
         include_diagrams=True,
     )
     val_metrics["calibration_pre"] = {
@@ -370,6 +462,12 @@ def main() -> None:
         "brier": val_metrics["brier"],
     }
     val_metrics["calibration_post"] = val_post_calibration
+    val_metrics["calibration_strategy_comparison"] = {
+        "global_temperature_val_ece": round(global_val_ece, 4),
+        "per_language_and_condition_val_ece": round(per_cell_val_ece, 4),
+        "selected_strategy": selected_strategy,
+        "selection_criterion": "lowest_validation_ece",
+    }
     test_metrics["calibration_pre"] = {
         "ece": test_metrics["ece"],
         "brier": test_metrics["brier"],
@@ -422,6 +520,13 @@ def main() -> None:
         "checkpoint": str(out),
         "temperatures": str(temp_path),
         "temperature_table": scaler.as_dict(),
+        "calibration_strategy": selected_strategy,
+        "calibration_strategy_comparison": {
+            "global_temperature_val_ece": round(global_val_ece, 4),
+            "per_language_and_condition_val_ece": round(per_cell_val_ece, 4),
+            "selected_strategy": selected_strategy,
+            "selection_criterion": "lowest_validation_ece",
+        },
         "languages": sorted(train_languages | test_languages),
         "train_languages": sorted(train_languages),
         "test_languages": sorted(test_languages),
@@ -450,7 +555,14 @@ def main() -> None:
                 "legitimate difficult examples; not a publication result."
             )
         ),
-        "pipeline": "preprocess -> acoustic embedding -> AASIST head -> temperature scaling",
+        "pipeline": (
+            "preprocess -> frozen XLS-R embedding -> AASIST head -> temperature scaling"
+            if args.front_end == "xlsr"
+            else "preprocess -> acoustic embedding -> AASIST head -> temperature scaling"
+        ),
+        "front_end": (
+            "frozen_xlsr_300m_mean_pool" if args.front_end == "xlsr" else "acoustic_embedding_1024d"
+        ),
         "status": "trained_calibrated",
     }
     try:

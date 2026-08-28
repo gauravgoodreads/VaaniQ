@@ -5,7 +5,8 @@
 # and frontend/README.md, or use Git Bash.
 
 .PHONY: setup install dev test lint format typecheck check \
-	docker-up docker-down clean gen-types migrate telugu
+	docker-up docker-down clean gen-types migrate telugu \
+	research-sync research-verify research-baselines
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 BACKEND := $(ROOT)/backend
@@ -55,6 +56,17 @@ telugu:
 check: lint typecheck test
 	bash "$(ROOT)/scripts/check_api_types_drift.sh"
 	@echo "make check passed"
+
+research-sync:
+	cd "$(BACKEND)" && $(UV) run python "../scripts/sync_experiment_artifacts.py"
+	cd "$(BACKEND)" && $(UV) run python "../scripts/export_predictions.py"
+	cd "$(BACKEND)" && $(UV) run python "../scripts/sync_research_results.py"
+
+research-baselines:
+	cd "$(BACKEND)" && $(UV) run python "../scripts/evaluate_baselines.py"
+
+research-verify:
+	cd "$(BACKEND)" && $(UV) run python "../scripts/verify_research_integrity.py"
 
 # Windows without GNU make:
 #   powershell -File scripts/check_all.ps1
