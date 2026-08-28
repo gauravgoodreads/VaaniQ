@@ -1,10 +1,5 @@
-# VaaniQ examiner demo
+# VaaniQ complete demo (one file)
 
-One file only: `VaaniQ_Examiner_Demo.mp4`
+`VaaniQ_Examiner_Demo.mp4` — 6 min 30 s. Speakers on.
 
-Play with speakers on. You will hear:
-
-1. HUMAN speech twice (Kathbath real Hindi), then REAL verdict
-2. AI speech twice (IndicSynth fake Hindi), then FAKE verdict
-
-The rest of the video is the full live app walkthrough (dashboard through API docs).
+For each of Hindi, Marathi, Tamil: HUMAN audio then REAL result (transcript/analysis), then AI audio then FAKE result. Then dashboard, calibration graphs, explainability, experiments, human study, API.
