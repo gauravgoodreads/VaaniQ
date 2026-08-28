@@ -1,16 +1,20 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 import { AppNav, type NavItem } from "@/components/layout/AppNav";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useHealth } from "@/hooks/useHealth";
+import { cn } from "@/lib/utils";
 
-const NAV_ITEMS: readonly NavItem[] = [
+const PRIMARY_NAV: readonly NavItem[] = [
   { to: "/", label: "Home" },
-  { to: "/dashboard", label: "Dashboard" },
   { to: "/upload", label: "Upload" },
   { to: "/live", label: "Live" },
   { to: "/inference", label: "Inference" },
+  { to: "/dashboard", label: "Dashboard" },
   { to: "/history", label: "History" },
+] as const;
+
+const RESEARCH_NAV: readonly NavItem[] = [
   { to: "/research-metrics", label: "Metrics" },
   { to: "/experiments", label: "Experiments" },
   { to: "/calibration", label: "Calibration" },
@@ -24,6 +28,8 @@ const NAV_ITEMS: readonly NavItem[] = [
 /** App chrome: brand, nav, theme, health chip, page outlet. */
 export function AppShell() {
   const health = useHealth();
+  const { pathname } = useLocation();
+  const isLanding = pathname === "/";
   const healthLabel = health.isSuccess
     ? `API ${health.data.status}`
     : health.isError
@@ -38,27 +44,56 @@ export function AppShell() {
       >
         Skip to content
       </a>
-      <header className="border-b border-white/10 bg-[var(--nav)] text-[var(--nav-fg)]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4">
+      <header
+        className={cn(
+          "sticky top-0 z-40 border-b backdrop-blur-xl",
+          isLanding
+            ? "border-white/10 bg-[#071216]/80 text-[#e8f2f0]"
+            : "border-[var(--border)]/80 bg-[var(--nav)]/95 text-[var(--nav-fg)]",
+        )}
+      >
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            <Link to="/" className="font-[family-name:var(--font-display)] text-2xl tracking-tight">
+            <Link
+              to="/"
+              className="font-[family-name:var(--font-display)] text-2xl tracking-tight"
+            >
               VaaniQ
             </Link>
             <div className="flex items-center gap-2">
               <span
-                className="rounded-full border border-white/20 px-3 py-1 text-xs"
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs",
+                  health.isSuccess
+                    ? "border-emerald-400/30 text-emerald-200"
+                    : "border-white/20 text-white/70",
+                )}
                 data-testid="health-chip"
                 aria-live="polite"
               >
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    health.isSuccess ? "bg-emerald-400 vaaniq-pulse-dot" : "bg-amber-400",
+                  )}
+                  aria-hidden
+                />
                 {healthLabel}
               </span>
               <ThemeToggle />
             </div>
           </div>
-          <AppNav items={NAV_ITEMS} />
+          <AppNav items={PRIMARY_NAV} />
+          <AppNav items={RESEARCH_NAV} dense />
         </div>
       </header>
-      <main id="main-content" className="vaaniq-enter mx-auto max-w-6xl px-4 py-8">
+      <main
+        id="main-content"
+        className={cn(
+          "vaaniq-enter mx-auto max-w-6xl px-4",
+          isLanding ? "py-0" : "py-8",
+        )}
+      >
         <Outlet />
       </main>
     </div>

@@ -1,0 +1,4 @@
+fold,train,test,eer,min_dcf,eer_ci_lo,eer_ci_hi
+train_mr_ta_test_hi,mr+ta,hi,0.5,2.583333333333333,0.3438419117647059,0.7172077922077922
+train_hi_ta_test_mr,hi+ta,mr,0.5,2.5,0.3621753246753247,0.7612499999999999
+train_hi_mr_test_ta,hi+mr,ta,0.5,2.5,0.3621753246753247,0.6940384615384615

@@ -1,0 +1,1 @@
+Fig. RQ4. Reliability diagram after temperature scaling (OQ-017, 15 bins).

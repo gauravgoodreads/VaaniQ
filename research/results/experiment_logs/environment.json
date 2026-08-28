@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-08-15T13:42:50.130172+00:00",
-  "git_sha": "2d49ac0af9bfb4800996e43feea3f321a10725c2",
+  "timestamp": "2026-08-27T17:59:43.353502+00:00",
+  "git_sha": "8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2",
   "git_dirty": true,
   "hf_token_present": false,
-  "ffmpeg_runnable": true,
-  "audio_files_under_data": 0,
+  "ffmpeg_runnable": false,
+  "audio_files_under_data": 121,
   "hardware": {
     "system": "Windows",
     "machine": "AMD64",
-    "processor": "AMD64 Family 25 Model 116 Stepping 1, AuthenticAMD",
-    "python": "3.11.13",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "python": "3.11.16",
     "torch": "absent",
     "cuda": "false"
   }

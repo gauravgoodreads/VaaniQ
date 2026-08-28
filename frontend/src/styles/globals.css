@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
-/* Research-tool palette: ink + sea-glass (not purple / cream-terracotta defaults). */
+/* Research instrument palette: deep ink + sea-glass (not purple / cream defaults). */
 @theme {
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Literata", ui-serif, Georgia, serif;
-  --color-ink: #0f1c24;
+  --font-sans: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --color-ink: #071216;
   --color-foam: #e8f2f0;
   --color-sea: #1f6f6a;
   --color-sea-bright: #2a9b93;
   --color-mist: #c5d7d3;
-  --color-ember: #c45c26;
+  --color-ember: #e07a3a;
 }
 
 :root {
   color-scheme: light;
-  --bg: #f3f7f6;
+  --bg: #eef4f2;
   --bg-elevated: #ffffff;
   --fg: #0f1c24;
   --fg-muted: #4a5c63;
@@ -26,22 +26,24 @@
   --nav-fg: #e8f2f0;
   --success: #1b7f5a;
   --danger: #a33b2b;
+  --ember: #c45c26;
 }
 
 .dark {
   color-scheme: dark;
-  --bg: #0b1419;
-  --bg-elevated: #132028;
-  --fg: #e8f2f0;
-  --fg-muted: #9bb0b4;
-  --border: #24353d;
-  --accent: #2a9b93;
-  --accent-fg: #061210;
-  --ring: #3db8ae;
-  --nav: #071015;
-  --nav-fg: #e8f2f0;
-  --success: #3dbe8c;
-  --danger: #e07262;
+  --bg: #0d171c;
+  --bg-elevated: #18252d;
+  --fg: #f2f7f6;
+  --fg-muted: #b7c6ca;
+  --border: #2f424b;
+  --accent: #3db8ae;
+  --accent-fg: #041210;
+  --ring: #5ad0c6;
+  --nav: #060d11;
+  --nav-fg: #f2f7f6;
+  --success: #4fd09a;
+  --danger: #ff8f7f;
+  --ember: #ff9a5c;
 }
 
 * {
@@ -60,8 +62,9 @@ body {
   background: var(--bg);
   color: var(--fg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 100% -10%, color-mix(in oklab, var(--accent) 18%, transparent), transparent),
-    radial-gradient(ellipse 60% 40% at 0% 100%, color-mix(in oklab, var(--ember, #c45c26) 10%, transparent), transparent);
+    radial-gradient(ellipse 90% 55% at 100% -15%, color-mix(in oklab, var(--accent) 16%, transparent), transparent),
+    radial-gradient(ellipse 55% 40% at -5% 105%, color-mix(in oklab, var(--ember) 12%, transparent), transparent),
+    linear-gradient(180deg, color-mix(in oklab, var(--bg) 92%, #d7ebe6), var(--bg));
 }
 
 :focus-visible {
@@ -72,7 +75,7 @@ body {
 @keyframes vaaniq-fade {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -80,12 +83,60 @@ body {
   }
 }
 
+@keyframes vaaniq-hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes vaaniq-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes vaaniq-pulse-bar {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+}
+
 .vaaniq-enter {
-  animation: vaaniq-fade 280ms ease-out;
+  animation: vaaniq-fade 320ms ease-out;
+}
+
+.vaaniq-hero-rise {
+  animation: vaaniq-hero-rise 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vaaniq-pulse-dot {
+  animation: vaaniq-pulse-dot 1.6s ease-in-out infinite;
+}
+
+.vaaniq-pulse-bar {
+  animation: vaaniq-pulse-bar 1.2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vaaniq-enter {
+  .vaaniq-enter,
+  .vaaniq-hero-rise,
+  .vaaniq-pulse-dot,
+  .vaaniq-pulse-bar {
     animation: none;
   }
 }

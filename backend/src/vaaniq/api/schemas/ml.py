@@ -21,6 +21,14 @@ class PredictionResponse(BaseModel):
     probabilities: dict[str, float]
     waveform: list[float] = Field(default_factory=list)
     spectrogram: list[list[float]] = Field(default_factory=list)
+    transcript: str = ""
+    detected_language: str | None = None
+    accent_notes: str = ""
+    language_notes: str = ""
+    risk_notes: str = ""
+    analysis_summary: str = ""
+    enrichment_backend: str = ""
+    whisper_backend: str = ""
 
 
 class UploadResponse(BaseModel):

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import FileResponse
 
 from vaaniq.api.deps import get_config, get_research_service
 from vaaniq.api.schemas.research import (
@@ -95,8 +96,21 @@ datasets_router = APIRouter(prefix="/api/v1/datasets", tags=["datasets"])
 @datasets_router.get("/explorer", response_model=DatasetExplorerResponse)
 def dataset_explorer(service: ResearchDep) -> DatasetExplorerResponse:
     """Language x label hours for the active clip pool (O1)."""
+    service.reload_pool()
     payload = service.dataset_explorer()
     return DatasetExplorerResponse.model_validate(payload)
+
+
+@datasets_router.get("/clips/{clip_id}/audio")
+def dataset_clip_audio(clip_id: str, service: ResearchDep) -> FileResponse:
+    """Stream a demo-corpus WAV for explorer / human-study playback."""
+    return service.clip_audio(clip_id)
+
+
+@datasets_router.get("/clips/{clip_id}")
+def dataset_clip_meta(clip_id: str, service: ResearchDep) -> dict[str, object]:
+    """Clip metadata for study UI."""
+    return service.clip_meta(clip_id)
 
 
 @admin_router.get("/status", response_model=AdminStatusResponse)

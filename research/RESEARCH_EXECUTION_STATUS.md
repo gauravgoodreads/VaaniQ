@@ -1,6 +1,6 @@
 # Research execution status
 
-Generated: 2026-08-15T13:42:50.130172+00:00
+Generated: 2026-08-27T17:59:43.353502+00:00
 
 Statuses: COMPLETE = actually run on curated data and validated.
 PARTIAL / PENDING / FAILED as defined in the Phase 6 prompt.
@@ -21,7 +21,7 @@ Research corpus: **0**. Schema fixture named speakers: **5**.
 ## 3. Number of clips
 
 Research corpus: **0**. Schema fixture rows: **6**.
-Audio files on disk under data trees: **0**.
+Audio files on disk under data trees: **121**.
 
 ## 4. Train / validation / test sizes
 
@@ -112,12 +112,12 @@ See `docs/KNOWN_LIMITATIONS.md` (authoritative). Not rewritten here.
 
 | Field | Value |
 |-------|--------|
-| Git SHA | `2d49ac0af9bfb4800996e43feea3f321a10725c2` |
+| Git SHA | `8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2` |
 | Dirty | True |
-| ffmpeg runnable | True |
+| ffmpeg runnable | False |
 | torch | absent |
 | cuda | false |
-| python | 3.11.13 |
+| python | 3.11.16 |
 | system | Windows AMD64 |
 | seed (unused; no train) | n/a |
 | dataset version | none (research corpus empty) |

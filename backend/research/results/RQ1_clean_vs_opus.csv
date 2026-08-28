@@ -1,0 +1,2 @@
+status,reason,model,language,condition,eer,min_dcf,accuracy,precision,recall,f1,roc_auc
+PENDING,no_curated_audio_bytes_no_cached_xlsr_embeddings,,,,,,,,,,

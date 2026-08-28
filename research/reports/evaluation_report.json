@@ -1,0 +1,24 @@
+{
+  "experiment_id": "fixture-suites",
+  "metrics": {
+    "eer": 0.25
+  },
+  "matrices": {
+    "hi": {
+      "hi": NaN,
+      "mr": 0.5,
+      "ta": 0.5
+    },
+    "mr": {
+      "hi": 0.5,
+      "mr": NaN,
+      "ta": NaN
+    },
+    "ta": {
+      "hi": NaN,
+      "mr": NaN,
+      "ta": NaN
+    }
+  },
+  "slices": {}
+}

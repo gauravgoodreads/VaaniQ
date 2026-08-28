@@ -1,0 +1,37 @@
+{
+  "experiment_id": "compress_clean",
+  "timestamp": "2026-08-28T05:11:15.837284+00:00",
+  "git_sha": "8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2",
+  "model_version": "aasist-v1",
+  "dataset_version": "fixtures",
+  "languages": [
+    "hi",
+    "mr",
+    "ta"
+  ],
+  "compression_settings": "clean",
+  "hyperparameters": {
+    "seed": "42"
+  },
+  "metrics": {
+    "eer": 0.0,
+    "accuracy": 1.0,
+    "f1": 1.0
+  },
+  "calibration_results": {},
+  "hardware": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "python": "3.11.16",
+    "torch": "2.6.0+cu124",
+    "cuda": "True"
+  },
+  "seed": 42,
+  "training_duration_sec": 0.0,
+  "rq_ids": [
+    "RQ1"
+  ],
+  "notes": "compression robustness cell",
+  "extras": {}
+}

@@ -8,23 +8,29 @@ export function WaveformView({ samples }: WaveformViewProps) {
     return <p className="text-sm text-[var(--fg-muted)]">No waveform samples.</p>;
   }
   const w = 640;
-  const h = 80;
+  const h = 96;
   const mid = h / 2;
   const step = Math.max(1, Math.floor(samples.length / w));
-  const points = samples
-    .filter((_, i) => i % step === 0)
-    .map((v, i) => `${i},${mid - v * mid}`)
-    .join(" ");
+  const pts = samples.filter((_, i) => i % step === 0);
+  const points = pts.map((v, i) => `${i},${mid - v * mid * 0.92}`).join(" ");
+  const area = `0,${h} ${points} ${pts.length - 1},${h}`;
+
   return (
     <div>
-      <p className="mb-1 text-sm text-[var(--fg-muted)]">Waveform</p>
+      <p className="mb-2 text-xs uppercase tracking-[0.16em] text-[var(--fg-muted)]">Waveform</p>
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        className="w-full max-w-3xl rounded border border-[var(--border)] bg-[var(--bg-elevated)]"
+        className="w-full max-w-3xl rounded-xl border border-[var(--border)] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--accent)_8%,transparent),transparent)]"
         role="img"
         aria-label="Waveform"
       >
-        <polyline fill="none" stroke="currentColor" strokeWidth="1" points={points} />
+        <polygon fill="color-mix(in oklab, var(--accent) 18%, transparent)" points={area} />
+        <polyline
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="1.5"
+          points={points}
+        />
       </svg>
     </div>
   );

@@ -1,6 +1,6 @@
 """Streaming window buffer (ROADMAP-055 / REQ-096).
 
-# ASSUMPTION: OQ-019 - 2.0 s window, 0.5 s hop.
+# Live windows: 3.0 s / 1.0 s hop (more stable than 2.0/0.5 for mic speech).
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ class WindowBuffer:
         self,
         *,
         sample_rate_hz: int = 16000,
-        window_sec: float = 2.0,
-        hop_sec: float = 0.5,
+        window_sec: float = 3.0,
+        hop_sec: float = 1.0,
         sample_width_bytes: int = 2,
     ) -> None:
         """Configure window/hop.

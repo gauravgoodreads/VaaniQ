@@ -199,6 +199,18 @@
             "title": "Note",
             "type": "string"
           },
+          "playable_clips": {
+            "default": 0,
+            "title": "Playable Clips",
+            "type": "integer"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetSampleClip"
+            },
+            "title": "Samples",
+            "type": "array"
+          },
           "total_clips": {
             "title": "Total Clips",
             "type": "integer"
@@ -219,6 +231,46 @@
           "note"
         ],
         "title": "DatasetExplorerResponse",
+        "type": "object"
+      },
+      "DatasetSampleClip": {
+        "additionalProperties": false,
+        "description": "One explorer sample row (demo corpus).",
+        "properties": {
+          "clip_id": {
+            "title": "Clip Id",
+            "type": "string"
+          },
+          "compression_status": {
+            "title": "Compression Status",
+            "type": "string"
+          },
+          "duration_sec": {
+            "title": "Duration Sec",
+            "type": "number"
+          },
+          "has_audio": {
+            "default": false,
+            "title": "Has Audio",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "language": {
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clip_id",
+          "language",
+          "label",
+          "compression_status",
+          "duration_sec"
+        ],
+        "title": "DatasetSampleClip",
         "type": "object"
       },
       "ExperimentCompareResponse": {
@@ -557,6 +609,16 @@
         "additionalProperties": false,
         "description": "Inference verdict payload (REQ-087-091).",
         "properties": {
+          "accent_notes": {
+            "default": "",
+            "title": "Accent Notes",
+            "type": "string"
+          },
+          "analysis_summary": {
+            "default": "",
+            "title": "Analysis Summary",
+            "type": "string"
+          },
           "compression_status": {
             "title": "Compression Status",
             "type": "string"
@@ -565,12 +627,33 @@
             "title": "Confidence",
             "type": "number"
           },
+          "detected_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected Language"
+          },
+          "enrichment_backend": {
+            "default": "",
+            "title": "Enrichment Backend",
+            "type": "string"
+          },
           "label": {
             "title": "Label",
             "type": "string"
           },
           "language": {
             "title": "Language",
+            "type": "string"
+          },
+          "language_notes": {
+            "default": "",
+            "title": "Language Notes",
             "type": "string"
           },
           "prediction_id": {
@@ -588,6 +671,11 @@
             "title": "Reliability",
             "type": "string"
           },
+          "risk_notes": {
+            "default": "",
+            "title": "Risk Notes",
+            "type": "string"
+          },
           "spectrogram": {
             "items": {
               "items": {
@@ -598,12 +686,22 @@
             "title": "Spectrogram",
             "type": "array"
           },
+          "transcript": {
+            "default": "",
+            "title": "Transcript",
+            "type": "string"
+          },
           "waveform": {
             "items": {
               "type": "number"
             },
             "title": "Waveform",
             "type": "array"
+          },
+          "whisper_backend": {
+            "default": "",
+            "title": "Whisper Backend",
+            "type": "string"
           }
         },
         "required": [
@@ -808,6 +906,92 @@
         "summary": "Calibration",
         "tags": [
           "calibration"
+        ]
+      }
+    },
+    "/api/v1/datasets/clips/{clip_id}": {
+      "get": {
+        "description": "Clip metadata for study UI.",
+        "operationId": "dataset_clip_meta_api_v1_datasets_clips__clip_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "clip_id",
+            "required": true,
+            "schema": {
+              "title": "Clip Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Dataset Clip Meta Api V1 Datasets Clips  Clip Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dataset Clip Meta",
+        "tags": [
+          "datasets"
+        ]
+      }
+    },
+    "/api/v1/datasets/clips/{clip_id}/audio": {
+      "get": {
+        "description": "Stream a demo-corpus WAV for explorer / human-study playback.",
+        "operationId": "dataset_clip_audio_api_v1_datasets_clips__clip_id__audio_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "clip_id",
+            "required": true,
+            "schema": {
+              "title": "Clip Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dataset Clip Audio",
+        "tags": [
+          "datasets"
         ]
       }
     },
@@ -1403,6 +1587,30 @@
           }
         },
         "summary": "Metrics",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/api/v1/metrics/pipeline": {
+      "get": {
+        "description": "Trained pipeline status (weights, calibration, corpus training report).",
+        "operationId": "pipeline_status_api_v1_metrics_pipeline_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Pipeline Status Api V1 Metrics Pipeline Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Pipeline Status",
         "tags": [
           "metrics"
         ]

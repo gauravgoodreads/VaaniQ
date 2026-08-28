@@ -68,6 +68,19 @@ class AdminStatusResponse(BaseModel):
     git_sha: str
 
 
+class DatasetSampleClip(BaseModel):
+    """One explorer sample row (demo corpus)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    clip_id: str
+    language: str
+    label: str
+    compression_status: str
+    duration_sec: float
+    has_audio: bool = False
+
+
 class DatasetExplorerResponse(BaseModel):
     """Dataset explorer payload (O1 / REQ-034)."""
 
@@ -81,3 +94,5 @@ class DatasetExplorerResponse(BaseModel):
     hours_by_label: dict[str, float]
     languages: list[str]
     note: str
+    playable_clips: int = 0
+    samples: list[DatasetSampleClip] = Field(default_factory=list)

@@ -2,6 +2,8 @@
 
 | Path | Role |
 |------|------|
+| [`VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md`](VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md) | **Master doc (Markdown)**: architecture, pipeline, metrics, validation, citations |
+| [`VaaniQ_Master_Presentation.docx`](VaaniQ_Master_Presentation.docx) | **Master doc (DOCX)**: live screenshots, metrics tables, PPT-ready |
 | [`../INSTALL_AND_RUN.md`](../INSTALL_AND_RUN.md) | **New PC**: clone, install, run, folder map, Windows fixes |
 | `source/` | Extracted proposal + topic-approval deck (authoritative inputs) |
 | `REQUIREMENTS.md` | REQ catalogue |

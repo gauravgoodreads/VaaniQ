@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
+from pathlib import Path
 
 import numpy as np
 import structlog
@@ -88,3 +90,30 @@ class TemperatureScaler(Calibrator):
     def get_temperature(self, language: Language, condition: CompressionCondition) -> float:
         """Return fitted T or 1.0."""
         return self._temperatures.get((language.value, condition.value), 1.0)
+
+    def save(self, path: Path) -> None:
+        """Persist fitted temperatures as JSON."""
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {f"{lang}|{cond}": t for (lang, cond), t in self._temperatures.items()}
+        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        log.info("temperatures_saved", path=str(path), n=len(payload))
+
+    def load(self, path: Path) -> None:
+        """Load temperatures from JSON written by ``save``."""
+        path = Path(path)
+        if not path.is_file():
+            raise CalibrationError(f"temperature file missing: {path}")
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        table: dict[tuple[str, str], float] = {}
+        if isinstance(raw, dict):
+            for key, value in raw.items():
+                if "|" in str(key):
+                    lang, cond = str(key).split("|", 1)
+                    table[(lang, cond)] = float(value)
+        self._temperatures = table
+        log.info("temperatures_loaded", path=str(path), n=len(table))
+
+    def as_dict(self) -> dict[str, float]:
+        """Flat language|condition → T map for API responses."""
+        return {f"{lang}|{cond}": t for (lang, cond), t in self._temperatures.items()}

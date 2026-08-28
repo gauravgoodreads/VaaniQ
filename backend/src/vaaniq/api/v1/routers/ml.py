@@ -104,6 +104,12 @@ def calibration(service: MlServiceDep) -> CalibrationResponse:
     return service.calibration_snapshot()
 
 
+@metrics_router.get("/pipeline")
+def pipeline_status(service: MlServiceDep) -> dict[str, object]:
+    """Trained pipeline status (weights, calibration, corpus training report)."""
+    return service.pipeline_status()
+
+
 @explain_router.get("", response_model=ExplainResponse)
 def explain(
     service: MlServiceDep,

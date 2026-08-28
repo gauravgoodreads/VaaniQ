@@ -738,6 +738,22 @@ export interface components {
             spectrogram?: number[][];
             /** Waveform */
             waveform?: number[];
+            /** Transcript */
+            transcript?: string;
+            /** Detected Language */
+            detected_language?: string | null;
+            /** Accent Notes */
+            accent_notes?: string;
+            /** Language Notes */
+            language_notes?: string;
+            /** Risk Notes */
+            risk_notes?: string;
+            /** Analysis Summary */
+            analysis_summary?: string;
+            /** Enrichment Backend */
+            enrichment_backend?: string;
+            /** Whisper Backend */
+            whisper_backend?: string;
         };
         /**
          * ReadyResponse

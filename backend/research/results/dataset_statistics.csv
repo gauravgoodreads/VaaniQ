@@ -1,0 +1,8 @@
+corpus_role,language,n_clips,n_speakers,hours,n_real,n_fake,audio_files_on_disk,status
+schema_fixture,hi,0,0,0.0000000000,0,0,0,FIXTURE_METADATA_ONLY
+research_corpus,hi,0,0,0.0000000000,0,0,0,PENDING
+schema_fixture,mr,0,0,0.0000000000,0,0,0,FIXTURE_METADATA_ONLY
+research_corpus,mr,0,0,0.0000000000,0,0,0,PENDING
+schema_fixture,ta,0,0,0.0000000000,0,0,0,FIXTURE_METADATA_ONLY
+research_corpus,ta,0,0,0.0000000000,0,0,0,PENDING
+schema_fixture,all,0,0,0.0000000000,0,0,0,FIXTURE_METADATA_ONLY

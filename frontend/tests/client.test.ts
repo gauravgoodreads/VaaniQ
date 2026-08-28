@@ -13,6 +13,6 @@ describe("language types", () => {
 
 describe("api client", () => {
   it("defaults API base URL when env is unset", () => {
-    expect(apiBaseUrl()).toMatch(/127\.0\.0\.1:8000|localhost|^$/);
+    expect(apiBaseUrl()).toMatch(/127\.0\.0\.1:800[01]|localhost|^$/);
   });
 });

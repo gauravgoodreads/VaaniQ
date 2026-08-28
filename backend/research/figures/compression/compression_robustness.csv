@@ -1,0 +1,4 @@
+condition,eer,accuracy,f1
+clean,0.0,1.0,1.0
+opus_16kbps,0.0,1.0,1.0
+opus_whatsapp_sim,0.0,1.0,1.0

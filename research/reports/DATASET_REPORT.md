@@ -1,7 +1,7 @@
 # Dataset report
 
-Generated: 2026-08-15T13:42:50.130172+00:00
-Git: `2d49ac0af9bfb4800996e43feea3f321a10725c2` dirty=True
+Generated: 2026-08-27T17:59:43.353502+00:00
+Git: `8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2` dirty=True
 
 ## Research corpus (authoritative)
 
@@ -12,7 +12,7 @@ Git: `2d49ac0af9bfb4800996e43feea3f321a10725c2` dirty=True
 | ta | 0 | 0 | 0 | PENDING |
 | **total** | **0** | **0** | **0** | **PENDING** |
 
-Audio files under `data/` and `backend/data/`: **0**.
+Audio files under `data/` and `backend/data/`: **121**.
 HF token present: **False**.
 Gated sources (Kathbath, IndicVoices-R, IndicSynth) were **not downloaded** (REQ-130).
 

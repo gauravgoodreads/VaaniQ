@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640.0" height="360.0" viewBox="0 0 640.0 360.0">
+  <rect width="100%" height="100%" fill="white"/>
+  <text x="320" y="24" text-anchor="middle" font-size="14">ROC (AUC=1.000)</text>
+  <polyline fill="none" stroke="#1d4ed8" stroke-width="2" points="48.0,312.0 48.0,180.0 48.0,48.0 320.0,48.0 592.0,48.0"/>
+  <text x="320" y="352" text-anchor="middle" font-size="11">False positive rate</text>
+  <text x="14" y="180" font-size="11" transform="rotate(-90 14 180)">True positive rate</text>
+  <text x="48.0" y="340" font-size="10" fill="#444">Fig. demo ROC on the logged scores. Vector SVG.</text>
+</svg>

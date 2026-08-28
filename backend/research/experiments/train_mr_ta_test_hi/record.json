@@ -1,0 +1,41 @@
+{
+  "experiment_id": "train_mr_ta_test_hi",
+  "timestamp": "2026-08-28T05:11:08.608559+00:00",
+  "git_sha": "8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2",
+  "model_version": "aasist-v1",
+  "dataset_version": "fixtures",
+  "languages": [
+    "mr",
+    "ta",
+    "hi"
+  ],
+  "compression_settings": "clean",
+  "hyperparameters": {
+    "max_epochs": "1",
+    "seed": "42"
+  },
+  "metrics": {
+    "eer": 0.5,
+    "min_dcf": 2.583333333333333,
+    "eer_ci_lo": 0.3438419117647059,
+    "eer_ci_hi": 0.7172077922077922
+  },
+  "calibration_results": {},
+  "hardware": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "python": "3.11.16",
+    "torch": "2.6.0+cu124",
+    "cuda": "True"
+  },
+  "seed": 42,
+  "training_duration_sec": 0.0,
+  "rq_ids": [
+    "RQ3"
+  ],
+  "notes": "leave-one-language-out",
+  "extras": {
+    "eer_point": 0.5
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-08-28T05:10:22.829428+00:00",
+  "git_sha": "8f439439a32f6ae9111ffeb5da367f7c7b4eb1d2",
+  "git_dirty": true,
+  "hf_token_present": false,
+  "ffmpeg_runnable": false,
+  "audio_files_under_data": 0,
+  "hardware": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "python": "3.11.16",
+    "torch": "2.6.0+cu124",
+    "cuda": "True"
+  }
+}

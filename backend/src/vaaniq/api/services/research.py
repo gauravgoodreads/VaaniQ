@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from fastapi import HTTPException
+from fastapi.responses import FileResponse
 
 from vaaniq.api.schemas.research import HumanResponseIn, ParticipantCreate
 from vaaniq.config.domains import HumanStudyProtocolConfig
@@ -22,8 +26,39 @@ from vaaniq.human_study.protocol import ParticipantSession, assign_clips, regist
 from vaaniq.human_study.stats import human_vs_model_report
 from vaaniq.research.store import ExperimentStore, collect_hardware
 
+_REPO_ROOT = Path(__file__).resolve().parents[5]
+_DEMO_CORPUS_ROOT = _REPO_ROOT / "data" / "demo_corpus"
 
-def _demo_clips() -> list[ClipMetadata]:
+
+def _parse_language(raw: str) -> Language:
+    try:
+        return Language(raw)
+    except ValueError:
+        return Language.HI
+
+
+def _parse_label(raw: str) -> Label:
+    try:
+        return Label(raw)
+    except ValueError:
+        return Label.REAL
+
+
+def _parse_compression(raw: str) -> CompressionCondition:
+    try:
+        return CompressionCondition(raw)
+    except ValueError:
+        return CompressionCondition.CLEAN
+
+
+def _parse_split(raw: str) -> Split:
+    try:
+        return Split(raw)
+    except ValueError:
+        return Split.TEST
+
+
+def _fallback_demo_clips() -> list[ClipMetadata]:
     clips: list[ClipMetadata] = []
     for lang in Language:
         for k in range(16):
@@ -45,16 +80,65 @@ def _demo_clips() -> list[ClipMetadata]:
     return clips
 
 
+def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
+    """Load generated corpus if present; else short metadata-only fallback."""
+    manifest = _DEMO_CORPUS_ROOT / "manifest.jsonl"
+    if not manifest.is_file():
+        return _fallback_demo_clips(), {}, "Metadata demo pool — run scripts/generate_demo_corpus.py for playable audio (OQ-002)."
+
+    clips: list[ClipMetadata] = []
+    audio_map: dict[str, Path] = {}
+    with manifest.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            clip_id = str(row["clip_id"])
+            uri = str(row.get("uri", f"audio/{clip_id}.wav"))
+            path = _DEMO_CORPUS_ROOT / uri
+            clips.append(
+                ClipMetadata(
+                    clip_id=clip_id,
+                    language=_parse_language(str(row.get("language", "hi"))),
+                    source=DatasetSource.TEAM_RECORDING,
+                    label=_parse_label(str(row.get("label", "real"))),
+                    compression_status=_parse_compression(
+                        str(row.get("compression_status", "clean"))
+                    ),
+                    sample_rate_hz=int(row.get("sample_rate_hz", 16000)),
+                    duration_sec=float(row.get("duration_sec", 20.0)),
+                    split=_parse_split(str(row.get("split", "test"))),
+                    dataset_source=str(row.get("dataset_source", "demo_corpus")),
+                )
+            )
+            if path.is_file():
+                audio_map[clip_id] = path
+
+    note = (
+        f"Local demo corpus ({len(clips)} playable clips under data/demo_corpus). "
+        "Synthetic audio for UI / human-study — not curated dissertation hours (OQ-002)."
+    )
+    return clips, audio_map, note
+
+
 @dataclass
 class HumanStudyState:
     """Process-local study state."""
 
     sessions: dict[str, ParticipantSession] = field(default_factory=dict)
     responses: list[dict[str, str]] = field(default_factory=list)
-    pool: list[ClipMetadata] = field(default_factory=_demo_clips)
+    pool: list[ClipMetadata] = field(default_factory=list)
+    audio_map: dict[str, Path] = field(default_factory=dict)
+    note: str = ""
 
 
-_STATE = HumanStudyState()
+def _boot_state() -> HumanStudyState:
+    pool, audio_map, note = _load_demo_clips()
+    return HumanStudyState(pool=pool, audio_map=audio_map, note=note)
+
+
+_STATE = _boot_state()
 
 
 class ResearchApiService:
@@ -64,7 +148,14 @@ class ResearchApiService:
         """Bind DI container."""
         self._c = container
         self._protocol = HumanStudyProtocolConfig()
-        self._store = ExperimentStore(root=Path("./research/experiments"))
+        self._store = ExperimentStore(root=_REPO_ROOT / "research" / "experiments")
+
+    def reload_pool(self) -> None:
+        """Reload demo corpus from disk (after generation)."""
+        pool, audio_map, note = _load_demo_clips()
+        _STATE.pool = pool
+        _STATE.audio_map = audio_map
+        _STATE.note = note
 
     def register(self, body: ParticipantCreate) -> ParticipantSession:
         """Register an anonymous volunteer."""
@@ -103,10 +194,8 @@ class ResearchApiService:
             return {"stats": {}, "n_responses": 0}
         human_pred = [1 if r["choice"] == "fake" else 0 for r in _STATE.responses]
         human_conf = [int(r["confidence_1_5"]) for r in _STATE.responses]
-        # Gold labels from demo pool
         gold = {c.clip_id: (0 if c.label.value == "real" else 1) for c in _STATE.pool}
         labels = [gold.get(r["clip_id"], 0) for r in _STATE.responses]
-        # Placeholder model scores: slightly shifted human answers (CI-safe)
         model_scores = [min(0.99, max(0.01, p * 0.8 + 0.1)) for p in human_pred]
         stats = human_vs_model_report(
             human_pred=human_pred,
@@ -130,8 +219,21 @@ class ResearchApiService:
         return self._store.git_sha()
 
     def dataset_explorer(self) -> dict[str, object]:
-        """Language/label hours for the demo pool (O1 / REQ-034)."""
+        """Language/label hours for the active clip pool (O1 / REQ-034)."""
+        if not _STATE.pool:
+            self.reload_pool()
         stats = DatasetStatistics.compute(_STATE.pool)
+        samples = [
+            {
+                "clip_id": c.clip_id,
+                "language": c.language.value,
+                "label": c.label.value,
+                "compression_status": c.compression_status.value,
+                "duration_sec": c.duration_sec,
+                "has_audio": c.clip_id in _STATE.audio_map,
+            }
+            for c in _STATE.pool[:24]
+        ]
         return {
             "total_clips": stats.total_clips,
             "total_hours": stats.total_hours,
@@ -140,8 +242,31 @@ class ResearchApiService:
             "counts_by_label": {lab.value: n for lab, n in stats.counts_by_label.items()},
             "hours_by_label": {lab.value: h for lab, h in stats.hours_by_label.items()},
             "languages": [lang.value for lang in Language],
-            "note": "Demo pool until curated manifests are ingested (OQ-002).",
+            "note": _STATE.note,
+            "playable_clips": len(_STATE.audio_map),
+            "samples": samples,
         }
+
+    def clip_audio(self, clip_id: str) -> FileResponse:
+        """Serve a demo corpus WAV for explorer / human study."""
+        path = _STATE.audio_map.get(clip_id)
+        if path is None or not path.is_file():
+            raise HTTPException(status_code=404, detail=f"audio not found for clip_id={clip_id}")
+        return FileResponse(path, media_type="audio/wav", filename=f"{clip_id}.wav")
+
+    def clip_meta(self, clip_id: str) -> dict[str, object]:
+        """Metadata for one study / explorer clip."""
+        for c in _STATE.pool:
+            if c.clip_id == clip_id:
+                return {
+                    "clip_id": c.clip_id,
+                    "language": c.language.value,
+                    "label": c.label.value,
+                    "compression_status": c.compression_status.value,
+                    "duration_sec": c.duration_sec,
+                    "has_audio": clip_id in _STATE.audio_map,
+                }
+        raise HTTPException(status_code=404, detail=f"unknown clip_id={clip_id}")
 
     def search_experiments(
         self,

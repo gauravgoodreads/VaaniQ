@@ -1,0 +1,1 @@
+Fig. RQ4. Histogram of max-class confidence after calibration.

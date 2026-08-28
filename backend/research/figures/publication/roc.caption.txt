@@ -1,0 +1,1 @@
+Fig. demo ROC on the logged scores. Vector SVG.

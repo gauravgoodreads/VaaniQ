@@ -6,8 +6,10 @@ No global singletons (vaaniq-core.mdc).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
+import structlog
 
 from vaaniq.audio.compression.ffmpeg_opus import FFmpegOpusCompressor
 from vaaniq.audio.io.soundfile_loader import SoundFileLoader
@@ -29,6 +31,7 @@ from vaaniq.core.ports.human_study_exporter import HumanStudyExporter
 from vaaniq.core.ports.object_store import ObjectStore
 from vaaniq.core.ports.preprocessor import Preprocessor
 from vaaniq.explainability.freq_importance import CompositeExplainer
+from vaaniq.features.acoustic import acoustic_embedding
 from vaaniq.features.cache.filesystem import FilesystemEmbeddingCache
 from vaaniq.features.xlsr.extractor import FrozenXLSRExtractor
 from vaaniq.human_study.exporter import CsvHumanStudyExporter
@@ -39,32 +42,12 @@ from vaaniq.training.tracker import FileExperimentTracker
 
 
 def _stats_embedding_backend(wav: Waveform) -> np.ndarray:
-    """Deterministic demo embedding without HF weights (CI / local).
+    """Deterministic acoustic embedding without HF XLS-R weights (CI / local)."""
+    return acoustic_embedding(wav, dim=1024)
 
-    Produces a 1024-D vector from waveform moments so AASIST can run offline.
-    """
-    samples = np.asarray(wav.samples, dtype=np.float32).reshape(-1)
-    dim = 1024
-    vec = np.zeros(dim, dtype=np.float32)
-    if samples.size == 0:
-        return vec
-    stats = np.array(
-        [
-            float(np.mean(samples)),
-            float(np.std(samples)),
-            float(np.max(samples)),
-            float(np.min(samples)),
-            float(np.mean(np.abs(samples))),
-            float(np.mean(np.square(samples))),
-        ],
-        dtype=np.float32,
-    )
-    vec[: stats.size] = stats
-    n_fft = min(512, samples.size)
-    spec = np.abs(np.fft.rfft(samples[:n_fft]))
-    n = min(dim - 16, spec.size)
-    vec[16 : 16 + n] = spec[:n].astype(np.float32)
-    return vec
+
+def _default_checkpoint_path() -> Path:
+    return Path(__file__).resolve().parents[3] / "models" / "checkpoints" / "xlsr_aasist" / "aasist-v1.npz"
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,9 +82,25 @@ def build_container(config: AppConfig) -> AppContainer:
     Returns:
         AppContainer with concrete adapters for the ML pipeline.
     """
+    log = structlog.get_logger(__name__)
     embedding_cache = FilesystemEmbeddingCache(config.paths.embedding_cache_root)
     extractor = FrozenXLSRExtractor(cache=embedding_cache, backend=_stats_embedding_backend)
     classifier = AASISTClassifier()
+    ckpt = _default_checkpoint_path()
+    if ckpt.is_file():
+        try:
+            classifier.load(ckpt)
+            log.info("aasist_weights_autoloaded", path=str(ckpt))
+        except Exception as exc:
+            log.warning("aasist_autoload_failed", path=str(ckpt), error=str(exc))
+    calibrator = TemperatureScaler()
+    temp_path = ckpt.with_name("temperatures.json")
+    if temp_path.is_file():
+        try:
+            calibrator.load(temp_path)
+            log.info("temperatures_autoloaded", path=str(temp_path))
+        except Exception as exc:
+            log.warning("temperature_autoload_failed", path=str(temp_path), error=str(exc))
     registry = ModelRegistry()
     registry.register("aasist-v1", classifier, "Primary XLS-R + AASIST head (REQ-038)")
     return AppContainer(
@@ -113,7 +112,7 @@ def build_container(config: AppConfig) -> AppContainer:
         feature_extractor=extractor,
         embedding_cache=embedding_cache,
         classifier=classifier,
-        calibrator=TemperatureScaler(),
+        calibrator=calibrator,
         explainer=CompositeExplainer(),
         object_store=LocalObjectStore(config.paths.object_store_root),
         experiment_tracker=FileExperimentTracker(
