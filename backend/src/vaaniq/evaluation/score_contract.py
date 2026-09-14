@@ -1,4 +1,4 @@
-﻿"""Canonical detector score contract (REQ-046-053)."""
+"""Canonical detector score contract (REQ-046-053)."""
 
 from __future__ import annotations
 
@@ -93,4 +93,3 @@ def mean_scores_by_label(
         "mean_score_real": round(float(np.mean(real)), 4) if real else 0.0,
         "mean_score_fake": round(float(np.mean(fake)), 4) if fake else 0.0,
     }
-

@@ -821,9 +821,7 @@ def _write_artifact_inventory(output_root: Path, repo_root: Path, env: dict[str,
     explain = repo_root / "backend" / "research" / "explain"
     if explain.is_dir():
         for path in sorted(explain.glob("*.json")):
-            rows.append(
-                (path.relative_to(repo_root).as_posix(), "demo_inference", "not_rq_result")
-            )
+            rows.append((path.relative_to(repo_root).as_posix(), "demo_inference", "not_rq_result"))
     for rel in (
         "research/figures/README.md",
         "research/paper/README.md",

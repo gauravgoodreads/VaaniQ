@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from vaaniq.research.artifacts import sync_baseline_v1_from_train_report
 from vaaniq.research.calibration_audit import run_calibration_audit
 from vaaniq.research.integrity import verify_research_integrity
 from vaaniq.research.split_diagnostics import (
@@ -45,7 +44,6 @@ def test_integrity_verification_on_repo(repo_root: Path | None = None) -> None:
     report_path = root / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
     if not report_path.is_file():
         pytest.skip("train_report.json not present locally")
-    sync_baseline_v1_from_train_report(root)
     report = verify_research_integrity(root)
     assert "ok" in report
     assert report.get("n_manifest_clips", 0) >= 0

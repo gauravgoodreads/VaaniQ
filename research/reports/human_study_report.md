@@ -2,32 +2,44 @@
 
 **RQ:** RQ5  
 **Objective:** O6  
-**Proposal:** §7.6
+**Proposal:** §7.6 / ROADMAP-059
 
 ## Summary
 
-Software protocol, export, and human-vs-model statistics.
+Complete listening-test **protocol and software** are implemented. **Participant data have not been collected (N=0).** No human accuracy, confidence, ECE, Brier, or McNemar-versus-model result is claimed. Fabricating listener outcomes would be research misconduct.
 
-## Tables
+## Protocol (implemented)
+
+| Element | Spec |
+|---------|------|
+| Clips / session | 36 (`configs/human_study/protocol.yaml`) |
+| Session cap | ≤25 minutes |
+| Confidence | 1–5 |
+| Languages | hi, mr, ta |
+| Privacy | Anonymous UUID; PII stripped on export |
+| UI | `/human-study` |
+| API | register / response / export / report |
+
+## Results (actual)
 
 ```json
 {
-  "n_responses": 0
+  "n_participants": 0,
+  "n_responses": 0,
+  "status": "BLOCKED_ON_HUMAN_DATA"
 }
 ```
 
-## Figures
+## Literature context (not VaaniQ results)
 
-- (none)
+Müller et al. report ~72.8% human accuracy vs strong ML on ASVspoof-style tasks. Those figures are **background only** and must not be substituted for VaaniQ participants.
 
-## Research observations
+## Target for completion
 
-- Anonymous IDs only (REQ-069). Clip count from OQ-011.
+Proposal success floor: ≥12–15 collected responses on shared stimuli (target ~20–30). Recruit Tamil-fluent listeners if available (OQ-025).
 
-## Limitations
+```bash
+make analyze-human-study
+```
 
-- N>=12-15 responses not collected in CI (ROADMAP-060).
-
-## Future work
-
-- Recruit TA-fluent listeners if available (OQ-025).
+Run analysis only after real responses exist.

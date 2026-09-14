@@ -19,7 +19,6 @@ const RESEARCH_NAV: readonly NavItem[] = [
   { to: "/experiments", label: "Experiments" },
   { to: "/calibration", label: "Calibration" },
   { to: "/explainability", label: "Explain" },
-  { to: "/human-study", label: "Human study" },
   { to: "/datasets", label: "Datasets" },
   { to: "/admin", label: "Admin" },
   { to: "/docs", label: "Docs" },

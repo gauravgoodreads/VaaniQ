@@ -44,6 +44,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/datasets/clips/{clip_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dataset Clip Meta
+         * @description Clip metadata for study UI.
+         */
+        get: operations["dataset_clip_meta_api_v1_datasets_clips__clip_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/datasets/clips/{clip_id}/audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dataset Clip Audio
+         * @description Stream a demo-corpus WAV for explorer / human-study playback.
+         */
+        get: operations["dataset_clip_audio_api_v1_datasets_clips__clip_id__audio_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/datasets/explorer": {
         parameters: {
             query?: never;
@@ -364,6 +404,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/metrics/pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pipeline Status
+         * @description Trained pipeline status (weights, calibration, corpus training report).
+         */
+        get: operations["pipeline_status_api_v1_metrics_pipeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/uploads": {
         parameters: {
             query?: never;
@@ -478,6 +538,11 @@ export interface components {
              * @default aasist-v1
              */
             model_id: string;
+            /**
+             * Source
+             * @default file
+             */
+            source: string;
             /** Upload Id */
             upload_id?: string | null;
         };
@@ -540,10 +605,38 @@ export interface components {
             languages: string[];
             /** Note */
             note: string;
+            /**
+             * Playable Clips
+             * @default 0
+             */
+            playable_clips: number;
+            /** Samples */
+            samples?: components["schemas"]["DatasetSampleClip"][];
             /** Total Clips */
             total_clips: number;
             /** Total Hours */
             total_hours: number;
+        };
+        /**
+         * DatasetSampleClip
+         * @description One explorer sample row (demo corpus).
+         */
+        DatasetSampleClip: {
+            /** Clip Id */
+            clip_id: string;
+            /** Compression Status */
+            compression_status: string;
+            /** Duration Sec */
+            duration_sec: number;
+            /**
+             * Has Audio
+             * @default false
+             */
+            has_audio: boolean;
+            /** Label */
+            label: string;
+            /** Language */
+            language: string;
         };
         /**
          * ExperimentCompareResponse
@@ -718,14 +811,47 @@ export interface components {
          * @description Inference verdict payload (REQ-087-091).
          */
         PredictionResponse: {
+            /**
+             * Accent Notes
+             * @default
+             */
+            accent_notes: string;
+            /**
+             * Analysis Summary
+             * @default
+             */
+            analysis_summary: string;
             /** Compression Status */
             compression_status: string;
             /** Confidence */
             confidence: number;
+            /**
+             * Decision Policy
+             * @default model_threshold_0.5
+             */
+            decision_policy: string;
+            /** Detected Language */
+            detected_language?: string | null;
+            /**
+             * Enrichment Backend
+             * @default
+             */
+            enrichment_backend: string;
             /** Label */
             label: string;
             /** Language */
             language: string;
+            /**
+             * Language Notes
+             * @default
+             */
+            language_notes: string;
+            /** Limitations */
+            limitations?: string[];
+            /** Model Probabilities */
+            model_probabilities?: {
+                [key: string]: number;
+            };
             /** Prediction Id */
             prediction_id: string;
             /** Probabilities */
@@ -734,26 +860,30 @@ export interface components {
             };
             /** Reliability */
             reliability: string;
+            /**
+             * Risk Notes
+             * @default
+             */
+            risk_notes: string;
             /** Spectrogram */
             spectrogram?: number[][];
+            /**
+             * Transcript
+             * @default
+             */
+            transcript: string;
+            /**
+             * Translation
+             * @default
+             */
+            translation: string;
             /** Waveform */
             waveform?: number[];
-            /** Transcript */
-            transcript?: string;
-            /** Detected Language */
-            detected_language?: string | null;
-            /** Accent Notes */
-            accent_notes?: string;
-            /** Language Notes */
-            language_notes?: string;
-            /** Risk Notes */
-            risk_notes?: string;
-            /** Analysis Summary */
-            analysis_summary?: string;
-            /** Enrichment Backend */
-            enrichment_backend?: string;
-            /** Whisper Backend */
-            whisper_backend?: string;
+            /**
+             * Whisper Backend
+             * @default
+             */
+            whisper_backend: string;
         };
         /**
          * ReadyResponse
@@ -864,6 +994,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CalibrationResponse"];
+                };
+            };
+        };
+    };
+    dataset_clip_meta_api_v1_datasets_clips__clip_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dataset_clip_audio_api_v1_datasets_clips__clip_id__audio_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1301,6 +1495,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MetricsResponse"];
+                };
+            };
+        };
+    };
+    pipeline_status_api_v1_metrics_pipeline_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

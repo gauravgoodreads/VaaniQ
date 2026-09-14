@@ -6,6 +6,7 @@ import { apiBaseUrl, ApiError } from "@/api/client";
 import type { PredictionResponse } from "@/api/types";
 import { HonestyBanner, PageHeader, Surface } from "@/components/layout/PageChrome";
 import { Button } from "@/components/ui/button";
+import { LIVE_MIC_CONSTRAINTS } from "@/lib/audio/wav";
 import { PredictionPanel } from "@/pages/UploadPage";
 
 type LivePred = { label: string; confidence: number; at: string };
@@ -63,7 +64,7 @@ export function LivePage() {
     }
 
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      audio: LIVE_MIC_CONSTRAINTS,
     });
     streamRef.current = stream;
     const ctx = new AudioContext({ sampleRate: 16000 });
@@ -87,7 +88,10 @@ export function LivePage() {
     };
 
     source.connect(processor);
-    processor.connect(ctx.destination);
+    const mute = ctx.createGain();
+    mute.gain.value = 0;
+    processor.connect(mute);
+    mute.connect(ctx.destination);
     setStreaming(true);
   }
 
@@ -141,6 +145,7 @@ export function LivePage() {
     body.append("file", file);
     body.append("language", language);
     body.append("model_id", "aasist-v1");
+    body.append("source", "mic");
     const res = await fetch(`${apiBaseUrl()}/api/v1/inference`, { method: "POST", body });
     if (!res.ok) throw new ApiError("Inference failed", res.status);
     setFinalResult((await res.json()) as PredictionResponse);
@@ -159,9 +164,8 @@ export function LivePage() {
         subtitle="Speak into the mic for sliding-window detection, then run a full Whisper + calibrated pass."
       />
       <HonestyBanner>
-        Live windows (~3s) skip silence and need stronger fake evidence before labeling FAKE. Your
-        voice should read as real. Final detect adds Whisper (Groq or local) and optional Groq LLM
-        notes when <code>GROQ_API_KEY</code> is set.
+        Live windows skip silence. Their microphone-domain heuristic has not been validated
+        as a research result; use uploaded benchmark files for reproducible evaluation.
       </HonestyBanner>
 
       <Surface title="Stream">

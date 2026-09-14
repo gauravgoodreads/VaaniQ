@@ -99,8 +99,7 @@ def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
     manifest = root / "manifest.jsonl"
     if not manifest.is_file():
         note = (
-            "Metadata demo pool - run scripts/generate_demo_corpus.py "
-            "for playable audio (OQ-002)."
+            "Metadata demo pool - run scripts/generate_demo_corpus.py for playable audio (OQ-002)."
         )
         return _fallback_demo_clips(), {}, note
 

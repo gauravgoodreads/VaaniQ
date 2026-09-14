@@ -72,6 +72,26 @@ export async function blobToWavFile(
   }
 }
 
+/** Concatenate PCM chunks from ScriptProcessor capture. */
+export function concatFloat32(chunks: Float32Array[]): Float32Array {
+  const total = chunks.reduce((n, c) => n + c.length, 0);
+  const out = new Float32Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return out;
+}
+
+/** Raw mic constraints — AEC/NS smear the spectrum toward "synthetic". */
+export const LIVE_MIC_CONSTRAINTS: MediaTrackConstraints = {
+  channelCount: 1,
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
+};
+
 /** Pick the best MediaRecorder MIME the browser supports. */
 export function preferredRecorderMime(): string | undefined {
   if (typeof MediaRecorder === "undefined") return undefined;

@@ -2,6 +2,7 @@
 
 | Path | Role |
 |------|------|
+| [`AUDIO_PREPROCESSING_COMPLETE.md`](AUDIO_PREPROCESSING_COMPLETE.md) | **Complete corpus, waveform, codec, feature, split, and calibration preprocessing record** |
 | [`VaaniQ_Master_Presentation_FINAL_v2.docx`](VaaniQ_Master_Presentation_FINAL_v2.docx) | **Master defense document (DOCX)** |
 | [`VaaniQ_IEEE_Research_Paper_Final.docx`](VaaniQ_IEEE_Research_Paper_Final.docx) | **Final IEEE-style paper (DOCX)** |
 | [`VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md`](VaaniQ_COMPLETE_PROJECT_DOCUMENTATION.md) | Archived pre-Round-3 engineering snapshot |

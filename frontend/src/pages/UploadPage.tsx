@@ -13,11 +13,16 @@ import { WaveformView } from "@/components/viz/WaveformView";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { cn } from "@/lib/utils";
 
-async function postInference(file: File, language: string): Promise<PredictionResponse> {
+async function postInference(
+  file: File,
+  language: string,
+  source: "file" | "mic",
+): Promise<PredictionResponse> {
   const body = new FormData();
   body.append("file", file);
   body.append("language", language);
   body.append("model_id", "aasist-v1");
+  body.append("source", source);
   const response = await fetch(`${apiBaseUrl()}/api/v1/inference`, {
     method: "POST",
     body,
@@ -46,7 +51,7 @@ export function UploadPage() {
   const mutation = useMutation({
     mutationFn: () => {
       if (!activeFile) throw new Error("No audio selected");
-      return postInference(activeFile, language);
+      return postInference(activeFile, language, source);
     },
   });
 
@@ -57,8 +62,8 @@ export function UploadPage() {
           Upload
         </h1>
         <p className="text-lg text-[var(--fg-muted)]">
-          Record up to two minutes of speech, or drop an existing clip - then run Opus-aware
-          deepfake detection with calibrated reliability.
+          Record up to two minutes of speech, or upload an existing clip for calibrated
+          deepfake detection. Microphone results include a separate domain-policy disclosure.
         </p>
       </header>
 
@@ -148,6 +153,8 @@ export function PredictionPanel({ data }: { data: PredictionResponse }) {
     data.label === "fake" || data.label === "ai" || data.label === "spoof"
       ? "text-[var(--danger)]"
       : "text-[var(--success)]";
+  const pReal = data.probabilities.real ?? data.probabilities.bonafide;
+  const pFake = data.probabilities.fake ?? data.probabilities.spoof;
 
   return (
     <div className="vaaniq-enter space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-6 text-[var(--fg)]">
@@ -172,9 +179,47 @@ export function PredictionPanel({ data }: { data: PredictionResponse }) {
             </div>
             <Stat label="Compression" value={data.compression_status} />
           </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Stat
+              label="P(real)"
+              value={typeof pReal === "number" ? pReal.toFixed(4) : "-"}
+            />
+            <Stat
+              label="P(fake)"
+              value={typeof pFake === "number" ? pFake.toFixed(4) : "-"}
+            />
+            <Stat label="Confidence" value={data.confidence.toFixed(4)} />
+          </div>
+          <p className="text-xs text-[var(--fg-muted)]">
+            Decision policy: <code>{data.decision_policy ?? "model_threshold_0.5"}</code>
+          </p>
         </div>
         <ConfidenceGauge value={data.confidence} />
       </div>
+
+      {(data.limitations ?? []).length > 0 ? (
+        <div
+          className="border-l-2 border-[var(--ember)] bg-[var(--bg)]/50 px-4 py-3 text-sm"
+          role="note"
+        >
+          {(data.limitations ?? []).map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </div>
+      ) : null}
+
+      {Object.keys(data.model_probabilities ?? {}).length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Stat
+            label="Raw model P(real)"
+            value={(data.model_probabilities?.real ?? 0).toFixed(4)}
+          />
+          <Stat
+            label="Raw model P(fake)"
+            value={(data.model_probabilities?.fake ?? 0).toFixed(4)}
+          />
+        </div>
+      ) : null}
 
       {(data.analysis_summary || data.transcript || data.accent_notes) && (
         <div className="grid gap-4 md:grid-cols-2">
@@ -204,12 +249,21 @@ export function PredictionPanel({ data }: { data: PredictionResponse }) {
         </div>
       )}
 
-      {data.transcript ? (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)]/50 p-4">
-          <p className="text-xs uppercase tracking-[0.16em] text-[var(--fg-muted)]">Transcript</p>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{data.transcript}</p>
-        </div>
-      ) : null}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)]/50 p-4">
+        <p className="text-xs uppercase tracking-[0.16em] text-[var(--fg-muted)]">Transcript</p>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+          {data.transcript || "-"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)]/50 p-4">
+        <p className="text-xs uppercase tracking-[0.16em] text-[var(--fg-muted)]">
+          Translation (English)
+        </p>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+          {data.translation || "-"}
+        </p>
+      </div>
 
       <WaveformView samples={data.waveform ?? []} />
       <SpectrogramView matrix={data.spectrogram ?? []} />

@@ -58,10 +58,10 @@ def get_integration_settings() -> IntegrationSettings:
         whisper_backend=_env("VAANIQ_WHISPER_BACKEND", "auto") or "auto",
         groq_whisper_model=_env("VAANIQ_GROQ_WHISPER_MODEL", "whisper-large-v3")
         or "whisper-large-v3",
-        groq_llm_model=_env("VAANIQ_GROQ_LLM_MODEL", "openai/gpt-oss-20b")
-        or "openai/gpt-oss-20b",
+        groq_llm_model=_env("VAANIQ_GROQ_LLM_MODEL", "openai/gpt-oss-20b") or "openai/gpt-oss-20b",
         local_whisper_model=_env("VAANIQ_LOCAL_WHISPER_MODEL", "base") or "base",
-        enable_llm_enrichment=(_env("VAANIQ_LLM_ENRICHMENT", "1") or "1") not in {
+        enable_llm_enrichment=(_env("VAANIQ_LLM_ENRICHMENT", "1") or "1")
+        not in {
             "0",
             "false",
             "False",

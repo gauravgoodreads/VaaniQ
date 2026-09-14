@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { blobToWavFile, preferredRecorderMime } from "@/lib/audio/wav";
+import { concatFloat32, encodeWavMono, LIVE_MIC_CONSTRAINTS } from "@/lib/audio/wav";
 
 export type RecorderStatus = "idle" | "recording" | "processing" | "ready" | "error";
 
@@ -30,7 +30,7 @@ type UseVoiceRecorderResult = {
 
 const DEFAULT_MAX = 120;
 
-/** Long-form microphone capture → WAV file for VaaniQ upload/inference. */
+/** Long-form microphone capture → uncompressed WAV (no Opus). */
 export function useVoiceRecorder(
   options: UseVoiceRecorderOptions = {},
 ): UseVoiceRecorderResult {
@@ -41,27 +41,22 @@ export function useVoiceRecorder(
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState<VoiceRecording | null>(null);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<BlobPart[]>([]);
+  const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const chunksRef = useRef<Float32Array[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const sampleRateRef = useRef(16000);
   const tickRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
-  const stopPromiseRef = useRef<((blob: Blob) => void) | null>(null);
+  const recordingRef = useRef<VoiceRecording | null>(null);
 
   const isSupported =
     typeof window !== "undefined" &&
     typeof navigator !== "undefined" &&
     Boolean(navigator.mediaDevices?.getUserMedia) &&
-    typeof MediaRecorder !== "undefined";
+    typeof AudioContext !== "undefined";
 
-  const cleanupMeters = useCallback(() => {
-    if (rafRef.current != null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
+  const cleanupTick = useCallback(() => {
     if (tickRef.current != null) {
       window.clearInterval(tickRef.current);
       tickRef.current = null;
@@ -70,73 +65,50 @@ export function useVoiceRecorder(
   }, []);
 
   const releaseStream = useCallback(async () => {
-    cleanupMeters();
+    cleanupTick();
+    processorRef.current?.disconnect();
+    processorRef.current = null;
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
-    mediaRecorderRef.current = null;
     if (audioCtxRef.current) {
       await audioCtxRef.current.close().catch(() => undefined);
       audioCtxRef.current = null;
-      analyserRef.current = null;
     }
-  }, [cleanupMeters]);
+  }, [cleanupTick]);
 
   const reset = useCallback(() => {
     void releaseStream();
-    if (recording?.objectUrl) URL.revokeObjectURL(recording.objectUrl);
+    if (recordingRef.current?.objectUrl) URL.revokeObjectURL(recordingRef.current.objectUrl);
+    recordingRef.current = null;
     setRecording(null);
     setElapsedSec(0);
     setError(null);
     setStatus("idle");
-  }, [recording, releaseStream]);
+  }, [releaseStream]);
 
   useEffect(() => {
     return () => {
       void releaseStream();
-      if (recording?.objectUrl) URL.revokeObjectURL(recording.objectUrl);
+      if (recordingRef.current?.objectUrl) URL.revokeObjectURL(recordingRef.current.objectUrl);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount only
-  }, []);
-
-  const startMeter = useCallback((stream: MediaStream) => {
-    const ctx = new AudioContext();
-    audioCtxRef.current = ctx;
-    const source = ctx.createMediaStreamSource(stream);
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    source.connect(analyser);
-    analyserRef.current = analyser;
-    const data = new Uint8Array(analyser.frequencyBinCount);
-
-    const loop = () => {
-      analyser.getByteTimeDomainData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i += 1) {
-        const v = ((data[i] ?? 128) - 128) / 128;
-        sum += v * v;
-      }
-      setLevel(Math.min(1, Math.sqrt(sum / data.length) * 3));
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-  }, []);
+  }, [releaseStream]);
 
   const stop = useCallback(async () => {
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state === "inactive") return;
-
+    if (!processorRef.current) return;
     setStatus("processing");
-    const blob = await new Promise<Blob>((resolve) => {
-      stopPromiseRef.current = resolve;
-      recorder.stop();
-    });
     const durationSec = Math.max(0.1, (Date.now() - startedAtRef.current) / 1000);
+    const samples = concatFloat32(chunksRef.current);
+    const rate = sampleRateRef.current;
     await releaseStream();
-
     try {
-      const file = await blobToWavFile(blob, `vaaniq-recording-${Date.now()}.wav`);
+      const wav = encodeWavMono(samples, rate);
+      const file = new File([wav], `vaaniq-recording-${Date.now()}.wav`, {
+        type: "audio/wav",
+      });
       const objectUrl = URL.createObjectURL(file);
-      setRecording({ file, durationSec, objectUrl });
+      const next = { file, durationSec, objectUrl };
+      recordingRef.current = next;
+      setRecording(next);
       setElapsedSec(durationSec);
       setStatus("ready");
     } catch (err) {
@@ -152,41 +124,41 @@ export function useVoiceRecorder(
       return;
     }
     setError(null);
-    if (recording?.objectUrl) URL.revokeObjectURL(recording.objectUrl);
+    if (recordingRef.current?.objectUrl) URL.revokeObjectURL(recordingRef.current.objectUrl);
+    recordingRef.current = null;
     setRecording(null);
     chunksRef.current = [];
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          channelCount: 1,
-        },
+        audio: LIVE_MIC_CONSTRAINTS,
       });
       streamRef.current = stream;
-      const mime = preferredRecorderMime();
-      const recorder = mime
-        ? new MediaRecorder(stream, { mimeType: mime })
-        : new MediaRecorder(stream);
-      mediaRecorderRef.current = recorder;
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
+      const ctx = new AudioContext({ sampleRate: 16000 });
+      audioCtxRef.current = ctx;
+      sampleRateRef.current = ctx.sampleRate;
+      const source = ctx.createMediaStreamSource(stream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      processorRef.current = processor;
+      processor.onaudioprocess = (ev) => {
+        const input = ev.inputBuffer.getChannelData(0);
+        chunksRef.current.push(new Float32Array(input));
+        let sum = 0;
+        for (let i = 0; i < input.length; i += 1) {
+          const s = input[i] ?? 0;
+          sum += s * s;
+        }
+        setLevel(Math.min(1, Math.sqrt(sum / input.length) * 3));
       };
-      recorder.onstop = () => {
-        const type = recorder.mimeType || "audio/webm";
-        const blob = new Blob(chunksRef.current, { type });
-        stopPromiseRef.current?.(blob);
-        stopPromiseRef.current = null;
-      };
+      const mute = ctx.createGain();
+      mute.gain.value = 0;
+      source.connect(processor);
+      processor.connect(mute);
+      mute.connect(ctx.destination);
 
       startedAtRef.current = Date.now();
       setElapsedSec(0);
       setStatus("recording");
-      recorder.start(250);
-      startMeter(stream);
-
       tickRef.current = window.setInterval(() => {
         const elapsed = (Date.now() - startedAtRef.current) / 1000;
         setElapsedSec(elapsed);
@@ -197,13 +169,11 @@ export function useVoiceRecorder(
     } catch (err) {
       await releaseStream();
       setError(
-        err instanceof Error
-          ? err.message
-          : "Microphone permission denied or unavailable.",
+        err instanceof Error ? err.message : "Microphone permission denied or unavailable.",
       );
       setStatus("error");
     }
-  }, [isSupported, maxDurationSec, recording, releaseStream, startMeter, stop]);
+  }, [isSupported, maxDurationSec, releaseStream, stop]);
 
   return {
     status,

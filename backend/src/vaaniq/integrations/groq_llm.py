@@ -20,6 +20,7 @@ class EnrichmentResult:
     accent_notes: str
     language_notes: str
     risk_notes: str
+    translation: str
     backend: str
 
 
@@ -52,8 +53,9 @@ def enrich_with_groq(
         f"Detector verdict: {label} (confidence={confidence:.3f}, reliability={reliability}).\n"
         f"Declared/hint language: {language}.\n"
         f"Transcript (may be empty or noisy):\n'''{transcript[:2500]}'''\n\n"
-        "Reply in exactly 4 short lines with these prefixes:\n"
+        "Reply in exactly 5 short lines with these prefixes:\n"
         "SUMMARY:\n"
+        "TRANSLATION: (faithful English translation of the transcript; if empty say none)\n"
         "ACCENT:\n"
         "LANGUAGE:\n"
         "RISK:\n"
@@ -81,7 +83,7 @@ def enrich_with_groq(
         log.warning("groq_llm_failed", error=str(exc))
         return None
 
-    parsed = {"SUMMARY": "", "ACCENT": "", "LANGUAGE": "", "RISK": ""}
+    parsed = {"SUMMARY": "", "TRANSLATION": "", "ACCENT": "", "LANGUAGE": "", "RISK": ""}
     current = None
     for line in str(content).splitlines():
         raw = line.strip()
@@ -100,6 +102,7 @@ def enrich_with_groq(
         accent_notes=parsed["ACCENT"] or "Accent cues inconclusive from transcript alone.",
         language_notes=parsed["LANGUAGE"] or f"Treating clip as {language}.",
         risk_notes=parsed["RISK"] or "No clear fraud-pattern language detected.",
+        translation=parsed["TRANSLATION"],
         backend=f"groq:{cfg.groq_llm_model}",
     )
 
@@ -145,5 +148,6 @@ def heuristic_enrichment(
         ),
         language_notes=f"Active language channel: {language} (hi / mr / ta).",
         risk_notes=risk,
+        translation="",
         backend="heuristic-offline",
     )

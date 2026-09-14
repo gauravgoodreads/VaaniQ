@@ -1,4 +1,4 @@
-﻿"""Unit tests for canonical score contract."""
+"""Unit tests for canonical score contract."""
 
 from __future__ import annotations
 

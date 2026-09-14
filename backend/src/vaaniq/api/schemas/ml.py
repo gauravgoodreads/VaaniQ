@@ -19,9 +19,13 @@ class PredictionResponse(BaseModel):
     language: str
     compression_status: str
     probabilities: dict[str, float]
+    model_probabilities: dict[str, float] = Field(default_factory=dict)
+    decision_policy: str = "model_threshold_0.5"
+    limitations: list[str] = Field(default_factory=list)
     waveform: list[float] = Field(default_factory=list)
     spectrogram: list[list[float]] = Field(default_factory=list)
     transcript: str = ""
+    translation: str = ""
     detected_language: str | None = None
     accent_notes: str = ""
     language_notes: str = ""

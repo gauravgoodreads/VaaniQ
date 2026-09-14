@@ -4,11 +4,23 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from vaaniq.api import create_app
 from vaaniq.api.services.ml_demo import write_sine_wav
 from vaaniq.config.models import ApiConfig, AppConfig, PathsConfig
+from vaaniq.integrations.settings import get_integration_settings
+
+
+@pytest.fixture
+def offline_integrations(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the end-to-end slice deterministic and independent of repo credentials."""
+    monkeypatch.setenv("VAANIQ_WHISPER_BACKEND", "off")
+    monkeypatch.setenv("VAANIQ_LLM_ENRICHMENT", "0")
+    get_integration_settings.cache_clear()
+    yield
+    get_integration_settings.cache_clear()
 
 
 def _client(tmp_path: Path) -> TestClient:
@@ -25,7 +37,10 @@ def _client(tmp_path: Path) -> TestClient:
     return TestClient(create_app(cfg))
 
 
-def test_upload_infer_history_and_research_surface(tmp_path: Path) -> None:
+def test_upload_infer_history_and_research_surface(
+    tmp_path: Path,
+    offline_integrations: None,
+) -> None:
     """Vertical slice covering O7 demo plus research GETs."""
     client = _client(tmp_path)
     wav = tmp_path / "clip.wav"
@@ -45,6 +60,24 @@ def test_upload_infer_history_and_research_surface(tmp_path: Path) -> None:
     assert inferred.status_code == 200, inferred.text
     body = inferred.json()
     assert body["label"] in {"real", "fake"}
+    assert set(body["model_probabilities"]) == {"real", "fake"}
+    assert body["decision_policy"] == "calibrated_model_threshold_0.5"
+    assert body["limitations"] == []
+
+    microphone = client.post(
+        "/api/v1/inference",
+        files={"file": ("vaaniq-recording-test.wav", wav.read_bytes(), "audio/wav")},
+        data={
+            "language": "hi",
+            "model_id": "aasist-v1",
+            "source": "mic",
+        },
+    )
+    assert microphone.status_code == 200, microphone.text
+    microphone_body = microphone.json()
+    assert microphone_body["decision_policy"] == "live_microphone_heuristic_unvalidated"
+    assert microphone_body["limitations"]
+    assert set(microphone_body["model_probabilities"]) == {"real", "fake"}
     assert 0.0 <= float(body["confidence"]) <= 1.0
     assert body["reliability"]
     assert body["language"] == "hi"
@@ -53,7 +86,9 @@ def test_upload_infer_history_and_research_surface(tmp_path: Path) -> None:
     assert history.status_code == 200
     items = history.json()["items"]
     assert items
-    assert items[0]["prediction_id"] == body["prediction_id"]
+    prediction_ids = {item["prediction_id"] for item in items}
+    assert body["prediction_id"] in prediction_ids
+    assert microphone_body["prediction_id"] in prediction_ids
 
     for path in (
         "/health",

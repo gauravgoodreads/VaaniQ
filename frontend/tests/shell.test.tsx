@@ -62,12 +62,6 @@ describe("frontend shell", () => {
     expect(screen.getByRole("button", { name: "Detect" })).toBeInTheDocument();
   });
 
-  it("renders human study registration", async () => {
-    renderApp("/human-study");
-    expect(await screen.findByRole("heading", { name: "Human study" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Register anonymous ID" })).toBeInTheDocument();
-  });
-
   it("exposes a skip-to-content link", () => {
     renderApp("/");
     expect(screen.getByRole("link", { name: "Skip to content" })).toHaveAttribute(
@@ -87,7 +81,6 @@ describe("frontend shell", () => {
     ["/experiments", "Experiments"],
     ["/calibration", "Calibration"],
     ["/explainability", "Explainability"],
-    ["/human-study", "Human study"],
     ["/datasets", "Dataset explorer"],
     ["/admin", "Admin"],
     ["/docs", "Docs"],

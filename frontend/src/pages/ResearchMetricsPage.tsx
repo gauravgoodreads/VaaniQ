@@ -52,8 +52,8 @@ export function ResearchMetricsPage() {
         subtitle="Session detection scalars, trained pipeline status, and calibration temperatures."
       />
       <HonestyBanner>
-        Values here track the running API demo / fixture path. Curated RQ1-RQ5 CSV results stay under{" "}
-        <code>research/results/</code> and remain PENDING until real experiment runs complete.
+        Values here track the running API demo / fixture path. The submitted RQ1-RQ4 results are
+        frozen in <code>artifacts/final_results_manifest.json</code>.
       </HonestyBanner>
       <QueryStatus
         isPending={q.isPending || pipe.isPending}

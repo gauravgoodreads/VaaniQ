@@ -33,14 +33,10 @@ def _hand_min_dcf(
     n_fake = sum(1 for lab in labels if lab == 1)
     for threshold in thresholds:
         fpr = sum(
-            1
-            for score, lab in zip(scores, labels, strict=True)
-            if score >= threshold and lab == 0
+            1 for score, lab in zip(scores, labels, strict=True) if score >= threshold and lab == 0
         )
         fnr = sum(
-            1
-            for score, lab in zip(scores, labels, strict=True)
-            if score < threshold and lab == 1
+            1 for score, lab in zip(scores, labels, strict=True) if score < threshold and lab == 1
         )
         fpr_rate = fpr / n_real if n_real else 0.0
         fnr_rate = fnr / n_fake if n_fake else 0.0

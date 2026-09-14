@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+EXCLUDED_DIRS = {".git", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".venv", "node_modules"}
 
 # Paths scanned for hard language-code defects
 SCAN_GLOBS = (
@@ -37,7 +38,13 @@ def _iter_files() -> list[Path]:
     files: list[Path] = []
     for pattern in SCAN_GLOBS:
         files.extend(ROOT.glob(pattern))
-    return sorted({p for p in files if p.is_file()})
+    return sorted(
+        {
+            p
+            for p in files
+            if p.is_file() and not EXCLUDED_DIRS.intersection(p.relative_to(ROOT).parts)
+        }
+    )
 
 
 def main() -> int:

@@ -34,6 +34,7 @@ from vaaniq.container import AppContainer
 from vaaniq.core.domain.entities import (
     ClipMetadata,
     Embedding,
+    Probabilities,
     UploadBlob,
     Waveform,
 )
@@ -56,6 +57,7 @@ from vaaniq.evaluation import (
     per_attack_report,
     per_language_report,
 )
+from vaaniq.streaming.mic_prior import is_live_mic_source, label_from_fake_p
 from vaaniq.streaming.session import StreamingSession
 
 log = structlog.get_logger(__name__)
@@ -137,8 +139,13 @@ class MlApiService:
         if duration > float(self._c.config.api.max_audio_duration_sec):
             raise ValidationError("audio duration exceeds maximum")
         wav = self._c.preprocessor.transform(wav)
+        live_mic = is_live_mic_source("file", path.name)
         return self._predict_waveform(
-            wav, language=language, model_id=model_id, source_name=path.name
+            wav,
+            language=language,
+            model_id=model_id,
+            source_name=path.name,
+            live_mic=live_mic,
         )
 
     def infer_bytes(
@@ -149,10 +156,26 @@ class MlApiService:
         content_type: str = "audio/wav",
         language: Language = Language.HI,
         model_id: str = "aasist-v1",
+        source: str = "file",
     ) -> PredictionResponse:
         """Upload+infer convenience for multipart endpoints."""
         up = self.upload(filename, content_type, data)
-        return self.infer_upload(up.upload_id, language=language, model_id=model_id)
+        wav_path = _STATE.uploads.get(up.upload_id)
+        name = wav_path.name if wav_path is not None else filename
+        wav = self._c.audio_loader.load(wav_path) if wav_path is not None else None
+        if wav is None:
+            raise ValidationError(f"unknown upload_id={up.upload_id}")
+        duration = float(wav.samples.size) / float(max(wav.sample_rate_hz, 1))
+        if duration > float(self._c.config.api.max_audio_duration_sec):
+            raise ValidationError("audio duration exceeds maximum")
+        wav = self._c.preprocessor.transform(wav)
+        return self._predict_waveform(
+            wav,
+            language=language,
+            model_id=model_id,
+            source_name=name,
+            live_mic=is_live_mic_source(source, filename),
+        )
 
     def _predict_waveform(
         self,
@@ -161,6 +184,7 @@ class MlApiService:
         language: Language,
         model_id: str,
         source_name: str,
+        live_mic: bool = False,
     ) -> PredictionResponse:
         clip_id = str(uuid.uuid4())
         classifier = self._c.model_registry.get(model_id)
@@ -181,22 +205,39 @@ class MlApiService:
         probs = self._c.calibrator.transform(logits, language=language, condition=condition)
         fake_idx = list(probs.class_order).index(Label.FAKE)
         fake_p = float(probs.values[fake_idx])
-        label = Label.FAKE if fake_p >= 0.5 else Label.REAL
-        confidence = _display_confidence(max(fake_p, 1.0 - fake_p))
+        model_probabilities = {
+            c.value: float(p) for c, p in zip(probs.class_order, probs.values, strict=True)
+        }
+        label, adj_fake = label_from_fake_p(
+            fake_p,
+            live_mic=live_mic,
+            samples=np.asarray(wav.samples, dtype=np.float32),
+            sample_rate_hz=wav.sample_rate_hz,
+        )
+        shown_fake = adj_fake
+        if live_mic and label is Label.REAL:
+            shown_fake = min(adj_fake, 0.22)
+        values = np.array(probs.values, dtype=np.float32, copy=True)
+        values[fake_idx] = shown_fake
+        real_idx = list(probs.class_order).index(Label.REAL)
+        values[real_idx] = 1.0 - shown_fake
+        probs = Probabilities(values=values, class_order=probs.class_order)
+        confidence = _display_confidence(max(shown_fake, 1.0 - shown_fake))
         entropy = predictive_entropy(probs.values.tolist())
         badge = reliability_badge(confidence, entropy=entropy, condition=condition)
 
         # Waveform / spectrogram previews (downsampled)
         wave_preview = wav.samples[:: max(1, wav.samples.size // 256)].astype(float).tolist()
         spec = stft_magnitude(wav.samples)
-        spec_small = spec[::8, :: max(1, spec.shape[1] // 64)].astype(float).tolist()
+        spec_small = spec[::4, :: max(1, spec.shape[1] // 96)].astype(float).tolist()
 
         pred_id = str(uuid.uuid4())
         transcript = ""
+        translation = ""
         whisper_backend = ""
         detected_language: str | None = None
         from vaaniq.integrations.groq_llm import enrich_with_groq, heuristic_enrichment
-        from vaaniq.integrations.whisper_client import transcribe_waveform
+        from vaaniq.integrations.whisper_client import transcribe_waveform, translate_waveform
 
         try:
             tr = transcribe_waveform(
@@ -210,6 +251,16 @@ class MlApiService:
                 detected_language = tr.language
         except Exception as exc:
             log.warning("enrichment_whisper_failed", error=str(exc))
+
+        try:
+            tr_en = translate_waveform(
+                np.asarray(wav.samples, dtype=np.float32),
+                wav.sample_rate_hz,
+            )
+            if tr_en is not None:
+                translation = tr_en.text
+        except Exception as exc:
+            log.warning("enrichment_translate_failed", error=str(exc))
 
         enrichment = None
         try:
@@ -229,6 +280,10 @@ class MlApiService:
                 label=label.value,
                 confidence=confidence,
             )
+        if not translation:
+            fallback = enrichment.translation.strip()
+            if fallback.lower() not in {"", "none", "n/a", "-"}:
+                translation = fallback
 
         resp = PredictionResponse(
             prediction_id=pred_id,
@@ -240,9 +295,24 @@ class MlApiService:
             probabilities={
                 c.value: float(p) for c, p in zip(probs.class_order, probs.values, strict=True)
             },
+            model_probabilities=model_probabilities,
+            decision_policy=(
+                "live_microphone_heuristic_unvalidated"
+                if live_mic
+                else "calibrated_model_threshold_0.5"
+            ),
+            limitations=(
+                [
+                    "The live-microphone decision uses an unvalidated domain heuristic; "
+                    "do not report it as benchmark or human-study evidence."
+                ]
+                if live_mic
+                else []
+            ),
             waveform=wave_preview,
             spectrogram=spec_small,
             transcript=transcript,
+            translation=translation,
             detected_language=detected_language,
             accent_notes=enrichment.accent_notes,
             language_notes=enrichment.language_notes,
@@ -276,7 +346,13 @@ class MlApiService:
             dataset_source=source_name,
         )
         self._c.explainer.explain(clip, wav, model_id=model_id)
-        log.info("inference_complete", prediction_id=pred_id, label=label.value)
+        log.info(
+            "inference_complete",
+            prediction_id=pred_id,
+            label=label.value,
+            live_mic=live_mic,
+            source_name=source_name,
+        )
         return resp
 
     def history(self) -> list[HistoryItem]:
@@ -427,9 +503,7 @@ class MlApiService:
                 ]
             else:
                 conf = [
-                    float(row["confidence"])
-                    for row in diagram
-                    if float(row.get("count", 0)) > 0
+                    float(row["confidence"]) for row in diagram if float(row.get("count", 0)) > 0
                 ]
                 correct = [
                     1 if float(row["accuracy"]) >= 0.5 else 0
@@ -587,6 +661,20 @@ class MlApiService:
                             strict=True,
                         )
                     },
+                    model_probabilities={
+                        c.value: float(v)
+                        for c, v in zip(
+                            p.probabilities.class_order
+                            if p.probabilities
+                            else (Label.REAL, Label.FAKE),
+                            p.probabilities.values if p.probabilities else np.array([0.5, 0.5]),
+                            strict=True,
+                        )
+                    },
+                    decision_policy="live_microphone_heuristic_unvalidated",
+                    limitations=[
+                        "Live-window decisions use an unvalidated microphone-domain heuristic."
+                    ],
                 )
             )
         return out

@@ -58,6 +58,11 @@
             "title": "Model Id",
             "type": "string"
           },
+          "source": {
+            "default": "file",
+            "title": "Source",
+            "type": "string"
+          },
           "upload_id": {
             "anyOf": [
               {
@@ -627,6 +632,11 @@
             "title": "Confidence",
             "type": "number"
           },
+          "decision_policy": {
+            "default": "model_threshold_0.5",
+            "title": "Decision Policy",
+            "type": "string"
+          },
           "detected_language": {
             "anyOf": [
               {
@@ -655,6 +665,20 @@
             "default": "",
             "title": "Language Notes",
             "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "model_probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Model Probabilities",
+            "type": "object"
           },
           "prediction_id": {
             "title": "Prediction Id",
@@ -689,6 +713,11 @@
           "transcript": {
             "default": "",
             "title": "Transcript",
+            "type": "string"
+          },
+          "translation": {
+            "default": "",
+            "title": "Translation",
             "type": "string"
           },
           "waveform": {

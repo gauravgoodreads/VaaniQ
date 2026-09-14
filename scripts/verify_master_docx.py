@@ -144,7 +144,7 @@ def main() -> int:
             block = per_lang.get(lang)
             if isinstance(block, dict):
                 acc = float(block.get("accuracy", 0))
-                if pct(acc) not in text and f"{acc:.1%}" not in text:
+                if f"{acc:.1%}" not in text and f"{acc:.2%}" not in text:
                     print(f"FAIL: per-language accuracy for {lang} ({pct(acc)}) not in DOCX")
                     return 1
 

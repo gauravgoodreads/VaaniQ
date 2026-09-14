@@ -23,8 +23,19 @@ export function InferencePage() {
         language: latest.language,
         compression_status: "clean",
         probabilities: { [latest.label]: latest.confidence },
+        model_probabilities: {},
+        decision_policy: "history_summary",
+        limitations: ["Open the original result to view full inference evidence."],
         waveform: [],
         spectrogram: [],
+        transcript: "",
+        translation: "",
+        accent_notes: "",
+        language_notes: "",
+        risk_notes: "",
+        analysis_summary: "",
+        enrichment_backend: "",
+        whisper_backend: "",
       }
     : null;
 

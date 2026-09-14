@@ -21,12 +21,7 @@ const DOCS = [
   {
     title: "Research & RQs",
     path: "docs/RESEARCH.md",
-    blurb: "RQ1-RQ5 narrative, metrics, and honesty rules.",
-  },
-  {
-    title: "Human study",
-    path: "docs/HUMAN_STUDY.md",
-    blurb: "Listener protocol, clip assignment, export.",
+    blurb: "RQ1-RQ4 machine evaluation, metrics, and reporting rules.",
   },
   {
     title: "Known limitations",
@@ -36,7 +31,7 @@ const DOCS = [
   {
     title: "Capstone proposal",
     path: "docs/source/Capstone_Project_Proposal.md",
-    blurb: "Authoritative scope: Hindi, Marathi, Tamil; calibration; human baseline.",
+    blurb: "Authoritative language, detection, and calibration scope.",
   },
   {
     title: "Completion checklist",

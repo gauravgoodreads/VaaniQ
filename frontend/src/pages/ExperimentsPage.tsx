@@ -18,7 +18,7 @@ function cellText(value: unknown): string {
   return String(value);
 }
 
-/** Experiment browser, compare, and report download (RQ1-RQ5). */
+/** Experiment browser, compare, and report download (RQ1-RQ4). */
 export function ExperimentsPage() {
   const [rq, setRq] = useState("RQ3");
   const experiments = useQuery({
@@ -63,7 +63,7 @@ export function ExperimentsPage() {
           onChange={(e) => setRq(e.target.value)}
           aria-label="Research question filter"
         >
-          {["RQ1", "RQ2", "RQ3", "RQ4", "RQ5"].map((id) => (
+          {["RQ1", "RQ2", "RQ3", "RQ4"].map((id) => (
             <option key={id} value={id}>
               {id}
             </option>

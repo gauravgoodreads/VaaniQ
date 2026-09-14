@@ -65,6 +65,7 @@ research/experiments/**
 !research/experiments/.gitkeep
 !research/experiments/README.md
 backend/research/explain/**
+/artifacts/runtime/
 docs/rendered/
 notebooks/**/.ipynb_checkpoints/
 

@@ -82,6 +82,32 @@ def _transcribe_groq(
     )
 
 
+def _translate_groq(
+    wav_bytes: bytes,
+    *,
+    settings: IntegrationSettings,
+) -> TranscriptResult:
+    """Speech-to-English via Groq Whisper translations (RQ / demo enrichment)."""
+    headers = {"Authorization": f"Bearer {settings.groq_api_key}"}
+    data: dict[str, str] = {
+        "model": settings.groq_whisper_model,
+        "response_format": "json",
+        "temperature": "0",
+    }
+    files = {"file": ("clip.wav", wav_bytes, "audio/wav")}
+    with httpx.Client(timeout=120.0) as client:
+        res = client.post(
+            "https://api.groq.com/openai/v1/audio/translations",
+            headers=headers,
+            data=data,
+            files=files,
+        )
+        res.raise_for_status()
+        payload = res.json()
+    text = str(payload.get("text", "")).strip()
+    return TranscriptResult(text=text, language="en", backend="groq-whisper-translate")
+
+
 def _transcribe_local(
     samples: np.ndarray,
     sample_rate: int,
@@ -159,15 +185,39 @@ def transcribe_waveform(
 
     if prefer_local and backend != "off":
         try:
-            result = _transcribe_local(
-                flat, sample_rate, settings=cfg, language_hint=language_hint
-            )
+            result = _transcribe_local(flat, sample_rate, settings=cfg, language_hint=language_hint)
             log.info("whisper_ok", backend=result.backend, n_chars=len(result.text))
             return result
         except Exception as exc:
             log.warning("local_whisper_failed", error=str(exc))
 
     return TranscriptResult(text="", language=language_hint, backend="unavailable")
+
+
+def translate_waveform(
+    samples: np.ndarray,
+    sample_rate: int = 16000,
+    *,
+    settings: IntegrationSettings | None = None,
+) -> TranscriptResult | None:
+    """Translate speech to English via Groq Whisper translations.
+
+    Returns ``None`` when Groq is disabled. Does not invent a translation.
+    """
+    cfg = settings or get_integration_settings()
+    if not cfg.groq_enabled or cfg.whisper_backend == "off":
+        return None
+    flat = np.asarray(samples, dtype=np.float32).reshape(-1)
+    if flat.size < sample_rate // 4:
+        return TranscriptResult(text="", language="en", backend="skipped-short")
+    try:
+        wav_bytes = _wav_bytes_from_mono(flat, sample_rate)
+        result = _translate_groq(wav_bytes, settings=cfg)
+        log.info("whisper_translate_ok", backend=result.backend, n_chars=len(result.text))
+        return result
+    except Exception as exc:
+        log.warning("groq_whisper_translate_failed", error=str(exc))
+        return TranscriptResult(text="", language="en", backend="groq-translate-error")
 
 
 def transcribe_file(

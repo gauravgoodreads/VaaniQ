@@ -70,21 +70,13 @@ def _split_profile(clips: list[ClipMetadata], split: Split) -> dict[str, Any]:
     cross_lang_label: dict[str, dict[str, int]] = defaultdict(dict)
     for lang in ("hi", "mr", "ta"):
         for label in ("real", "fake"):
-            n = sum(
-                1
-                for c in subset
-                if c.language.value == lang and c.label.value == label
-            )
+            n = sum(1 for c in subset if c.language.value == lang and c.label.value == label)
             cross_lang_label[lang][label] = n
 
     cross_source_label: dict[str, dict[str, int]] = defaultdict(dict)
     for source in sorted({c.source.value for c in subset}):
         for label in ("real", "fake"):
-            n = sum(
-                1
-                for c in subset
-                if c.source.value == source and c.label.value == label
-            )
+            n = sum(1 for c in subset if c.source.value == source and c.label.value == label)
             cross_source_label[source][label] = n
 
     return {
@@ -148,9 +140,7 @@ def _load_predictions_scores(predictions_path: Path) -> dict[str, Any]:
             rows.append(dict(row))
 
     by_split: dict[str, list[float]] = defaultdict(list)
-    by_split_label: dict[str, dict[str, list[float]]] = defaultdict(
-        lambda: defaultdict(list)
-    )
+    by_split_label: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     by_lang: dict[str, list[float]] = defaultdict(list)
 
     for row in rows:
@@ -184,9 +174,7 @@ def _load_predictions_scores(predictions_path: Path) -> dict[str, Any]:
         "path": str(predictions_path),
         "n_rows": len(rows),
         "by_split": split_profiles,
-        "by_language": {
-            lang: _score_summary(scores) for lang, scores in sorted(by_lang.items())
-        },
+        "by_language": {lang: _score_summary(scores) for lang, scores in sorted(by_lang.items())},
     }
 
 
@@ -219,8 +207,7 @@ def build_final_analysis(
 
     clips: list[ClipMetadata] = _load_rows(manifest) if manifest.is_file() else []
     split_profiles = {
-        split.value: _split_profile(clips, split)
-        for split in (Split.TRAIN, Split.VAL, Split.TEST)
+        split.value: _split_profile(clips, split) for split in (Split.TRAIN, Split.VAL, Split.TEST)
     }
 
     train_report: dict[str, Any] = {}
@@ -251,9 +238,7 @@ def build_final_analysis(
             "val_accuracy": round(v_acc, 4) if v_acc is not None else None,
             "test_accuracy": round(t_acc, 4) if t_acc is not None else None,
             "accuracy_gap_test_minus_val": (
-                round(t_acc - v_acc, 4)
-                if v_acc is not None and t_acc is not None
-                else None
+                round(t_acc - v_acc, 4) if v_acc is not None and t_acc is not None else None
             ),
         }
 
@@ -291,9 +276,7 @@ def build_final_analysis(
         val_n = int(val_lang_counts.get(lang, 0))
         test_n = int(test_lang_counts.get(lang, 0))
         if val_n > 0 and test_n > 0 and abs(val_n - test_n) / max(val_n, test_n) > 0.35:
-            hypotheses.append(
-                f"lang_count_imbalance_{lang}: val_n={val_n} test_n={test_n}"
-            )
+            hypotheses.append(f"lang_count_imbalance_{lang}: val_n={val_n} test_n={test_n}")
 
     return {
         "experiment_id": "split_diagnostics",
@@ -301,8 +284,7 @@ def build_final_analysis(
         "train_report_path": str(report_path),
         "splits": split_profiles,
         "duration_stats": {
-            split: split_profiles[split]["duration_sec"]
-            for split in ("train", "val", "test")
+            split: split_profiles[split]["duration_sec"] for split in ("train", "val", "test")
         },
         "score_distributions": score_distributions,
         "validation_metrics": {

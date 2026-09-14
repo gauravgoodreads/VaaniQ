@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 **Cross-Lingual, Compression-Robust Detection and Calibrated Reliability Estimation for
-AI-Generated Voice in Indian Languages, with a Human-Perception Baseline.**
+AI-Generated Voice in Indian Languages.**
 
 Languages in scope: **Hindi (`hi`)**, **Marathi (`mr`)**, **Tamil (`ta`)**.
 Telugu is **not** a project language (REQ-139).
@@ -22,6 +22,9 @@ Telugu is **not** a project language (REQ-139).
 >
 > **Frozen source of truth:** [`artifacts/final_results_manifest.json`](./artifacts/final_results_manifest.json),
 > approved at commit `084bd47ca6ca1b69a7cdbf424e2946f3794c2a95`.
+
+Current engineering evidence: [`docs/AUTOMATED_VALIDATION_REPORT.md`](./docs/AUTOMATED_VALIDATION_REPORT.md).
+Complete preprocessing record: [`docs/AUDIO_PREPROCESSING_COMPLETE.md`](./docs/AUDIO_PREPROCESSING_COMPLETE.md).
 
 ## Approved research status
 
@@ -39,7 +42,6 @@ Telugu is **not** a project language (REQ-139).
 | FLEURS unseen-real evaluation | **PILOT** | n=9; no statistically useful unseen-source estimate claimed |
 | Generator-disjoint evaluation | **PENDING** | n=0; no result claimed |
 | Faithful RawNet2 | **PENDING** | Not implemented |
-| RQ5 human study | **BLOCKED ON HUMAN DATA** | Human-study protocol ready; participant data collection pending (N=0) |
 
 ### Reproduce and verify persisted results
 

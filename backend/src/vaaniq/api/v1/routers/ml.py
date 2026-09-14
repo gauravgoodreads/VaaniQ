@@ -54,6 +54,7 @@ async def infer(
     upload_id: Annotated[str | None, Form()] = None,
     language: Annotated[str, Form()] = "hi",
     model_id: Annotated[str, Form()] = "aasist-v1",
+    source: Annotated[str, Form()] = "file",
 ) -> PredictionResponse:
     """Run inference from upload_id or multipart file (REQ-085-091)."""
     try:
@@ -68,6 +69,7 @@ async def infer(
             content_type=file.content_type or "application/octet-stream",
             language=lang,
             model_id=model_id,
+            source=source,
         )
     if upload_id:
         return service.infer_upload(upload_id, language=lang, model_id=model_id)

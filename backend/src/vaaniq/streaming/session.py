@@ -11,15 +11,14 @@ from vaaniq.core.domain.entities import Embedding, PredictionResult, Probabiliti
 from vaaniq.core.ports.classifier import Classifier
 from vaaniq.core.types import CompressionCondition, Label, Language, ReliabilityLevel
 from vaaniq.features.acoustic import acoustic_embedding
+from vaaniq.streaming.mic_prior import (
+    FAKE_STREAK,
+    MIN_RMS,
+    label_from_fake_p,
+)
 from vaaniq.streaming.window_buffer import WindowBuffer
 
 log = structlog.get_logger(__name__)
-
-# Live mic is noisy / OOD vs studio clips: require stronger fake evidence.
-_LIVE_FAKE_THRESHOLD = 0.85
-_MIN_RMS = 0.012
-# Need two consecutive strong-fake windows before emitting FAKE (stops flicker).
-_FAKE_STREAK = 2
 
 
 @dataclass
@@ -54,7 +53,7 @@ class StreamingSession:
             return None
         rms = float(np.sqrt(np.mean(np.square(samples))))
         # Skip near-silence / keyboard bumps (often mis-fired as fake).
-        if rms < _MIN_RMS:
+        if rms < MIN_RMS:
             return None
 
         assert self.classifier is not None
@@ -67,26 +66,17 @@ class StreamingSession:
         logits = self.classifier.predict(emb)
         probs = _softmax(logits.values)
         fake_p = float(probs[1])
-
-        # Mic-speech prior: natural energy dynamics nudge toward real.
-        hop = max(1, int(wav.sample_rate_hz * 0.02))
-        if samples.size >= hop * 8:
-            frames = samples[: samples.size - (samples.size % hop)].reshape(-1, hop)
-            energies = np.mean(np.square(frames), axis=1)
-            dyn = float(np.std(energies) / (np.mean(energies) + 1e-8))
-            if dyn > 0.35:
-                fake_p = max(0.0, fake_p - 0.18)
-            # Extra room-noise cue (typical laptop mic, rare in clean TTS).
-            noise_floor = float(np.percentile(energies, 10))
-            if noise_floor > 1e-5:
-                fake_p = max(0.0, fake_p - 0.08)
-
-        strong_fake = fake_p >= _LIVE_FAKE_THRESHOLD
-        if strong_fake:
+        label, fake_p = label_from_fake_p(
+            fake_p,
+            live_mic=True,
+            samples=samples,
+            sample_rate_hz=wav.sample_rate_hz,
+        )
+        if label is Label.FAKE:
             self._fake_streak += 1
         else:
             self._fake_streak = 0
-        label = Label.FAKE if self._fake_streak >= _FAKE_STREAK else Label.REAL
+        label = Label.FAKE if self._fake_streak >= FAKE_STREAK else Label.REAL
         raw_conf = max(fake_p, 1.0 - fake_p)
         conf = round(float(np.clip(0.67 + (raw_conf - 0.52) * 0.22 / 0.45, 0.67, 0.89)), 3)
         reliability = (
