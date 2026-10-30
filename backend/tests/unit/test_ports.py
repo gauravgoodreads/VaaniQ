@@ -24,7 +24,6 @@ from vaaniq.core.ports import (
     ExperimentTracker,
     Explainer,
     FeatureExtractor,
-    HumanStudyExporter,
     ObjectStore,
     Preprocessor,
     Repository,
@@ -44,7 +43,6 @@ PORT_CLASSES = [
     Repository,
     ObjectStore,
     ExperimentTracker,
-    HumanStudyExporter,
 ]
 
 
@@ -78,5 +76,5 @@ def test_port_docstring_names_req_or_roadmap(port_cls: type) -> None:
 
 
 def test_ports_package_exports_match_architecture() -> None:
-    """ports.__all__ lists the fourteen architecture ports."""
-    assert len(ports.__all__) == 14
+    """ports.__all__ lists the thirteen architecture ports."""
+    assert len(ports.__all__) == 13

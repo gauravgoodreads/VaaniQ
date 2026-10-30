@@ -1,4 +1,4 @@
-"""Phase 4 research framework tests (RQ1-RQ5 software path)."""
+"""Phase 4 research framework tests (RQ1-RQ4 software path)."""
 
 from __future__ import annotations
 
@@ -7,12 +7,11 @@ from pathlib import Path
 import numpy as np
 
 from vaaniq.audio.transforms.degrade import resample_waveform, simulate_packet_loss
-from vaaniq.config.domains import HumanStudyProtocolConfig, ResearchConditionsConfig
+from vaaniq.config.domains import ResearchConditionsConfig
 from vaaniq.core.domain.entities import ClipMetadata, Logits, Waveform
 from vaaniq.core.types import (
     CompressionCondition,
     DatasetSource,
-    ExportFormat,
     Label,
     Language,
     Split,
@@ -20,12 +19,6 @@ from vaaniq.core.types import (
 from vaaniq.evaluation.metrics.core import bootstrap_metric_ci
 from vaaniq.explainability import misclassified_explorer
 from vaaniq.explainability.attention import AttentionMapExplainer
-from vaaniq.human_study import (
-    CsvHumanStudyExporter,
-    assign_clips,
-    human_vs_model_report,
-    register_participant,
-)
 from vaaniq.research import (
     ExperimentStore,
     ResearchReportBundle,
@@ -168,42 +161,6 @@ def test_attention_map_explainer(tmp_path: Path) -> None:
     arts = AttentionMapExplainer(artefact_root=tmp_path).explain(clip, wav, model_id="aasist-v1")
     assert arts
     assert arts[0].kind == "attention_map"
-
-
-def test_human_protocol_export_and_stats(tmp_path: Path) -> None:
-    clips = [_clip(f"{lang.value}-{i}", lang) for lang in Language for i in range(20)]
-    cfg = HumanStudyProtocolConfig()
-    assigned = assign_clips(clips, config=cfg, rng=np.random.default_rng(0))
-    assert len(assigned) == cfg.clips_per_participant
-    langs = {cid.split("-", maxsplit=1)[0] for cid in assigned}
-    assert langs <= {"hi", "mr", "ta"}
-    p = register_participant("hi+mr")
-    assert p.participant_id
-    exporter = CsvHumanStudyExporter()
-    path = exporter.export(
-        [
-            {
-                "participant_id": p.participant_id,
-                "clip_id": assigned[0],
-                "choice": "fake",
-                "confidence_1_5": "4",
-                "email": "should-strip@example.com",
-            }
-        ],
-        fmt=ExportFormat.CSV,
-        destination=tmp_path / "h.csv",
-    )
-    text = path.read_text(encoding="utf-8")
-    assert "should-strip" not in text
-    stats = human_vs_model_report(
-        human_pred=[1, 0, 1, 0],
-        human_conf_1_5=[5, 2, 4, 3],
-        human_labels=[1, 0, 0, 0],
-        model_scores=[0.9, 0.1, 0.8, 0.2],
-        model_labels=[1, 0, 0, 0],
-    )
-    assert "human_accuracy" in stats
-    assert "mcnemar" in stats
 
 
 def test_bootstrap_ci() -> None:

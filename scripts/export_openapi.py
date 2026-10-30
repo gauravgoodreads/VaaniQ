@@ -35,6 +35,7 @@ def export_openapi(destination: Path) -> None:
     destination.write_text(
         json.dumps(schema, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",  # keep LF on Windows so the drift check matches git
     )
 
 

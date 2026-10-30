@@ -53,7 +53,7 @@ export interface paths {
         };
         /**
          * Dataset Clip Meta
-         * @description Clip metadata for study UI.
+         * @description Clip metadata for the dataset explorer.
          */
         get: operations["dataset_clip_meta_api_v1_datasets_clips__clip_id__get"];
         put?: never;
@@ -73,7 +73,7 @@ export interface paths {
         };
         /**
          * Dataset Clip Audio
-         * @description Stream a demo-corpus WAV for explorer / human-study playback.
+         * @description Stream a corpus clip for dataset-explorer playback.
          */
         get: operations["dataset_clip_audio_api_v1_datasets_clips__clip_id__audio_get"];
         put?: never;
@@ -238,86 +238,6 @@ export interface paths {
         get: operations["history_api_v1_history_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/human-study/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Export Responses
-         * @description Write anonymised CSV under the object-store root.
-         */
-        get: operations["export_responses_api_v1_human_study_export_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/human-study/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Register
-         * @description Register an anonymous volunteer and assign balanced clips (RQ5).
-         */
-        post: operations["register_api_v1_human_study_register_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/human-study/report": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Human Report
-         * @description Human vs model accuracy/calibration comparison (RQ5).
-         */
-        get: operations["human_report_api_v1_human_study_report_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/human-study/response": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Response
-         * @description Record a timed real/fake judgement with 1-5 confidence.
-         */
-        post: operations["submit_response_api_v1_human_study_response_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -721,44 +641,6 @@ export interface components {
             items: components["schemas"]["HistoryItem"][];
         };
         /**
-         * HumanResponseIn
-         * @description Single forced-choice trial.
-         */
-        HumanResponseIn: {
-            /** Choice */
-            choice: string;
-            /** Clip Id */
-            clip_id: string;
-            /**
-             * Compression Status
-             * @default clean
-             */
-            compression_status: string;
-            /** Confidence 1 5 */
-            confidence_1_5: number;
-            /**
-             * Language
-             * @default hi
-             */
-            language: string;
-            /** Participant Id */
-            participant_id: string;
-            /** Response Ms */
-            response_ms: number;
-        };
-        /**
-         * HumanStudyReportResponse
-         * @description Human vs model comparison.
-         */
-        HumanStudyReportResponse: {
-            /** N Responses */
-            n_responses: number;
-            /** Stats */
-            stats: {
-                [key: string]: unknown;
-            };
-        };
-        /**
          * LiveIngestResponse
          * @description Live streaming window predictions.
          */
@@ -785,26 +667,6 @@ export interface components {
             slices: {
                 [key: string]: unknown;
             };
-        };
-        /**
-         * ParticipantCreate
-         * @description Volunteer registration (anonymous).
-         */
-        ParticipantCreate: {
-            /** Fluency Self Report */
-            fluency_self_report: string;
-        };
-        /**
-         * ParticipantResponse
-         * @description Anonymous participant payload.
-         */
-        ParticipantResponse: {
-            /** Clip Ids */
-            clip_ids: string[];
-            /** Fluency Self Report */
-            fluency_self_report: string;
-            /** Participant Id */
-            participant_id: string;
         };
         /**
          * PredictionResponse
@@ -1277,116 +1139,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryResponse"];
-                };
-            };
-        };
-    };
-    export_responses_api_v1_human_study_export_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-        };
-    };
-    register_api_v1_human_study_register_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ParticipantCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ParticipantResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    human_report_api_v1_human_study_report_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HumanStudyReportResponse"];
-                };
-            };
-        };
-    };
-    submit_response_api_v1_human_study_response_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["HumanResponseIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

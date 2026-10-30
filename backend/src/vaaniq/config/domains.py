@@ -292,19 +292,3 @@ class ResearchConditionsConfig(BaseModel):
     primary_bitrate_kbps: int = 16
     primary_sample_rate_hz: int = 16000
     notes: str | None = None
-
-
-class HumanStudyProtocolConfig(BaseModel):
-    """``configs/human_study/protocol.yaml`` (ROADMAP-059 / OQ-011)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    name: Literal["protocol"] = "protocol"
-    # ASSUMPTION: OQ-011 - midpoint of ~30-40 clips
-    clips_per_participant: int = 36
-    session_cap_minutes: int = 25
-    confidence_min: int = 1
-    confidence_max: int = 5
-    languages: list[Language] = Field(default_factory=lambda: list(Language))
-    seed: int = 42
-    notes: str | None = None

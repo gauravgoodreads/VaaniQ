@@ -130,7 +130,7 @@ module = ["vaaniq.persistence.alembic.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["soundfile", "torch", "torchaudio", "transformers", "transformers.*"]
+module = ["soundfile", "torch", "torchaudio", "transformers", "transformers.*", "faster_whisper"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

@@ -72,10 +72,3 @@ class ReliabilityLevel(StrEnum):
     HIGH = "high"
     MODERATE = "moderate"
     LOW = "low"
-
-
-class ExportFormat(StrEnum):
-    """Human-study export formats (REQ-069)."""
-
-    CSV = "csv"
-    JSON = "json"

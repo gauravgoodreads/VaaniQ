@@ -14,7 +14,6 @@ from vaaniq.config.domains import (
     CalibrationConfig,
     DatasetSourceConfig,
     EvalProfileConfig,
-    HumanStudyProtocolConfig,
     LfccGmmConfig,
     RawNet2Config,
     ResearchConditionsConfig,
@@ -48,7 +47,6 @@ DOMAIN_CONFIG_FILES: dict[str, type[BaseModel]] = {
     "eval/cross_condition.yaml": EvalProfileConfig,
     "eval/research_conditions.yaml": ResearchConditionsConfig,
     "calibration/temperature.yaml": CalibrationConfig,
-    "human_study/protocol.yaml": HumanStudyProtocolConfig,
 }
 
 

@@ -15,13 +15,25 @@ from vaaniq.integrations.settings import IntegrationSettings, get_integration_se
 
 log = structlog.get_logger(__name__)
 
-# Map Whisper language codes → VaaniQ languages where possible.
+# Map Whisper language codes / names → VaaniQ languages where possible.
+# Groq verbose_json reports full names ("hindi"); faster-whisper reports codes ("hi").
 _WHISPER_TO_VAANIQ = {
     "hi": "hi",
     "mr": "mr",
     "ta": "ta",
     "en": "hi",  # fallback hint only — never Telugu
+    "hindi": "hi",
+    "marathi": "mr",
+    "tamil": "ta",
 }
+
+
+def _map_language(lang: object) -> str | None:
+    """Return the VaaniQ code for a Whisper language, else the raw value."""
+    if not lang:
+        return None
+    raw = str(lang).strip()
+    return _WHISPER_TO_VAANIQ.get(raw.lower(), raw)
 
 
 @dataclass(slots=True)
@@ -72,11 +84,9 @@ def _transcribe_groq(
         res.raise_for_status()
         payload = res.json()
     text = str(payload.get("text", "")).strip()
-    lang = payload.get("language")
-    mapped = _WHISPER_TO_VAANIQ.get(str(lang)) if lang else None
     return TranscriptResult(
         text=text,
-        language=mapped or (str(lang) if lang else None),
+        language=_map_language(payload.get("language")),
         backend="groq-whisper",
         duration_sec=float(payload["duration"]) if payload.get("duration") is not None else None,
     )
@@ -116,7 +126,7 @@ def _transcribe_local(
     language_hint: str | None,
 ) -> TranscriptResult:
     try:
-        from faster_whisper import WhisperModel  # type: ignore[import-not-found]
+        from faster_whisper import WhisperModel
     except ImportError as exc:
         raise RuntimeError(
             "faster-whisper is not installed. Run: uv pip install faster-whisper"
@@ -142,11 +152,9 @@ def _transcribe_local(
         vad_filter=True,
     )
     text = " ".join(seg.text.strip() for seg in segments).strip()
-    detected = getattr(info, "language", None)
-    mapped = _WHISPER_TO_VAANIQ.get(str(detected)) if detected else None
     return TranscriptResult(
         text=text,
-        language=mapped or (str(detected) if detected else None),
+        language=_map_language(getattr(info, "language", None)),
         backend=f"local-whisper:{settings.local_whisper_model}@{device}",
         duration_sec=float(len(samples) / max(sample_rate, 1)),
     )

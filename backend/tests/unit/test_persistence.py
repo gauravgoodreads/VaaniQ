@@ -30,8 +30,6 @@ EXPECTED_TABLES = {
     "experiment_metrics",
     "models",
     "calibration_runs",
-    "human_study_participants",
-    "human_study_responses",
     "datasets",
     "audio_clips",
     "alembic_version",

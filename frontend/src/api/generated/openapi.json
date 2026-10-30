@@ -445,75 +445,6 @@
         "title": "HistoryResponse",
         "type": "object"
       },
-      "HumanResponseIn": {
-        "additionalProperties": false,
-        "description": "Single forced-choice trial.",
-        "properties": {
-          "choice": {
-            "title": "Choice",
-            "type": "string"
-          },
-          "clip_id": {
-            "title": "Clip Id",
-            "type": "string"
-          },
-          "compression_status": {
-            "default": "clean",
-            "title": "Compression Status",
-            "type": "string"
-          },
-          "confidence_1_5": {
-            "maximum": 5.0,
-            "minimum": 1.0,
-            "title": "Confidence 1 5",
-            "type": "integer"
-          },
-          "language": {
-            "default": "hi",
-            "title": "Language",
-            "type": "string"
-          },
-          "participant_id": {
-            "title": "Participant Id",
-            "type": "string"
-          },
-          "response_ms": {
-            "minimum": 0.0,
-            "title": "Response Ms",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "participant_id",
-          "clip_id",
-          "choice",
-          "confidence_1_5",
-          "response_ms"
-        ],
-        "title": "HumanResponseIn",
-        "type": "object"
-      },
-      "HumanStudyReportResponse": {
-        "additionalProperties": false,
-        "description": "Human vs model comparison.",
-        "properties": {
-          "n_responses": {
-            "title": "N Responses",
-            "type": "integer"
-          },
-          "stats": {
-            "additionalProperties": true,
-            "title": "Stats",
-            "type": "object"
-          }
-        },
-        "required": [
-          "stats",
-          "n_responses"
-        ],
-        "title": "HumanStudyReportResponse",
-        "type": "object"
-      },
       "LiveIngestResponse": {
         "additionalProperties": false,
         "description": "Live streaming window predictions.",
@@ -563,51 +494,6 @@
           "slices"
         ],
         "title": "MetricsResponse",
-        "type": "object"
-      },
-      "ParticipantCreate": {
-        "additionalProperties": false,
-        "description": "Volunteer registration (anonymous).",
-        "properties": {
-          "fluency_self_report": {
-            "maxLength": 256,
-            "minLength": 1,
-            "title": "Fluency Self Report",
-            "type": "string"
-          }
-        },
-        "required": [
-          "fluency_self_report"
-        ],
-        "title": "ParticipantCreate",
-        "type": "object"
-      },
-      "ParticipantResponse": {
-        "additionalProperties": false,
-        "description": "Anonymous participant payload.",
-        "properties": {
-          "clip_ids": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Clip Ids",
-            "type": "array"
-          },
-          "fluency_self_report": {
-            "title": "Fluency Self Report",
-            "type": "string"
-          },
-          "participant_id": {
-            "title": "Participant Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "participant_id",
-          "fluency_self_report",
-          "clip_ids"
-        ],
-        "title": "ParticipantResponse",
         "type": "object"
       },
       "PredictionResponse": {
@@ -940,7 +826,7 @@
     },
     "/api/v1/datasets/clips/{clip_id}": {
       "get": {
-        "description": "Clip metadata for study UI.",
+        "description": "Clip metadata for the dataset explorer.",
         "operationId": "dataset_clip_meta_api_v1_datasets_clips__clip_id__get",
         "parameters": [
           {
@@ -985,7 +871,7 @@
     },
     "/api/v1/datasets/clips/{clip_id}/audio": {
       "get": {
-        "description": "Stream a demo-corpus WAV for explorer / human-study playback.",
+        "description": "Stream a corpus clip for dataset-explorer playback.",
         "operationId": "dataset_clip_audio_api_v1_datasets_clips__clip_id__audio_get",
         "parameters": [
           {
@@ -1351,142 +1237,6 @@
         "summary": "History",
         "tags": [
           "history"
-        ]
-      }
-    },
-    "/api/v1/human-study/export": {
-      "get": {
-        "description": "Write anonymised CSV under the object-store root.",
-        "operationId": "export_responses_api_v1_human_study_export_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "Response Export Responses Api V1 Human Study Export Get",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Export Responses",
-        "tags": [
-          "human_study"
-        ]
-      }
-    },
-    "/api/v1/human-study/register": {
-      "post": {
-        "description": "Register an anonymous volunteer and assign balanced clips (RQ5).",
-        "operationId": "register_api_v1_human_study_register_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ParticipantCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParticipantResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Register",
-        "tags": [
-          "human_study"
-        ]
-      }
-    },
-    "/api/v1/human-study/report": {
-      "get": {
-        "description": "Human vs model accuracy/calibration comparison (RQ5).",
-        "operationId": "human_report_api_v1_human_study_report_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HumanStudyReportResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Human Report",
-        "tags": [
-          "human_study"
-        ]
-      }
-    },
-    "/api/v1/human-study/response": {
-      "post": {
-        "description": "Record a timed real/fake judgement with 1-5 confidence.",
-        "operationId": "submit_response_api_v1_human_study_response_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HumanResponseIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "Response Submit Response Api V1 Human Study Response Post",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Submit Response",
-        "tags": [
-          "human_study"
         ]
       }
     },
