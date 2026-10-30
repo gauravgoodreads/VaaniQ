@@ -5,6 +5,7 @@ No global singletons (vaaniq-core.mdc).
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,6 +34,7 @@ from vaaniq.explainability.freq_importance import CompositeExplainer
 from vaaniq.features.acoustic import acoustic_embedding
 from vaaniq.features.cache.filesystem import FilesystemEmbeddingCache
 from vaaniq.features.xlsr.extractor import FrozenXLSRExtractor
+from vaaniq.integrations.settings import _env
 from vaaniq.models.aasist.classifier import AASISTClassifier
 from vaaniq.models.registry import ModelRegistry
 from vaaniq.storage.local import LocalObjectStore
@@ -44,14 +46,32 @@ def _stats_embedding_backend(wav: Waveform) -> np.ndarray:
     return acoustic_embedding(wav, dim=1024)
 
 
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def active_checkpoint_dir() -> Path:
+    """Directory of the served model (``VAANIQ_CHECKPOINT_DIR``, repo-relative ok)."""
+    raw = _env("VAANIQ_CHECKPOINT_DIR")
+    if not raw:
+        return _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist"
+    path = Path(raw)
+    return path if path.is_absolute() else _REPO_ROOT / path
+
+
+def _uses_xlsr_front_end(ckpt_dir: Path) -> bool:
+    """Return whether the checkpoint was trained on frozen XLS-R embeddings."""
+    report = ckpt_dir / "train_report.json"
+    if not report.is_file():
+        return False
+    try:
+        raw = json.loads(report.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return isinstance(raw, dict) and str(raw.get("front_end", "")).startswith("frozen_xlsr")
+
+
 def _default_checkpoint_path() -> Path:
-    return (
-        Path(__file__).resolve().parents[3]
-        / "models"
-        / "checkpoints"
-        / "xlsr_aasist"
-        / "aasist-v1.npz"
-    )
+    return active_checkpoint_dir() / "aasist-v1.npz"
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,9 +107,17 @@ def build_container(config: AppConfig) -> AppContainer:
     """
     log = structlog.get_logger(__name__)
     embedding_cache = FilesystemEmbeddingCache(config.paths.embedding_cache_root)
-    extractor = FrozenXLSRExtractor(cache=embedding_cache, backend=_stats_embedding_backend)
-    classifier = AASISTClassifier()
     ckpt = _default_checkpoint_path()
+    use_xlsr = _uses_xlsr_front_end(ckpt.parent)
+    # A head must see the same embeddings it was trained on: real XLS-R for an
+    # XLS-R checkpoint (uncached — live clip ids are one-off), acoustic otherwise.
+    extractor = (
+        FrozenXLSRExtractor()
+        if use_xlsr
+        else FrozenXLSRExtractor(cache=embedding_cache, backend=_stats_embedding_backend)
+    )
+    log.info("front_end_selected", xlsr=use_xlsr, checkpoint=str(ckpt))
+    classifier = AASISTClassifier()
     if ckpt.is_file():
         try:
             classifier.load(ckpt)
@@ -108,7 +136,9 @@ def build_container(config: AppConfig) -> AppContainer:
     registry.register(
         "aasist-v1",
         classifier,
-        "Acoustic-embedding + AASIST-compatible head (Baseline V1; not frozen XLS-R)",
+        "Frozen XLS-R + AASIST-compatible head"
+        if use_xlsr
+        else "Acoustic-embedding + AASIST-compatible head (Baseline V1; not frozen XLS-R)",
     )
     return AppContainer(
         config=config,

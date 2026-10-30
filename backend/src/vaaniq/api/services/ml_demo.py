@@ -30,7 +30,7 @@ from vaaniq.calibration.ece import (
     reliability_badge,
     reliability_diagram,
 )
-from vaaniq.container import AppContainer
+from vaaniq.container import AppContainer, active_checkpoint_dir
 from vaaniq.core.domain.entities import (
     ClipMetadata,
     Embedding,
@@ -63,7 +63,7 @@ from vaaniq.streaming.session import StreamingSession
 log = structlog.get_logger(__name__)
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
-_TRAIN_REPORT_PATH = _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
+_TRAIN_REPORT_PATH = active_checkpoint_dir() / "train_report.json"
 
 
 def _load_train_report() -> dict[str, object]:
@@ -542,9 +542,10 @@ class MlApiService:
 
     def pipeline_status(self) -> dict[str, object]:
         """Trained pipeline snapshot for the product dashboard."""
-        report_path = _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist" / "train_report.json"
-        temp_path = _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist" / "temperatures.json"
-        ckpt = _REPO_ROOT / "models" / "checkpoints" / "xlsr_aasist" / "aasist-v1.npz"
+        ckpt_dir = active_checkpoint_dir()
+        report_path = ckpt_dir / "train_report.json"
+        temp_path = ckpt_dir / "temperatures.json"
+        ckpt = ckpt_dir / "aasist-v1.npz"
         report: dict[str, object] = {}
         if report_path.is_file():
             import json
