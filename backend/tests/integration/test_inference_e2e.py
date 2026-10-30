@@ -100,15 +100,7 @@ def test_upload_infer_history_and_research_surface(
         "/api/v1/experiments",
         "/api/v1/experiments/compare",
         "/api/v1/datasets/explorer",
-        "/api/v1/human-study/report",
         "/api/v1/admin/status",
     ):
         response = client.get(path)
         assert response.status_code == 200, path
-
-    registered = client.post(
-        "/api/v1/human-study/register",
-        json={"fluency_self_report": "hi"},
-    )
-    assert registered.status_code == 200
-    assert registered.json()["clip_ids"]

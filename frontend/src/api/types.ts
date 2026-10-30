@@ -20,7 +20,5 @@ export type ReportResponse = components["schemas"]["ReportResponse"];
 export type AdminStatusResponse = components["schemas"]["AdminStatusResponse"];
 export type DatasetExplorerResponse = components["schemas"]["DatasetExplorerResponse"];
 export type ExperimentCompareResponse = components["schemas"]["ExperimentCompareResponse"];
-export type HumanStudyReportResponse = components["schemas"]["HumanStudyReportResponse"];
-export type ParticipantResponse = components["schemas"]["ParticipantResponse"];
 
 export type { components, operations, paths } from "@/api/generated/schema";

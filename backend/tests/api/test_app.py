@@ -68,7 +68,7 @@ def test_openapi_docs_available(client: TestClient) -> None:
     paths = schema["paths"]
     assert "/health" in paths
     assert "/api/v1/version" in paths
-    assert "/api/v1/human-study/register" in paths
+    assert not any(p.startswith("/api/v1/human-study") for p in paths)
     assert "/api/v1/datasets/explorer" in paths
 
 
@@ -92,7 +92,6 @@ def test_cors_allows_configured_origin(client: TestClient) -> None:
         ("GET", "/api/v1/metrics"),
         ("GET", "/api/v1/calibration"),
         ("GET", "/api/v1/explain"),
-        ("GET", "/api/v1/human-study/report"),
         ("GET", "/api/v1/admin/status"),
         ("GET", "/api/v1/datasets/explorer"),
         ("GET", "/api/v1/experiments/compare"),
@@ -102,18 +101,6 @@ def test_research_and_ml_routes_live(client: TestClient, method: str, path: str)
     """Phase-4 routers return 2xx rather than 501 stubs."""
     response = client.request(method, path)
     assert response.status_code == 200, path
-
-
-def test_human_study_register(client: TestClient) -> None:
-    """Volunteer registration returns an anonymous id and balanced clips."""
-    response = client.post(
-        "/api/v1/human-study/register",
-        json={"fluency_self_report": "hi+mr"},
-    )
-    assert response.status_code == 200
-    body = response.json()
-    assert body["participant_id"]
-    assert body["clip_ids"]
 
 
 def test_openapi_hidden_in_prod(tmp_path: Path) -> None:

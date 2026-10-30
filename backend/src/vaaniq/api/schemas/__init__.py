@@ -16,8 +16,6 @@ from vaaniq.api.schemas.research import (
     AdminStatusResponse,
     DatasetExplorerResponse,
     ExperimentCompareResponse,
-    HumanStudyReportResponse,
-    ParticipantResponse,
 )
 
 __all__ = [
@@ -29,9 +27,7 @@ __all__ = [
     "ExplainResponse",
     "HealthResponse",
     "HistoryResponse",
-    "HumanStudyReportResponse",
     "MetricsResponse",
-    "ParticipantResponse",
     "PredictionResponse",
     "ReadyResponse",
     "UploadResponse",

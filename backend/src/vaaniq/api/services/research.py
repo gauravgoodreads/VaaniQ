@@ -1,4 +1,4 @@
-"""In-process human-study + experiment-catalogue service (ROADMAP-059)."""
+"""In-process dataset-explorer + experiment-catalogue service."""
 
 from __future__ import annotations
 
@@ -7,26 +7,19 @@ import mimetypes
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import numpy as np
-import soundfile as sf
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
-from vaaniq.api.schemas.research import HumanResponseIn, ParticipantCreate
-from vaaniq.config.domains import HumanStudyProtocolConfig
 from vaaniq.container import AppContainer
-from vaaniq.core.domain.entities import ClipMetadata, Embedding, Waveform
+from vaaniq.core.domain.entities import ClipMetadata
 from vaaniq.core.types import (
     CompressionCondition,
     DatasetSource,
-    ExportFormat,
     Label,
     Language,
     Split,
 )
 from vaaniq.datasets.stats.statistics import DatasetStatistics
-from vaaniq.human_study.protocol import ParticipantSession, assign_clips, register_participant
-from vaaniq.human_study.stats import human_vs_model_report
 from vaaniq.research.store import ExperimentStore, collect_hardware
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
@@ -151,37 +144,34 @@ def _load_demo_clips() -> tuple[list[ClipMetadata], dict[str, Path], str]:
     else:
         note = (
             f"Local demo corpus ({len(clips)} playable clips under data/demo_corpus). "
-            "Synthetic audio for UI / human-study — not curated dissertation hours (OQ-002)."
+            "Synthetic audio for UI demos — not curated dissertation hours (OQ-002)."
         )
     return clips, audio_map, note
 
 
 @dataclass
-class HumanStudyState:
-    """Process-local study state."""
+class ClipPoolState:
+    """Process-local clip pool for the dataset explorer."""
 
-    sessions: dict[str, ParticipantSession] = field(default_factory=dict)
-    responses: list[dict[str, str]] = field(default_factory=list)
     pool: list[ClipMetadata] = field(default_factory=list)
     audio_map: dict[str, Path] = field(default_factory=dict)
     note: str = ""
 
 
-def _boot_state() -> HumanStudyState:
+def _boot_state() -> ClipPoolState:
     pool, audio_map, note = _load_demo_clips()
-    return HumanStudyState(pool=pool, audio_map=audio_map, note=note)
+    return ClipPoolState(pool=pool, audio_map=audio_map, note=note)
 
 
 _STATE = _boot_state()
 
 
 class ResearchApiService:
-    """Human-study protocol + experiment catalogue for the API."""
+    """Dataset explorer + experiment catalogue for the API."""
 
     def __init__(self, container: AppContainer) -> None:
         """Bind DI container."""
         self._c = container
-        self._protocol = HumanStudyProtocolConfig()
         self._store = ExperimentStore(root=_REPO_ROOT / "research" / "experiments")
 
     def reload_pool(self) -> None:
@@ -190,92 +180,6 @@ class ResearchApiService:
         _STATE.pool = pool
         _STATE.audio_map = audio_map
         _STATE.note = note
-
-    def register(self, body: ParticipantCreate) -> ParticipantSession:
-        """Register an anonymous volunteer."""
-        session = register_participant(body.fluency_self_report)
-        session.clip_ids = assign_clips(_STATE.pool, config=self._protocol)
-        _STATE.sessions[session.participant_id] = session
-        return session
-
-    def record(self, body: HumanResponseIn) -> dict[str, str]:
-        """Store one anonymised response."""
-        if body.participant_id not in _STATE.sessions:
-            session = register_participant("unknown")
-            session.participant_id = body.participant_id
-            _STATE.sessions[body.participant_id] = session
-        row = {
-            "participant_id": body.participant_id,
-            "clip_id": body.clip_id,
-            "choice": body.choice,
-            "confidence_1_5": str(body.confidence_1_5),
-            "response_ms": str(body.response_ms),
-            "language": body.language,
-            "compression_status": body.compression_status,
-        }
-        _STATE.responses.append(row)
-        return row
-
-    def export(self, destination: Path, fmt: ExportFormat = ExportFormat.CSV) -> Path:
-        """Export anonymised CSV/JSON."""
-        return self._c.human_study_exporter.export(
-            _STATE.responses, fmt=fmt, destination=destination
-        )
-
-    def comparison_report(self) -> dict[str, object]:
-        """Human vs model stats using real classifier scores on study clips."""
-        if not _STATE.responses:
-            return {
-                "stats": {},
-                "n_responses": 0,
-                "note": "Human-study protocol ready; participant data collection pending (N=0).",
-            }
-        human_pred = [1 if r["choice"] == "fake" else 0 for r in _STATE.responses]
-        human_conf = [int(r["confidence_1_5"]) for r in _STATE.responses]
-        gold = {c.clip_id: (0 if c.label.value == "real" else 1) for c in _STATE.pool}
-        labels = [gold.get(r["clip_id"], 0) for r in _STATE.responses]
-        model_scores: list[float] = []
-        classifier = self._c.model_registry.get("aasist-v1")
-        pre = self._c.preprocessor
-        for response in _STATE.responses:
-            clip_id = str(response["clip_id"])
-            path = _STATE.audio_map.get(clip_id)
-            if path is None or not path.is_file():
-                model_scores.append(0.5)
-                continue
-            data, sr = sf.read(str(path), dtype="float32", always_2d=False)
-            if getattr(data, "ndim", 1) > 1:
-                data = np.mean(data, axis=1)
-            wav = pre.transform(
-                Waveform(samples=np.asarray(data, dtype=np.float32), sample_rate_hz=int(sr))
-            )
-            try:
-                emb = self._c.feature_extractor.extract(wav, clip_id=clip_id)
-            except Exception:
-                vec = np.zeros(1024, dtype=np.float32)
-                flat = np.asarray(wav.samples, dtype=np.float32).reshape(-1)
-                n = min(vec.size, flat.size)
-                vec[:n] = flat[:n]
-                emb = Embedding(vector=vec, model_id="fallback", clip_id=clip_id)
-            clip_meta = next((c for c in _STATE.pool if c.clip_id == clip_id), None)
-            lang = clip_meta.language if clip_meta else Language.HI
-            cond = clip_meta.compression_status if clip_meta else CompressionCondition.CLEAN
-            logits = classifier.predict(emb)
-            probs = self._c.calibrator.transform(logits, language=lang, condition=cond)
-            fake_idx = list(probs.class_order).index(Label.FAKE)
-            model_scores.append(float(probs.values[fake_idx]))
-        stats = human_vs_model_report(
-            human_pred=human_pred,
-            human_conf_1_5=human_conf,
-            human_labels=labels,
-            model_scores=model_scores,
-            model_labels=labels,
-        )
-        return {
-            "stats": stats,
-            "n_responses": len(_STATE.responses),
-            "note": "Model scores from loaded aasist-v1 checkpoint on identical study clips.",
-        }
 
     def compare_experiments(self, metric: str = "eer") -> list[dict[str, object]]:
         """Experiment comparison rows."""
@@ -319,7 +223,7 @@ class ResearchApiService:
         }
 
     def clip_audio(self, clip_id: str) -> FileResponse:
-        """Serve a demo corpus WAV for explorer / human study."""
+        """Serve a corpus clip for the dataset explorer."""
         path = _STATE.audio_map.get(clip_id)
         if path is None or not path.is_file():
             raise HTTPException(status_code=404, detail=f"audio not found for clip_id={clip_id}")
@@ -327,7 +231,7 @@ class ResearchApiService:
         return FileResponse(path, media_type=media_type, filename=path.name)
 
     def clip_meta(self, clip_id: str) -> dict[str, object]:
-        """Metadata for one study / explorer clip."""
+        """Metadata for one explorer clip."""
         for c in _STATE.pool:
             if c.clip_id == clip_id:
                 return {

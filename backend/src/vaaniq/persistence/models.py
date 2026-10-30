@@ -175,44 +175,6 @@ class CalibrationRunRow(Base):
     model: Mapped[RegisteredModelRow] = relationship(back_populates="calibration_runs")
 
 
-class HumanStudyParticipantRow(Base):
-    """Anonymised human-study participant (``human_study_participants``)."""
-
-    __tablename__ = "human_study_participants"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=_uuid)
-    fluency_self_report: Mapped[str] = mapped_column(String(256), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    responses: Mapped[list[HumanStudyResponseRow]] = relationship(back_populates="participant")
-
-
-class HumanStudyResponseRow(Base):
-    """Single forced-choice response (``human_study_responses``)."""
-
-    __tablename__ = "human_study_responses"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=_uuid)
-    participant_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True),
-        ForeignKey("human_study_participants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    clip_id: Mapped[str] = mapped_column(String(256), nullable=False)
-    choice: Mapped[str] = mapped_column(String(16), nullable=False)
-    confidence_1_5: Mapped[int] = mapped_column(Integer, nullable=False)
-    response_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    language: Mapped[str | None] = mapped_column(String(8), nullable=True)
-    compression_status: Mapped[str | None] = mapped_column(String(64), nullable=True)
-
-    participant: Mapped[HumanStudyParticipantRow] = relationship(back_populates="responses")
-
-
 class DatasetCatalogRow(Base):
     """Registered corpus / dataset catalog entry (``datasets``).
 

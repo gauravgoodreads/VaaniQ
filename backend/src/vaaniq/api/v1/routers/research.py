@@ -1,8 +1,7 @@
-"""Human-study, experiment compare, and admin monitoring routers."""
+"""Experiment compare, dataset explorer, and admin monitoring routers."""
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -13,57 +12,14 @@ from vaaniq.api.schemas.research import (
     AdminStatusResponse,
     DatasetExplorerResponse,
     ExperimentCompareResponse,
-    HumanResponseIn,
-    HumanStudyReportResponse,
-    ParticipantCreate,
-    ParticipantResponse,
 )
 from vaaniq.api.services.research import ResearchApiService
 from vaaniq.config.models import AppConfig
-from vaaniq.core.types import ExportFormat
 
-human_study_router = APIRouter(prefix="/api/v1/human-study", tags=["human_study"])
 admin_router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 experiments_extra_router = APIRouter(prefix="/api/v1/experiments", tags=["experiments"])
 
 ResearchDep = Annotated[ResearchApiService, Depends(get_research_service)]
-
-
-@human_study_router.post("/register", response_model=ParticipantResponse)
-def register(body: ParticipantCreate, service: ResearchDep) -> ParticipantResponse:
-    """Register an anonymous volunteer and assign balanced clips (RQ5)."""
-    session = service.register(body)
-    return ParticipantResponse(
-        participant_id=session.participant_id,
-        fluency_self_report=session.fluency_self_report,
-        clip_ids=session.clip_ids,
-    )
-
-
-@human_study_router.post("/response")
-def submit_response(body: HumanResponseIn, service: ResearchDep) -> dict[str, str]:
-    """Record a timed real/fake judgement with 1-5 confidence."""
-    return service.record(body)
-
-
-@human_study_router.get("/export")
-def export_responses(service: ResearchDep) -> dict[str, str]:
-    """Write anonymised CSV under the object-store root."""
-    dest = Path("./research/human_study/export.csv")
-    path = service.export(dest, ExportFormat.CSV)
-    return {"path": str(path)}
-
-
-@human_study_router.get("/report", response_model=HumanStudyReportResponse)
-def human_report(service: ResearchDep) -> HumanStudyReportResponse:
-    """Human vs model accuracy/calibration comparison (RQ5)."""
-    payload = service.comparison_report()
-    stats = payload["stats"]
-    n_raw = payload["n_responses"]
-    if not isinstance(stats, dict):
-        stats = {}
-    n_responses = int(n_raw) if isinstance(n_raw, int | float | str) else 0
-    return HumanStudyReportResponse(stats=stats, n_responses=n_responses)
 
 
 @experiments_extra_router.get("/compare", response_model=ExperimentCompareResponse)
@@ -103,13 +59,13 @@ def dataset_explorer(service: ResearchDep) -> DatasetExplorerResponse:
 
 @datasets_router.get("/clips/{clip_id}/audio")
 def dataset_clip_audio(clip_id: str, service: ResearchDep) -> FileResponse:
-    """Stream a demo-corpus WAV for explorer / human-study playback."""
+    """Stream a corpus clip for dataset-explorer playback."""
     return service.clip_audio(clip_id)
 
 
 @datasets_router.get("/clips/{clip_id}")
 def dataset_clip_meta(clip_id: str, service: ResearchDep) -> dict[str, object]:
-    """Clip metadata for study UI."""
+    """Clip metadata for the dataset explorer."""
     return service.clip_meta(clip_id)
 
 
@@ -128,7 +84,6 @@ def admin_status(
 
 
 RESEARCH_ROUTERS = (
-    human_study_router,
     admin_router,
     experiments_extra_router,
     datasets_router,

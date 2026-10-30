@@ -41,7 +41,7 @@ def get_ml_service(request: Request) -> MlApiService:
 
 
 def get_research_service(request: Request) -> ResearchApiService:
-    """Return research/human-study API service."""
+    """Return research catalogue API service."""
     service = getattr(request.app.state, "research_service", None)
     if isinstance(service, ResearchApiService):
         return service

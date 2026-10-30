@@ -27,14 +27,12 @@ from vaaniq.core.ports.embedding_cache import EmbeddingCache
 from vaaniq.core.ports.experiment_tracker import ExperimentTracker
 from vaaniq.core.ports.explainer import Explainer
 from vaaniq.core.ports.feature_extractor import FeatureExtractor
-from vaaniq.core.ports.human_study_exporter import HumanStudyExporter
 from vaaniq.core.ports.object_store import ObjectStore
 from vaaniq.core.ports.preprocessor import Preprocessor
 from vaaniq.explainability.freq_importance import CompositeExplainer
 from vaaniq.features.acoustic import acoustic_embedding
 from vaaniq.features.cache.filesystem import FilesystemEmbeddingCache
 from vaaniq.features.xlsr.extractor import FrozenXLSRExtractor
-from vaaniq.human_study.exporter import CsvHumanStudyExporter
 from vaaniq.models.aasist.classifier import AASISTClassifier
 from vaaniq.models.registry import ModelRegistry
 from vaaniq.storage.local import LocalObjectStore
@@ -75,7 +73,6 @@ class AppContainer:
     explainer: Explainer
     object_store: ObjectStore
     experiment_tracker: ExperimentTracker
-    human_study_exporter: HumanStudyExporter
     model_registry: ModelRegistry
 
 
@@ -128,6 +125,5 @@ def build_container(config: AppConfig) -> AppContainer:
         experiment_tracker=FileExperimentTracker(
             root=config.paths.object_store_root / "experiments"
         ),
-        human_study_exporter=CsvHumanStudyExporter(),
         model_registry=registry,
     )
